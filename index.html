@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的小站</title>
+<title>SYM12356个人站</title>
 <style>
   /* ============ 基础 ============ */
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,6 +62,86 @@
     from { transform: translate(0,0) scale(1); }
     to { transform: translate(40px, -30px) scale(1.15); }
   }
+
+  /* ============ 顶部导航条（点汉堡按钮滑出/收起） ============ */
+  .index-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    padding: 10px 16px;
+    background: rgba(5,7,15,.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    /* 默认收起：整体移出屏幕上方 */
+    transform: translateY(-100%);
+    transition: transform .35s ease;
+    pointer-events: none;
+  }
+  /* 展开状态（点按钮后） */
+  .index-nav.open {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .index-nav-inner {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+  }
+  .index-nav-item {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: .25s;
+    letter-spacing: 1px;
+  }
+  .index-nav-item:hover {
+    color: var(--cyan);
+    border-color: rgba(34,211,238,.4);
+    background: rgba(34,211,238,.06);
+  }
+  /* 首屏内容往下让出导航高度 */
+  .hero { padding-top: 76px; }
+
+  /* ============ 顶部偏左汉堡按钮（所有端显示） ============ */
+  .mobile-menu-btn {
+    position: fixed;
+    top: 14px; left: 14px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(5,7,15,.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    cursor: pointer;
+    transition: .25s;
+  }
+  .mobile-menu-btn:hover { border-color: rgba(34,211,238,.5); }
+  .mobile-menu-btn span {
+    display: block;
+    height: 2.5px;
+    width: 100%;
+    background: var(--cyan);
+    border-radius: 2px;
+    transition: .3s;
+  }
+  .mobile-menu-btn.active span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
+  .mobile-menu-btn.active span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
   /* 鼠标跟随光斑 */
   .cursor-glow {
@@ -207,11 +287,6 @@
     box-shadow: 0 0 12px var(--cyan);
   }
 
-  .hero-btns {
-    margin-top: 48px;
-    display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
-    animation: fadeUp 1s .75s both;
-  }
   .btn {
     text-decoration: none;
     font-size: 15px;
@@ -554,6 +629,70 @@
     flex-shrink: 0;
   }
 
+  /* ============ 备用入口 ============ */
+  .backup-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    padding: 22px 26px;
+    backdrop-filter: blur(10px);
+  }
+  .backup-desc {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .backup-btn {
+    font-size: 14px;
+    padding: 10px 26px;
+    flex-shrink: 0;
+  }
+
+  /* ============ 友链 ============ */
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
+    text-decoration: none;
+    transition: .3s;
+    backdrop-filter: blur(10px);
+  }
+  .link-card:hover {
+    border-color: rgba(34,211,238,.45);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(34,211,238,.1);
+  }
+  .link-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .link-desc {
+    font-size: 13px;
+    color: var(--violet);
+  }
+  .link-url {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (max-width: 600px) {
+    .links-grid { grid-template-columns: 1fr; }
+  }
+
   /* ============ 联系 ============ */
   .contact-card {
     text-align: center;
@@ -614,15 +753,29 @@
 <canvas id="stars" style="display:none"></canvas>
 
 <main>
+  <!-- ============ 顶部导航条（点击汉堡按钮滑出/收起） ============ -->
+  <nav class="index-nav" id="indexNav">
+    <div class="index-nav-inner">
+      <a href="#top" class="index-nav-item">首页</a>
+      <a href="#skills" class="index-nav-item">标签</a>
+      <a href="#timegame" class="index-nav-item">须臾</a>
+      <a href="#board" class="index-nav-item">桌游</a>
+      <a href="#backup" class="index-nav-item">备用</a>
+      <a href="#links" class="index-nav-item">友链</a>
+      <a href="#contact" class="index-nav-item">联系</a>
+    </div>
+  </nav>
+
+  <!-- 顶部偏左汉堡按钮：点击滑出/收起导航条 -->
+  <button class="mobile-menu-btn" id="navToggleBtn" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+
   <!-- ============ 首屏 ============ -->
-  <header class="hero">
+  <header class="hero" id="top">
     <div class="badge">SYM12356</div>
     <h1>行至水穷处<br><span style="font-size: clamp(30px, 6.5vw, 66px);">坐看云起时</span></h1>
     <div class="type-line"><span class="prompt">❯</span><span id="typeText"></span><span class="cursor"></span></div>
-    <div class="hero-btns">
-      <a href="#skills" class="btn btn-primary">我的标签</a>
-      <a href="#contact" class="btn btn-ghost">联系我</a>
-    </div>
 
     <!-- 终端风格小窗 -->
     <div class="hero-card">
@@ -757,8 +910,44 @@
       <p class="sec-sub reveal">&nbsp;</p>
       <div class="board-launch reveal">
         <p class="board-desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
-        <a href="https://symboardgames1.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
+        <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
           进入剑影江湖
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 备用入口 ============ -->
+  <section id="backup">
+    <div class="wrap">
+      <div class="sec-no reveal">04 / BACKUP</div>
+      <h2 class="sec-title reveal">备用<span>入口</span></h2>
+      <p class="sec-sub reveal">同站双线路 · GitHub 线路主用，Cloudflare 线路备用</p>
+      <div class="backup-card reveal">
+        <p class="backup-desc">Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选</p>
+        <a href="https://sym12356.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-ghost backup-btn">
+          访问 Cloudflare 线路
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 友链 ============ -->
+  <section id="links">
+    <div class="wrap">
+      <div class="sec-no reveal">05 / LINKS</div>
+      <h2 class="sec-title reveal">友<span>链</span></h2>
+      <p class="sec-sub reveal">一起折腾的朋友们</p>
+      <div class="links-grid reveal">
+        <a href="https://cy3.cc.cd" target="_blank" rel="noopener" class="link-card">
+          <span class="link-name">chenyuan3</span>
+          <span class="link-desc">主站</span>
+          <span class="link-url">cy3.cc.cd</span>
+        </a>
+        <a href="https://chenyuan33.github.io" target="_blank" rel="noopener" class="link-card">
+          <span class="link-name">chenyuan3</span>
+          <span class="link-desc">备用 / 博客站</span>
+          <span class="link-url">chenyuan33.github.io</span>
         </a>
       </div>
     </div>
@@ -769,14 +958,14 @@
     <div class="wrap">
       <div class="contact-card reveal">
         <h3>想认识我吗？</h3>
-        <p>把你的邮箱、微信、或任何联系方式填在这里，让别人能找到你。</p>
-        <a href="mailto:你的邮箱@example.com" class="btn btn-primary">联系我</a>
+        <p>邮件联系：<b style="color:var(--cyan)">3829343053@qq.com</b></p>
+        <a href="mailto:3829343053@qq.com" class="btn btn-primary">联系我</a>
       </div>
     </div>
   </section>
 
   <footer>
-    <p>© 2025 · 用心制作 · Powered by Cloudflare Pages</p>
+    <p>© 2026 · 用心制作 · Powered by Cloudflare Pages</p>
   </footer>
 </main>
 
@@ -1484,6 +1673,32 @@ type();
 
   setState('idle');
   raf = requestAnimationFrame(frame);
+})();
+
+/* ============ 汉堡按钮：控制顶部导航条滑出/收起 ============ */
+(function() {
+  const btn = document.getElementById('navToggleBtn');
+  const nav = document.getElementById('indexNav');
+  if (!btn || !nav) return;
+  function closeNav() {
+    nav.classList.remove('open');
+    btn.classList.remove('active');
+  }
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = nav.classList.toggle('open');
+    btn.classList.toggle('active', open);
+  });
+  // 点击导航项后收起
+  nav.querySelectorAll('.index-nav-item').forEach(item => {
+    item.addEventListener('click', closeNav);
+  });
+  // 点击页面其他地方关闭
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target) && !btn.contains(e.target) && nav.classList.contains('open')) {
+      closeNav();
+    }
+  });
 })();
 
 /* ============ 滚动渐入 ============ */
