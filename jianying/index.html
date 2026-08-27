@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>剑影江湖 · 双人热座电子版</title>
+<!-- 书法字体（联网时加载，离线自动回退到系统楷体） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ 封面开场（纯 CSS 水墨构图） ============ -->
+  <div id="screen-cover" class="screen cover-screen">
+    <div class="cover-scene">
+      <div class="cover-moon"></div>
+      <div class="cover-pine"></div>
+      <div class="cover-mountains"></div>
+      <div class="cover-ground"></div>
+      <div class="cover-mist m1"></div>
+      <div class="cover-mist m2"></div>
+      <div class="cover-reed rl"></div>
+      <div class="cover-reed rr"></div>
+    </div>
+    <div class="cover-content">
+      <div class="cover-seal">江湖</div>
+      <h1 class="cover-title" aria-label="剑影江湖">
+        <span class="ct-char" style="--i:0">剑</span><span class="ct-char" style="--i:1">影</span><span class="ct-char" style="--i:2">江</span><span class="ct-char" style="--i:3">湖</span>
+      </h1>
+      <div class="cover-brush"></div>
+      <p class="cover-sub">月圆之夜 · 华山之巅 · 一剑一拳决高下</p>
+      <button id="btn-enter" class="btn btn-primary cover-btn">踏入江湖</button>
+      <p class="cover-note">本地热座双人对战 · 依据《剑影江湖-平衡修订版》</p>
+    </div>
+  </div>
+
+  <!-- ============ 设置界面 ============ -->
+  <div id="screen-setup" class="screen hidden">
+    <div class="setup-wrap">
+      <div class="game-title">
+        <h1>剑 影 江 湖</h1>
+        <p class="subtitle">双人武侠对决 · 本地热座对战 · 依据《剑影江湖-平衡修订版》</p>
+      </div>
+
+      <div class="setup-columns">
+        <div class="setup-col">
+          <h2>玩家一（先手方）</h2>
+          <div id="hero-pick-0" class="hero-pick"></div>
+        </div>
+        <div class="setup-col">
+          <h2>玩家二（后手方）</h2>
+          <div id="hero-pick-1" class="hero-pick"></div>
+        </div>
+      </div>
+
+      <div class="setup-opts">
+        <h2>对战设置</h2>
+        <label class="opt"><input type="checkbox" id="opt-dark"> 夜墨深色主题（夜晚墨色）</label>
+        <div class="mode-row">
+          <span class="mode-label">对战模式</span>
+          <label class="opt inline"><input type="radio" name="p2mode" id="mode-hotseat" checked> 双人热座</label>
+          <label class="opt inline"><input type="radio" name="p2mode" id="mode-ai"> 人机对战（玩家一 vs 电脑）</label>
+        </div>
+        <div id="ai-level-row" class="mode-row hidden">
+          <span class="mode-label">AI 难度</span>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-easy"> 简单</label>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-normal" checked> 普通</label>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-hard"> 困难</label>
+        </div>
+        <h2 class="second-h">扩展设置</h2>
+        <label class="opt"><input type="checkbox" id="opt-dlc2"> DLC2《武林秘藏》公共牌库（选牌2张，回气门槛变5）</label>
+        <label class="opt"><input type="checkbox" id="opt-dlc3"> DLC3《十方奇境》场景牌</label>
+        <label class="opt"><input type="checkbox" id="opt-dlc4"> DLC4《双侠并起》援护系统（各密邀1位奇人）</label>
+        <div id="scene-picker" class="scene-picker hidden">
+          <h3>选择场景</h3>
+          <div id="scene-list" class="scene-list"></div>
+        </div>
+      </div>
+
+      <div class="stats-box">
+        <div class="stats-head">战绩</div>
+        <div id="stats-body" class="stats-body"></div>
+      </div>
+
+      <div class="start-row">
+        <button id="btn-start" class="btn btn-primary big" disabled>开始对决</button>
+        <button id="btn-codex" class="btn big">武林图鉴</button>
+      </div>
+
+      <details class="rules-note">
+        <summary>快速规则（点击展开）</summary>
+        <div class="rules-body">
+          <p><b>目标：</b>将对手气血打到 0 或以下。双方同时为 0 则平局。</p>
+          <p><b>距离：</b>双方共享距离轨（0贴身 ~ 4极远），初始 2。招式须在适用距离内，否则落空（+1 破绽）。</p>
+          <p><b>真气：</b>上限 5，起始 5，每回合开始回复 1。出招需消耗牌上真气。</p>
+          <p><b>破绽：</b>每层使出招速度 -1；回合开始自动移除 1 层。<b>内伤：</b>每层使受到的伤害 +1。<b>中毒：</b>回合开始受等量伤害后衰减 1 层。</p>
+          <p><b>回气：</b>打出的招式进入回气堆；达到 4 张（DLC2 为 5 张）时全部返回手牌。</p>
+          <p><b>对决：</b>同时亮牌比速度（招式速度 - 破绽 + 太极势 - 减速），高者先手，低者后手；平速双方视为后手且伤害 -1（最低1）。</p>
+          <p><b>绝学：</b>一局一次，使用后移出游戏。</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ============ DLC2 选牌界面 ============ -->
+  <div id="screen-draft" class="screen hidden">
+    <div class="draft-wrap">
+      <h1>DLC2 · 武林秘藏</h1>
+      <p class="subtitle">公共武学牌库：双方轮流从 3 张明牌中选取（P1 先手），各选 2 张，取走即补牌</p>
+      <div id="draft-faceup" class="draft-faceup"></div>
+      <p id="draft-status" class="draft-status"></p>
+      <div id="draft-picks" class="draft-picks"></div>
+    </div>
+  </div>
+
+  <!-- ============ DLC4 援护选牌界面 ============ -->
+  <div id="screen-yuanhu" class="screen hidden">
+    <div class="draft-wrap">
+      <h1>DLC4 · 双侠并起</h1>
+      <p class="subtitle">密邀援护：各自从 3 张奇人牌中暗选 1 张（发动前对对手保密）</p>
+      <div id="yuanhu-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ 对局界面 ============ -->
+  <div id="screen-game" class="screen hidden">
+    <header class="game-header">
+      <div class="header-left">
+        <span class="brand">剑影江湖</span>
+        <span id="g-scene" class="g-scene"></span>
+      </div>
+      <div id="phase-banner" class="phase-banner"></div>
+      <div class="header-right">
+        <span id="g-turn" class="g-turn"></span>
+        <button id="btn-sfx" class="btn small" title="音效开关">音效</button>
+        <button id="btn-quit" class="btn small" title="返回设置">退出</button>
+      </div>
+    </header>
+
+    <div id="dist-track" class="dist-track"></div>
+
+    <div id="action-bar" class="action-bar"></div>
+
+    <div class="board" id="board">
+      <div id="panel-p1" class="player-panel"></div>
+      <div id="log-panel" class="log-panel">
+        <div class="log-head">战报</div>
+        <div id="log-list" class="log-list"></div>
+      </div>
+      <div id="panel-p2" class="player-panel"></div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- ============ 武林图鉴 ============ -->
+  <div id="screen-codex" class="screen hidden">
+    <div class="codex-head">
+      <h1>武林图鉴</h1>
+      <button id="btn-codex-back" class="btn">返回设置</button>
+    </div>
+    <div id="codex-body" class="codex-body"></div>
+  </div>
+
+<div class="painting-colophon">月圆之夜 · 华山之巅 · 一剑一拳定乾坤</div>
+
+<!-- 云海涌动（飘移雾带，浮于画卷之上） -->
+<div class="cloud-sea" aria-hidden="true">
+  <div class="cloud-band c1"></div>
+  <div class="cloud-band c2"></div>
+  <div class="cloud-band c3"></div>
+</div>
+<!-- 画卷边缘做旧纸（老纸晕边） -->
+<div class="paper-edge" aria-hidden="true"></div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
