@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的小站</title>
+<style>
+  /* ============ 基础 ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #04060e;
+    --card: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.09);
+    --text: #e9edf9;
+    --muted: #8b93ab;
+    --cyan: #22d3ee;
+    --violet: #a78bfa;
+    --pink: #f472b6;
+    --grad: linear-gradient(120deg, #22d3ee, #a78bfa, #f472b6);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(34,211,238,.3); }
+
+  /* ============ 背景层：网格 + 光晕 ============ */
+  .bg-grid {
+    position: fixed; inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 30%, transparent 75%);
+    animation: gridMove 22s linear infinite;
+  }
+  @keyframes gridMove {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: 0 44px, 44px 0; }
+  }
+
+  .glow {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .5;
+    z-index: 0;
+    pointer-events: none;
+    animation: floatGlow 12s ease-in-out infinite alternate;
+  }
+  .glow-1 { width: 480px; height: 480px; top: -140px; left: -100px; background: #0ea5e9; }
+  .glow-2 { width: 420px; height: 420px; top: 30%; right: -160px; background: #8b5cf6; animation-delay: -4s; }
+  .glow-3 { width: 380px; height: 380px; bottom: -120px; left: 30%; background: #ec4899; animation-delay: -8s; }
+  @keyframes floatGlow {
+    from { transform: translate(0,0) scale(1); }
+    to { transform: translate(40px, -30px) scale(1.15); }
+  }
+
+  /* 鼠标跟随光斑 */
+  .cursor-glow {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(34,211,238,.07), transparent 60%);
+    z-index: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    left: -1000px; top: -1000px;
+    transition: left .35s ease-out, top .35s ease-out;
+  }
+
+  /* 扫描线 */
+  .scanline {
+    position: fixed; inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.012) 3px 4px);
+    mix-blend-mode: overlay;
+  }
+
+  /* ============ WebGL 流体背景（DeepSeek harness 风格） ============ */
+  #bgfx {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 105vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+    /* 官网同款：只在首屏显示，往下逐渐淡出 */
+    mask-image: linear-gradient(#000000fc 0%, #000000e8 8.98%, transparent 100%);
+    -webkit-mask-image: linear-gradient(#000000fc 0%, #000000e8 8.98%, transparent 100%);
+  }
+
+  /* 粒子画布（后备） */
+  #stars {
+    position: fixed; inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ============ DeepSeek 官网式四角星 ============ */
+  .sparkle-layer {
+    position: fixed; inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .sparkle-layer svg {
+    position: absolute;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  /* 大星：缓慢呼吸脉动（官网 pulse 效果） */
+  .sparkle-pulse { animation: sparklePulse 2.4s ease-in-out infinite; }
+  /* 小星：一闪一闪（官网 twinkle 效果） */
+  .sparkle-twinkle { animation: sparkleTwinkle 2.4s ease-in-out .4s infinite; }
+  @keyframes sparklePulse {
+    0%, 100% { transform: scale(1); opacity: .85; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(.6); opacity: .4; }
+  }
+
+  /* ============ 内容 ============ */
+  main { position: relative; z-index: 1; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ 首屏 ============ */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    position: relative;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 12.5px;
+    letter-spacing: 5px;
+    color: var(--cyan);
+    border: 1px solid rgba(34,211,238,.4);
+    border-radius: 999px;
+    padding: 7px 22px;
+    margin-bottom: 34px;
+    background: rgba(34,211,238,.05);
+    box-shadow: 0 0 24px rgba(34,211,238,.15), inset 0 0 18px rgba(34,211,238,.05);
+    animation: fadeUp 1s .2s both;
+  }
+  .hero-icon {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    padding: 6px;
+    margin-bottom: 26px;
+    background: linear-gradient(135deg, rgba(34,211,238,.35), rgba(167,139,250,.35), rgba(244,114,182,.35));
+    box-shadow: 0 0 40px rgba(34,211,238,.18), 0 12px 40px rgba(0,0,0,.5);
+    animation: fadeUp 1s .1s both;
+  }
+  .hero-icon-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    background: #0a0e1c;
+  }
+  .hero h1 {
+    font-size: clamp(44px, 10vw, 100px);
+    font-weight: 900;
+    letter-spacing: 3px;
+    line-height: 1.12;
+    background: linear-gradient(120deg, #67e8f9, #a78bfa, #f0abfc, #67e8f9);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: fadeUp 1s .35s both, gradMove 5s linear infinite;
+    filter: drop-shadow(0 0 26px rgba(167,139,250,.35));
+  }
+  @keyframes gradMove { to { background-position: 300% center; } }
+
+  .type-line {
+    margin-top: 26px;
+    font-size: clamp(15px, 3vw, 20px);
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    min-height: 32px;
+    animation: fadeUp 1s .55s both;
+  }
+  .type-line .prompt { color: var(--cyan); margin-right: 8px; }
+  .type-line .cursor {
+    display: inline-block;
+    width: 9px; height: 1.15em;
+    background: var(--cyan);
+    vertical-align: text-bottom;
+    margin-left: 3px;
+    animation: blink .85s step-end infinite;
+    box-shadow: 0 0 12px var(--cyan);
+  }
+
+  .hero-btns {
+    margin-top: 48px;
+    display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 1s .75s both;
+  }
+  .btn {
+    text-decoration: none;
+    font-size: 15px;
+    padding: 13px 34px;
+    border-radius: 999px;
+    transition: .3s;
+    border: 1px solid transparent;
+    letter-spacing: 1px;
+  }
+  .btn-primary {
+    background: var(--grad);
+    color: #fff; font-weight: 600;
+    box-shadow: 0 4px 34px rgba(34,211,238,.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 50px rgba(167,139,250,.5);
+  }
+  .btn-ghost {
+    color: var(--text);
+    border-color: var(--border);
+    background: var(--card);
+    backdrop-filter: blur(6px);
+  }
+  .btn-ghost:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(34,211,238,.15);
+  }
+
+  /* 首屏底部终端小窗 */
+  .hero-card {
+    margin-top: 56px;
+    width: min(560px, 100%);
+    text-align: left;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(6,10,22,.72);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    overflow: hidden;
+    animation: fadeUp 1s .9s both;
+  }
+  .hero-card .bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .hero-card .bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .hero-card .bar i:nth-child(1) { background: #ff5f57; }
+  .hero-card .bar i:nth-child(2) { background: #febc2e; }
+  .hero-card .bar i:nth-child(3) { background: #28c840; }
+  .hero-card .body { padding: 18px 20px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; line-height: 2; color: #c7d2e8; }
+  .hero-card .body .k { color: var(--violet); }
+  .hero-card .body .v { color: var(--cyan); }
+
+  /* ============ 实时时钟 ============ */
+  .clock-wrap {
+    margin-top: 40px;
+    text-align: center;
+    animation: fadeUp 1s 1.05s both;
+  }
+  .clock {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 18px;
+    padding: 18px 34px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(6,10,22,.6);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 40px rgba(0,0,0,.4), inset 0 0 30px rgba(34,211,238,.04);
+  }
+  .clock-date {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: clamp(13px, 2.4vw, 16px);
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+  .clock-time {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: clamp(30px, 6vw, 46px);
+    font-weight: 700;
+    color: var(--text);
+    text-shadow: 0 0 24px rgba(34,211,238,.45);
+    letter-spacing: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .clock-ms {
+    font-size: .55em;
+    color: var(--cyan);
+    font-weight: 600;
+    text-shadow: 0 0 14px rgba(34,211,238,.8);
+  }
+  .clock-week {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: clamp(13px, 2.4vw, 16px);
+    color: var(--pink);
+    letter-spacing: 2px;
+  }
+  .clock-diff {
+    margin-top: 12px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .clock-diff b {
+    color: var(--cyan);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .clock-diff.good b { color: #34d399; }     /* 同步良好：绿色 */
+  .clock-diff.warn b { color: #fbbf24; }     /* 有偏差：黄色 */
+  .clock-diff.bad b { color: #f87171; }      /* 偏差大：红色 */
+  @media (max-width: 600px) {
+    .clock { flex-direction: column; gap: 4px; padding: 14px 22px; }
+    .clock-date, .clock-week { font-size: 12px; }
+    .clock-time { font-size: 30px; }
+  }
+
+  /* ============ 须臾 · 时间感知实验 ============ */
+  .game-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .game-state {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    color: var(--muted);
+  }
+  .game-state b { color: var(--cyan); font-weight: 600; }
+  .game-state .gs-combo { color: var(--pink); }
+  .game-btn { font-size: 14px; padding: 10px 26px; }
+  #tgCanvas {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(3,5,12,.85);
+    display: block;
+    cursor: pointer;
+    touch-action: none;
+  }
+  .game-result {
+    margin-top: 16px;
+    min-height: 30px;
+    font-size: 14px;
+    color: var(--muted);
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .game-result .big {
+    font-size: 34px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .game-result .good { color: #34d399; }
+  .game-result .mid { color: #22d3ee; }
+  .game-result .warn { color: #fbbf24; }
+  .game-result .bad { color: #f87171; }
+
+  .scroll-hint {
+    position: absolute; bottom: 28px;
+    color: var(--muted); font-size: 12px;
+    letter-spacing: 3px;
+    animation: bounce 2s infinite;
+  }
+
+  /* ============ 通用区块 ============ */
+  section { padding: 100px 0; }
+  .sec-title {
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .sec-title span {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sec-sub { color: var(--muted); margin-bottom: 48px; font-size: 15px; }
+
+  /* 区块小标号 */
+  .sec-no {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  /* ============ 卡片（霓虹边框） ============ */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    transition: .35s;
+    position: relative;
+  }
+  .card::after {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: 18px;
+    padding: 1px;
+    background: var(--grad);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: .35s;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 60px rgba(34,211,238,.1);
+  }
+  .card:hover::after { opacity: 1; }
+  .card h3 { font-size: 18px; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 14.5px; }
+  .card .ico {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(34,211,238,.05);
+  }
+  .card .ico svg { width: 21px; height: 21px; stroke: var(--cyan); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ============ 标签 ============ */
+  .tags { display: flex; flex-wrap: wrap; gap: 14px; }
+  .tag {
+    padding: 9px 24px;
+    border-radius: 999px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    transition: .3s;
+    letter-spacing: 1px;
+  }
+  .tag:hover {
+    color: var(--text);
+    border-color: var(--cyan);
+    box-shadow: 0 0 24px rgba(34,211,238,.3), inset 0 0 12px rgba(34,211,238,.08);
+    transform: translateY(-2px);
+  }
+
+  /* ============ 作品 ============ */
+  .works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .work {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px;
+    transition: .35s;
+    position: relative;
+    overflow: hidden;
+  }
+  .work::before {
+    content: "";
+    position: absolute; top: 0; left: -120%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(34,211,238,.1), transparent);
+    transition: .7s;
+  }
+  .work:hover::before { left: 120%; }
+  .work:hover {
+    border-color: rgba(167,139,250,.55);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 50px rgba(167,139,250,.12);
+  }
+  .work .w-no {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    color: var(--violet);
+    letter-spacing: 2px;
+  }
+  .work h4 { font-size: 17px; margin: 12px 0 8px; }
+  .work p { color: var(--muted); font-size: 13.5px; }
+
+  /* ============ SYM桌游 ============ */
+  .board-title {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+  .board-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    background: #0a0e1c;
+    border: 1px solid var(--border);
+    box-shadow: 0 0 24px rgba(225,29,72,.25);
+    overflow: hidden;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  .board-launch {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .board-desc {
+    color: var(--muted);
+    font-size: 14px;
+    flex: 1;
+    min-width: 220px;
+  }
+  .board-btn {
+    font-size: 15px;
+    padding: 12px 30px;
+    flex-shrink: 0;
+  }
+
+  /* ============ 联系 ============ */
+  .contact-card {
+    text-align: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 64px 30px;
+    backdrop-filter: blur(10px);
+    position: relative;
+  }
+  .contact-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 22px;
+    background: radial-gradient(ellipse at top, rgba(34,211,238,.08), transparent 60%);
+    pointer-events: none;
+  }
+  .contact-card h3 { font-size: clamp(24px, 4vw, 32px); margin-bottom: 14px; }
+  .contact-card p { color: var(--muted); margin-bottom: 32px; }
+
+  /* ============ 页脚 ============ */
+  footer {
+    text-align: center;
+    padding: 44px 0;
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ============ 动画 ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(26px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: all .8s ease;
+  }
+  .reveal.on { opacity: 1; transform: translateY(0); }
+
+  /* ============ 响应式 ============ */
+  @media (max-width: 720px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .works { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgfx"></canvas>
+<canvas id="stars" style="display:none"></canvas>
+
+<main>
+  <!-- ============ 首屏 ============ -->
+  <header class="hero">
+    <div class="badge">SYM12356</div>
+    <h1>行至水穷处<br><span style="font-size: clamp(30px, 6.5vw, 66px);">坐看云起时</span></h1>
+    <div class="type-line"><span class="prompt">❯</span><span id="typeText"></span><span class="cursor"></span></div>
+    <div class="hero-btns">
+      <a href="#skills" class="btn btn-primary">我的标签</a>
+      <a href="#contact" class="btn btn-ghost">联系我</a>
+    </div>
+
+    <!-- 终端风格小窗 -->
+    <div class="hero-card">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body">
+        <div><span class="k">$ whoami</span> &nbsp;<span class="v">SYM12356</span></div>
+        <div><span class="k">$ status</span> &nbsp;<span class="v">行至水穷处，坐看云起时</span></div>
+        <div><span class="k">$ mission</span> &nbsp;<span class="v">探索 · 创造 · 分享</span></div>
+        <div><span class="k">$ now</span> &nbsp;<span class="v" id="liveTime">--:--:--</span></div>
+      </div>
+    </div>
+
+    <!-- 实时时钟（精确到毫秒 + 系统偏差对比） -->
+    <div class="clock-wrap">
+      <div class="clock">
+        <span class="clock-date" id="clockDate">----年--月--日</span>
+        <span class="clock-time" id="clockTime">--:--:--</span>
+        <span class="clock-week" id="clockWeek">星期-</span>
+      </div>
+      <div class="clock-diff" id="clockDiff">与系统时钟偏差 -- ms</div>
+    </div>
+
+    <div class="scroll-hint">向下滑动</div>
+  </header>
+
+  <!-- ============ 标签 ============ -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="sec-no reveal">01 / TAGS</div>
+      <h2 class="sec-title reveal">我的<span>标签</span></h2>
+      <p class="sec-sub reveal">鼠标悬停会发光，好看就完事</p>
+      <div class="tags reveal">
+        <span class="tag">编程</span>
+        <span class="tag">游戏</span>
+        <span class="tag">睡觉</span>
+        <span class="tag">桌游</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 须臾 · 时间感知实验 ============ -->
+  <section id="timegame">
+    <div class="wrap">
+      <div class="sec-no reveal">02 / GAME</div>
+      <h2 class="sec-title reveal">须<span>臾</span></h2>
+      <p class="sec-sub reveal">你感知的时间，和真实的时间，差多少？</p>
+
+      <div class="game-card reveal">
+        <div class="game-top">
+          <div class="game-state">
+            <span class="gs-round" id="tgRound">第 0 / 10 轮</span>
+            <span class="gs-target" id="tgTarget">点击「开始实验」</span>
+            <span class="gs-combo" id="tgCombo"></span>
+          </div>
+          <button class="btn btn-primary game-btn" id="tgStart">开始实验</button>
+        </div>
+
+        <canvas id="tgCanvas" width="560" height="360"></canvas>
+
+        <div class="game-result" id="tgFeedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SYM桌游 ============ -->
+  <section id="board">
+    <div class="wrap">
+      <div class="sec-no reveal">03 / BOARD</div>
+      <div class="board-title reveal">
+        <div class="board-icon"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block"><!-- 粗臂十字架：两条粗红线交叉，中心自然融合成方块，无分割线 -->
+  <g stroke="#e11d48" stroke-width="88" stroke-linecap="butt">
+    <!-- 横臂（臂宽 = 88） -->
+    <line x1="96" y1="256" x2="416" y2="256"/>
+    <!-- 竖臂（臂宽 = 88） -->
+    <line x1="256" y1="96" x2="256" y2="416"/>
+  </g>
+  <!-- 四端三角形（底边 = 臂宽 88，与臂同色） -->
+  <g fill="#e11d48">
+    <!-- 左端三角形：底边 (96,212)-(96,300)，尖在 x=40 -->
+    <path d="M40 256 L96 212 L96 300 Z"/>
+    <!-- 右端三角形：底边 (416,212)-(416,300)，尖在 x=472 -->
+    <path d="M472 256 L416 212 L416 300 Z"/>
+    <!-- 上端三角形：底边 (212,96)-(300,96)，尖在 y=40 -->
+    <path d="M256 40 L212 96 L300 96 Z"/>
+    <!-- 下端三角形：底边 (212,416)-(300,416)，尖在 y=472 -->
+    <path d="M256 472 L212 416 L300 416 Z"/>
+  </g>
+  <!-- 臂上黑色箭头（斜度与端部三角形平行） -->
+  <g fill="none" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 左臂：尖端(102,256)，张开(116,245)/(116,267)，斜率 11/14 与三角形 44/56 平行 -->
+    <path d="M170 256 L102 256 M116 245 L102 256 L116 267"/>
+    <!-- 右臂：尖端(410,256)，张开(396,245)/(396,267) -->
+    <path d="M342 256 L410 256 M396 245 L410 256 L396 267"/>
+    <!-- 上臂：尖端(256,102)，张开(245,116)/(267,116)，斜率 14/11 与上三角 56/44 平行 -->
+    <path d="M256 170 L256 102 M245 116 L256 102 L267 116"/>
+    <!-- 下臂：尖端(256,410)，张开(245,396)/(267,396) -->
+    <path d="M256 342 L256 410 M245 396 L256 410 L267 396"/>
+  </g>
+  <!-- 中心金色像素 S（7x7 格，每格 12px，起点(214,214)，金色 #E8B84B） -->
+  <g fill="#E8B84B">
+    <!-- 行0（与行6 同长，往右加一格：226-286） -->
+    <rect x="226" y="214" width="12" height="12"/>
+    <rect x="238" y="214" width="12" height="12"/>
+    <rect x="250" y="214" width="12" height="12"/>
+    <rect x="262" y="214" width="12" height="12"/>
+    <rect x="274" y="214" width="12" height="12"/>
+    <rect x="286" y="214" width="12" height="12"/>
+    <!-- 行1（只有左侧竖线） -->
+    <rect x="214" y="226" width="12" height="12"/>
+    <!-- 行2（只有左侧竖线） -->
+    <rect x="214" y="238" width="12" height="12"/>
+    <!-- 行3 -->
+    <rect x="226" y="250" width="12" height="12"/>
+    <rect x="238" y="250" width="12" height="12"/>
+    <rect x="250" y="250" width="12" height="12"/>
+    <rect x="262" y="250" width="12" height="12"/>
+    <rect x="274" y="250" width="12" height="12"/>
+    <!-- 行4 -->
+    <rect x="286" y="262" width="12" height="12"/>
+    <!-- 行5 -->
+    <rect x="286" y="274" width="12" height="12"/>
+    <!-- 行6（与行0 同长：214-274） -->
+    <rect x="214" y="286" width="12" height="12"/>
+    <rect x="226" y="286" width="12" height="12"/>
+    <rect x="238" y="286" width="12" height="12"/>
+    <rect x="250" y="286" width="12" height="12"/>
+    <rect x="262" y="286" width="12" height="12"/>
+    <rect x="274" y="286" width="12" height="12"/>
+  </g></svg></div>
+        <h2 class="sec-title" style="margin-bottom:0">SYM<span>桌游</span></h2>
+      </div>
+      <p class="sec-sub reveal">&nbsp;</p>
+      <div class="board-launch reveal">
+        <p class="board-desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
+        <a href="https://symboardgames1.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
+          进入剑影江湖
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 联系 ============ -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-card reveal">
+        <h3>想认识我吗？</h3>
+        <p>把你的邮箱、微信、或任何联系方式填在这里，让别人能找到你。</p>
+        <a href="mailto:你的邮箱@example.com" class="btn btn-primary">联系我</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 · 用心制作 · Powered by Cloudflare Pages</p>
+  </footer>
+</main>
+
+<script>
+/* ============ WebGL 流体背景（DeepSeek harness 风格） ============ */
+(function() {
+  const canvas = document.getElementById('bgfx');
+  if (!canvas) return;
+  const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false, powerPreference: 'low-power' });
+  if (!gl) { document.getElementById('stars').style.display = 'block'; return; }
+
+  // ---- 工具 ----
+  function compile(type, src) {
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+    return sh;
+  }
+  function program(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    return p;
+  }
+  const VS = `#version 300 es
+  in vec2 a_pos;
+  out vec2 vUv;
+  void main(){ vUv = a_pos * 0.5 + 0.5; gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+
+  // 流体更新 shader（官网同款：鼠标笔刷 + 衰减）
+  const fluidFS = `#version 300 es
+  precision mediump float;
+  in vec2 vUv;
+  uniform sampler2D u_prev;
+  uniform vec2 u_mouse;
+  uniform vec2 u_velocity;
+  uniform float u_brushRadius;
+  uniform float u_brushStrength;
+  uniform float u_decay;
+  out vec4 fragColor;
+  void main() {
+    vec4 prev = texture(u_prev, vUv);
+    prev.r *= u_decay;
+    prev.gb = mix(vec2(0.5), prev.gb, u_decay);
+    float dist = distance(vUv, u_mouse);
+    float influence = exp(-dist * dist / (u_brushRadius * u_brushRadius * 0.5));
+    influence = max(0.0, influence - 0.01);
+    float speed = length(u_velocity);
+    float presenceStrength = u_brushStrength * 0.3;
+    float velBonus = min(speed * 3.0, 0.7) * u_brushStrength;
+    float totalStrength = presenceStrength + velBonus;
+    prev.r = max(prev.r, influence * totalStrength);
+    float blendAmt = influence * min(totalStrength, 0.4) * 0.3;
+    prev.g = mix(prev.g, clamp(u_velocity.x * 2.0 + 0.5, 0.0, 1.0), blendAmt);
+    prev.b = mix(prev.b, clamp(u_velocity.y * 2.0 + 0.5, 0.0, 1.0), blendAmt);
+    fragColor = prev;
+  }`;
+
+  // 渲染 shader（DeepSeek harness 官网原版：curl 噪声 + fbm 流体 + 泛光 + 暖光 + 暗角）
+  const renderFS = `#version 300 es
+  precision mediump float;
+  in vec2 vUv;
+  uniform float u_time;
+  uniform vec2 u_resolution;
+  uniform vec3 u_c1, u_c2, u_c3, u_c4, u_c5;
+  uniform float u_scale;
+  uniform vec2 u_offset;
+  uniform float u_grain;
+  uniform sampler2D u_flowmap;
+  uniform float u_distortBoost;
+  uniform float u_swirlBoost;
+  uniform float u_glowIntensity;
+  uniform vec3 u_glowColor1;
+  uniform vec3 u_glowColor2;
+  uniform vec3 u_glowColor3;
+  uniform vec2 u_lightPos;
+  uniform float u_lightCore;
+  uniform float u_lightHalo;
+  uniform float u_vignette;
+  uniform float u_bloomThreshold;
+  uniform float u_bloomRange;
+  uniform float u_bloomStrength;
+  out vec4 fragColor;
+
+  vec3 mod289v3(vec3 x){return x-floor(x*(1./289.))*289.;}
+  vec4 mod289v4(vec4 x){return x-floor(x*(1./289.))*289.;}
+  vec4 permute(vec4 x){return mod289v4(((x*34.)+1.)*x);}
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+  float snoise(vec3 v){
+    const vec2 C=vec2(1./6.,1./3.); const vec4 D=vec4(0.,.5,1.,2.);
+    vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+    vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+    vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+    i=mod289v3(i);
+    vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));
+    float n_=.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+    vec4 j=p-49.*floor(p*ns.z*ns.z);
+    vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.*x_);
+    vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.-abs(x)-abs(y);
+    vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+    vec4 s0=floor(b0)*2.+1.; vec4 s1=floor(b1)*2.+1.; vec4 sh=-step(h,vec4(0.));
+    vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+    vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+    vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+    p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+    vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);
+    m=m*m; return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+  }
+  float hash(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031); p3+=dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z);}
+  float fbm(vec3 p){
+    float v=0.,amp=.6; vec3 shift=vec3(100.);
+    for(int i=0;i<1;i++){v+=amp*snoise(p);p=p*2.+shift;amp*=.4;}
+    return v;
+  }
+  float fluidNoise(vec2 uv,float t){
+    float n1=fbm(vec3(uv*.6,t*.06));
+    float n2=fbm(vec3(uv*.6+5.2,t*.06+1.3));
+    vec2 w1=vec2(n1,n2)*.6;
+    float n3=fbm(vec3((uv+w1)*.7+1.7,t*.05+3.1));
+    float n4=fbm(vec3((uv+w1)*.7+9.2,t*.05+5.7));
+    vec2 w2=vec2(n3,n4)*.5;
+    return fbm(vec3((uv+w1+w2)*.5,t*.04));
+  }
+  vec2 curlish(vec2 uv,float t){
+    float eps=.02;
+    float n=snoise(vec3(uv*.8,t));
+    float nx=snoise(vec3((uv+vec2(eps,0.))*.8,t));
+    float ny=snoise(vec3((uv+vec2(0.,eps))*.8,t));
+    return vec2(-(ny-n)/eps,(nx-n)/eps)*.003;
+  }
+  void main(){
+    float aspect=u_resolution.x/u_resolution.y;
+    vec2 uv=gl_FragCoord.xy/u_resolution;
+    vec2 suv=vec2(uv.x*aspect, uv.y) * u_scale + u_offset;
+    float t=u_time;
+
+    vec4 flow = texture(u_flowmap, uv);
+    float influence = flow.r;
+    vec2 flowDir = (flow.gb - 0.5) * 2.0;
+
+    suv += flowDir * influence * u_distortBoost * 0.8;
+    float swirlAngle = influence * u_swirlBoost * 2.5;
+    float cs = cos(swirlAngle), sn = sin(swirlAngle);
+    vec2 delta = suv - vec2(uv.x * aspect, uv.y) * u_scale;
+    suv += (mat2(cs, sn, -sn, cs) * delta - delta) * influence;
+
+    vec2 curl=curlish(suv,t*.04);
+    vec2 uvD=suv+curl*12.;
+    float f=fluidNoise(uvD,t);
+    float swirl=snoise(vec3(uvD*.8+f*1.5,t*.035))*.5+.5;
+    float n=f*.5+.5;
+    vec3 col=mix(u_c1,u_c2,smoothstep(.2,.5,n));
+    col=mix(col,u_c3,smoothstep(.35,.65,n+swirl*.25));
+    col=mix(col,u_c4,smoothstep(.6,.85,swirl)*.55);
+    col=mix(col,u_c5,smoothstep(.5,.8,n*swirl)*.35);
+
+    float glow = smoothstep(0.0, 0.8, influence);
+    float glowNoise = snoise(vec3(uvD * 1.5, t * 0.08)) * 0.5 + 0.5;
+    float glowDist = smoothstep(0.0, 1.0, influence);
+    vec3 glowMix = mix(u_glowColor3, u_glowColor2, glowDist);
+    glowMix = mix(glowMix, u_glowColor1, glowDist * glowNoise);
+    col = mix(col, glowMix, glow * u_glowIntensity);
+
+    if(u_grain>0.0){
+      vec2 flowOffset = (uvD - suv) * u_resolution.y;
+      vec2 gp = floor((gl_FragCoord.xy + flowOffset) / 5.0);
+      float gr=hash(gp)*2.-1.;
+      col+=gr*u_grain;
+    }
+
+    float luma=dot(col,vec3(.299,.587,.114));
+    float bloom=smoothstep(u_bloomThreshold-u_bloomRange,u_bloomThreshold+u_bloomRange,luma);
+    col+=(col*.85+vec3(.15,.145,.13))*bloom*u_bloomStrength;
+
+    float ld=length((uv-u_lightPos)*vec2(aspect,1.));
+    float core=exp(-ld*ld*4.5);
+    float halo=exp(-ld*1.8);
+    col+=vec3(1.,.97,.9)*core*u_lightCore+vec3(.72,.8,1.)*halo*u_lightHalo;
+
+    float vig=1.-smoothstep(.35,.75,length(uv-.5));
+    col=mix(col*(1.-u_vignette),col,vig);
+    fragColor=vec4(col,1.);
+  }`;
+
+  const fluidProg = program(VS, fluidFS);
+  const renderProg = program(VS, renderFS);
+
+  // 全屏三角形
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  // 双缓冲纹理
+  function makeTex() {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  const texA = makeTex(), texB = makeTex();
+  const fboA = gl.createFramebuffer(), fboB = gl.createFramebuffer();
+  function attach(fbo, tex) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  }
+  attach(fboA, texA); attach(fboB, texB);
+
+  let W, H, PR, FW, FH;   // FW/FH = 流体纹理 1/4 分辨率
+  function resize() {
+    PR = Math.min(window.devicePixelRatio || 1, 1.5);   // 官网同款
+    W = Math.max(2, Math.floor(window.innerWidth * PR));
+    H = Math.max(2, Math.floor(window.innerHeight * PR));
+    canvas.width = W; canvas.height = H;
+    gl.viewport(0, 0, W, H);
+    FW = Math.max(2, Math.floor(W / 4));   // 官网：流体纹理 1/4 分辨率
+    FH = Math.max(2, Math.floor(H / 4));
+    // 初始流体场：R=0(无墨迹), G/B=128(无方向)，官网同款
+    const init = new Uint8Array(FW * FH * 4);
+    for (let i = 0; i < FW * FH; i++) {
+      init[4*i] = 0; init[4*i+1] = 128; init[4*i+2] = 128; init[4*i+3] = 255;
+    }
+    gl.bindTexture(gl.TEXTURE_2D, texA); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, FW, FH, 0, gl.RGBA, gl.UNSIGNED_BYTE, init);
+    gl.bindTexture(gl.TEXTURE_2D, texB); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, FW, FH, 0, gl.RGBA, gl.UNSIGNED_BYTE, init);
+    gl.clearColor(0, 0, 0, 1);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // 鼠标：官网同款平滑 + 惯性速度（smoothX/svx）
+  let mx = 0.5, my = 0.5, smoothX = 0.5, smoothY = 0.5, svx = 0, svy = 0;
+  const MS = 0.1, MV = 0.2;   // 官网 mouseSmoothing / mouseVelocity
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX / window.innerWidth;
+    my = 1 - e.clientY / window.innerHeight;
+  });
+  window.addEventListener('touchmove', e => {
+    mx = e.touches[0].clientX / window.innerWidth;
+    my = 1 - e.touches[0].clientY / window.innerHeight;
+  }, { passive: true });
+
+  // 配色：DeepSeek harness 官网默认（黑→深蓝→藏蓝→金色→黑）
+  const c1 = [0.0, 0.0, 0.0], c2 = [0.10, 0.22, 0.44], c3 = [0.125, 0.28, 0.49], c4 = [0.93, 0.85, 0.67], c5 = [0.0, 0.0, 0.0];
+
+  function u(prog, name) { return gl.getUniformLocation(prog, name); }
+  const fluidLoc = {
+    prev: u(fluidProg, 'u_prev'), mouse: u(fluidProg, 'u_mouse'), vel: u(fluidProg, 'u_velocity'),
+    radius: u(fluidProg, 'u_brushRadius'), strength: u(fluidProg, 'u_brushStrength'), decay: u(fluidProg, 'u_decay')
+  };
+  const renderLoc = {
+    time: u(renderProg, 'u_time'), res: u(renderProg, 'u_resolution'),
+    scale: u(renderProg, 'u_scale'), offset: u(renderProg, 'u_offset'),
+    grain: u(renderProg, 'u_grain'), flowmap: u(renderProg, 'u_flowmap'),
+    distortBoost: u(renderProg, 'u_distortBoost'), swirlBoost: u(renderProg, 'u_swirlBoost'),
+    glowIntensity: u(renderProg, 'u_glowIntensity'),
+    glow1: u(renderProg, 'u_glowColor1'), glow2: u(renderProg, 'u_glowColor2'), glow3: u(renderProg, 'u_glowColor3'),
+    lightPos: u(renderProg, 'u_lightPos'), lightCore: u(renderProg, 'u_lightCore'), lightHalo: u(renderProg, 'u_lightHalo'),
+    vignette: u(renderProg, 'u_vignette'),
+    bloomThreshold: u(renderProg, 'u_bloomThreshold'), bloomRange: u(renderProg, 'u_bloomRange'), bloomStrength: u(renderProg, 'u_bloomStrength')
+  };
+  const colLocs = [1,2,3,4,5].map(i => u(renderProg, 'u_c' + i));
+
+  let src = texA, dst = texB, dstFbo = fboB;
+
+  // 官网同款：30fps 限制 + 从初始化开始计时的慢速时间
+  const initTime = performance.now();
+  const SPEED = 28;          // 官网 speed=28 → 时间流速 0.28x
+  const FPS = 30;
+  let lastFrame = 0;
+
+  function frame(ms) {
+    if (ms - lastFrame < 1000 / FPS) { requestAnimationFrame(frame); return; }
+    lastFrame = ms;
+    // 官网时间公式：R = 经过秒数 * speed/100
+    const t = (performance.now() - initTime) * 0.001 * (SPEED / 100);
+    // 官网同款：平滑鼠标位置 + 惯性速度
+    smoothX += (mx - smoothX) * MS;
+    smoothY += (my - smoothY) * MS;
+    svx += ((mx - smoothX) * 0.5 - svx) * MV;
+    svy += ((my - smoothY) * 0.5 - svy) * MV;
+
+    // Pass 1: 更新流体场（写入 dst，采样 src）—— 官网在 1/4 分辨率下运行
+    gl.bindFramebuffer(gl.FRAMEBUFFER, dstFbo);
+    gl.viewport(0, 0, FW, FH);
+    gl.useProgram(fluidProg);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, src);
+    gl.uniform1i(fluidLoc.prev, 0);
+    gl.uniform2f(fluidLoc.mouse, smoothX, smoothY);   // 官网用平滑位置
+    gl.uniform2f(fluidLoc.vel, svx, svy);             // 官网用惯性速度
+    gl.uniform1f(fluidLoc.radius, 0.09);      // 官网 mouseRadius
+    gl.uniform1f(fluidLoc.strength, 1.8);     // 官网 mouseStrength
+    gl.uniform1f(fluidLoc.decay, 0.925);      // 官网 decay
+    gl.bindVertexArray(vao);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // 交换
+    const ts = src; src = dst; dst = ts;
+    dstFbo = dstFbo === fboA ? fboB : fboA;
+
+    // Pass 2: 渲染到屏幕（官网默认参数）
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, W, H);
+    gl.useProgram(renderProg);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, src);
+    gl.uniform1i(renderLoc.flowmap, 0);
+    gl.uniform1f(renderLoc.time, t);
+    gl.uniform2f(renderLoc.res, W, H);
+    gl.uniform1f(renderLoc.scale, 1.77);      // 官网 scale
+    gl.uniform2f(renderLoc.offset, -1.24, -0.48);  // 官网 offsetX/100, offsetY/100
+    gl.uniform1f(renderLoc.grain, 0.005);     // 官网 grain
+    gl.uniform1f(renderLoc.distortBoost, 2.2);     // 官网 distortBoost
+    gl.uniform1f(renderLoc.swirlBoost, 0.8);       // 官网 swirlBoost
+    gl.uniform1f(renderLoc.glowIntensity, 0.13);   // 官网 glowIntensity
+    gl.uniform3f(renderLoc.glow1, 1.0, 0.97, 0.82);     // #fff7d1
+    gl.uniform3f(renderLoc.glow2, 0.33, 0.55, 0.79);    // #538dca
+    gl.uniform3f(renderLoc.glow3, 0.18, 0.27, 0.55);    // #2d448b
+    // 官网 lightFollow=0.63：灯光 X 跟随鼠标平滑位置
+    const lightX = 0.89 + (smoothX - 0.89) * 0.63;
+    gl.uniform2f(renderLoc.lightPos, lightX, 0.46);     // 官网 lightX/lightY
+    gl.uniform1f(renderLoc.lightCore, 0.14);    // 官网 lightCore
+    gl.uniform1f(renderLoc.lightHalo, 0.2);     // 官网 lightHalo
+    gl.uniform1f(renderLoc.vignette, 0.38);     // 官网 vignette
+    gl.uniform1f(renderLoc.bloomThreshold, 0.61);  // 官网 bloomThreshold
+    gl.uniform1f(renderLoc.bloomRange, 0.18);      // 官网 bloomRange
+    gl.uniform1f(renderLoc.bloomStrength, 0.4);    // 官网 bloomStrength
+    gl.uniform3f(colLocs[0], c1[0], c1[1], c1[2]);
+    gl.uniform3f(colLocs[1], c2[0], c2[1], c2[2]);
+    gl.uniform3f(colLocs[2], c3[0], c3[1], c3[2]);
+    gl.uniform3f(colLocs[3], c4[0], c4[1], c4[2]);
+    gl.uniform3f(colLocs[4], c5[0], c5[1], c5[2]);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ============ 终端打字机 ============ */
+const phrases = [
+  '行至水穷处，坐看云起时 —— 王维',
+  '天行健，君子以自强不息 —— 《周易》',
+  '千里之行，始于足下 —— 老子',
+  '吾生也有涯，而知也无涯 —— 庄子',
+  '知者不惑，仁者不忧，勇者不惧 —— 孔子',
+  '长风破浪会有时，直挂云帆济沧海 —— 李白',
+  '海内存知己，天涯若比邻 —— 王勃',
+  '此心安处是吾乡 —— 苏轼',
+  '认识你自己 —— 苏格拉底',
+  '未经审视的人生不值得过 —— 苏格拉底',
+  '我思故我在 —— 笛卡尔',
+  '人是万物的尺度 —— 普罗泰戈拉',
+  '存在即合理 —— 黑格尔',
+  '每一个不曾起舞的日子，都是对生命的辜负 —— 尼采',
+  '世界上只有一种英雄主义，就是看清生活的真相后依然热爱生活 —— 罗曼·罗兰',
+  '黑夜给了我黑色的眼睛，我却用它寻找光明 —— 顾城'
+];
+const el = document.getElementById('typeText');
+let pi = 0, ci = 0, deleting = false;
+
+function type() {
+  const cur = phrases[pi];
+  el.textContent = cur.slice(0, ci);
+  if (!deleting) {
+    if (ci < cur.length) { ci++; setTimeout(type, 85); }
+    else { deleting = true; setTimeout(type, 1700); }
+  } else {
+    if (ci > 0) { ci--; setTimeout(type, 40); }
+    else { deleting = false; pi = (pi + 1) % phrases.length; setTimeout(type, 300); }
+  }
+}
+type();
+
+/* ============ 实时时钟（精确到毫秒 + 系统时钟偏差对比） ============ */
+(function() {
+  const dateEl = document.getElementById('clockDate');
+  const timeEl = document.getElementById('clockTime');
+  const weekEl = document.getElementById('clockWeek');
+  const liveEl = document.getElementById('liveTime');
+  const diffEl = document.getElementById('clockDiff');
+  const WEEKS = ['日','一','二','三','四','五','六'];
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function pad3(n) { return String(n).padStart(3, '0'); }
+
+  let lastRender = 0;   // 上次更新时间戳（毫秒）
+  let lastDiff = 0;
+
+  function frame(now) {
+    // 用高精度性能时钟计算"上次渲染时刻"与"此刻系统时间"的偏差
+    const perfNow = performance.now();
+    const d = new Date();
+
+    // 偏差 = 上次更新时间戳 - 当前系统毫秒
+    // 用 performance 对齐：Date.now() 与 performance.now() 同源，差值即渲染延迟
+    const drift = Math.max(0, Math.round(perfNow - lastRender));
+
+    dateEl.textContent = d.getFullYear() + '年' + pad(d.getMonth()+1) + '月' + pad(d.getDate()) + '日';
+    const h = d.getHours(), hh = h % 12 || 12;
+    const ms = pad3(d.getMilliseconds());
+    timeEl.innerHTML = pad(hh) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + '<span class="clock-ms">.' + ms + '</span>';
+    weekEl.textContent = '星期' + WEEKS[d.getDay()];
+    liveEl.innerHTML = pad(h) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + '<span class="clock-ms">.' + ms + '</span>';
+
+    // 偏差指示（颜色分级）
+    if (drift <= 1) {
+      diffEl.className = 'clock-diff good';
+      diffEl.innerHTML = '与系统时钟偏差 <b>0</b> ms · 同步';
+    } else if (drift <= 50) {
+      diffEl.className = 'clock-diff good';
+      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 同步';
+    } else if (drift <= 200) {
+      diffEl.className = 'clock-diff warn';
+      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 稍慢';
+    } else {
+      diffEl.className = 'clock-diff bad';
+      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 延迟';
+    }
+
+    lastRender = perfNow;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ============ 须臾 · 时间感知实验 ============ */
+(function() {
+  const cv = document.getElementById('tgCanvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const roundEl = document.getElementById('tgRound');
+  const targetEl = document.getElementById('tgTarget');
+  const comboEl = document.getElementById('tgCombo');
+  const fbEl = document.getElementById('tgFeedback');
+  const startBtn = document.getElementById('tgStart');
+
+  const TOTAL = 10;                  // 总轮数
+  const CX = W / 2, CY = H / 2;
+  const R0 = 130, R1 = 12;           // 光环起始/收束半径
+
+  let state = 'idle';                // idle | waiting | judging | report
+  let raf = null;
+  let round = 0, combo = 0, bestCombo = 0;
+  let targetMs = 0, startAt = 0;
+  let results = [];                  // { err, target }
+  let particles = [];                // 反馈粒子
+
+  // ---- 工具 ----
+  function fmt(ms) {
+    const s = ms / 1000;
+    return (s >= 0 ? '+' : '−') + Math.abs(s).toFixed(3) + 's';
+  }
+  function grade(err) {
+    const a = Math.abs(err);
+    if (a < 30) return { cls: 'good', word: '分毫不差' };     // 真·神
+    if (a < 120) return { cls: 'good', word: '精准' };        // 51ms 在这里，绿色！
+    if (a < 300) return { cls: 'mid', word: '接近' };         // 青色，中性
+    if (a < 600) return { cls: 'warn', word: '有点飘' };      // 黄色
+    return { cls: 'bad', word: '错得离谱' };                  // 红色，600ms+ 才算
+  }
+  function burst(x, y, color) {
+    for (let i = 0; i < 26; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const v = 40 + Math.random() * 120;
+      particles.push({ x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, life: 1, color });
+    }
+  }
+
+  // ---- 状态控制 ----
+  function setState(s) {
+    state = s;
+    if (s === 'waiting') {
+      round++;
+      combo = 0;
+      comboEl.textContent = '';
+      targetMs = (2000 + Math.random() * 5000);   // 2~7 秒
+      startAt = performance.now();
+      roundEl.innerHTML = '第 <b>' + round + '</b> / ' + TOTAL + ' 轮';
+      targetEl.innerHTML = '请等待 <b>' + (targetMs/1000).toFixed(1) + '</b> 秒后点击';
+      fbEl.innerHTML = '';
+      burst(CX, CY, 'rgba(34,211,238,.5)');
+    } else if (s === 'idle') {
+      roundEl.innerHTML = '第 <b>0</b> / ' + TOTAL + ' 轮';
+      targetEl.innerHTML = '点击「开始实验」';
+      comboEl.textContent = '';
+      fbEl.innerHTML = '';
+      startBtn.textContent = '开始实验';
+    } else if (s === 'report') {
+      showReport();
+    }
+  }
+
+  // ---- 点击判定 ----
+  function judge() {
+    if (state !== 'waiting') return;
+    const clickAt = performance.now();
+    const err = (clickAt - startAt) - targetMs;   // 毫秒误差，负=提前
+    const a = Math.abs(err);
+    results.push({ err, target: targetMs });
+    const g = grade(err);
+    if (a < 120) { combo++; bestCombo = Math.max(bestCombo, combo); }
+    else combo = 0;
+    comboEl.textContent = combo >= 2 ? '须臾连击 ×' + combo : '';
+
+    fbEl.innerHTML = '<span class="big ' + g.cls + '">' + fmt(err) + '</span><span class="' + g.cls + '">' + g.word + '</span>';
+    burst(CX, CY, a < 120 ? 'rgba(52,211,153,.7)' : a < 300 ? 'rgba(34,211,238,.6)' : 'rgba(248,113,113,.6)');
+    state = 'judging';
+    setTimeout(() => {
+      if (round >= TOTAL) setState('report');
+      else setState('waiting');
+    }, 1600);
+  }
+
+  // ---- 报告 ----
+  function showReport() {
+    const errs = results.map(r => r.err);
+    const avg = errs.reduce((s, e) => s + Math.abs(e), 0) / errs.length;
+    const best = Math.min(...errs.map(Math.abs));
+    const worst = Math.max(...errs.map(Math.abs));
+    let verdict;
+    if (avg < 60) verdict = '须臾之间，分毫不差 —— 你与时间同频';
+    else if (avg < 150) verdict = '感知敏锐，时间在你的掌握之中';
+    else if (avg < 300) verdict = '正常人类的时间感知，从容即可';
+    else verdict = '时间如流水，还需静心修行';
+    roundEl.innerHTML = '实验完成';
+    targetEl.innerHTML = '平均误差 <b>' + avg.toFixed(0) + '</b> ms';
+    comboEl.textContent = '最佳一击 ' + best.toFixed(0) + ' ms';
+    startBtn.textContent = '再来一局';
+    fbEl.innerHTML = '<span style="color:#e8ecf8;font-size:16px">' + verdict + '</span>';
+    state = 'report';
+    drawReport(errs, avg, best, worst);
+  }
+
+  function drawReport(errs, avg, best, worst) {
+    ctx.clearRect(0, 0, W, H);
+    // 背景
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, 'rgba(8,12,26,.9)'); bg.addColorStop(1, 'rgba(3,5,12,.9)');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    const pad = 40;
+    const plotW = W - pad * 2, plotH = 150;
+    const top = (H - plotH) / 2 - 10;
+    const maxAbs = Math.max(...errs.map(Math.abs), 150);
+
+    // 0 线
+    const y0 = top + plotH / 2;
+    ctx.strokeStyle = 'rgba(34,211,238,.35)';
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(pad, y0); ctx.lineTo(W - pad, y0); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 网格
+    ctx.strokeStyle = 'rgba(255,255,255,.05)';
+    for (let i = 1; i <= 4; i++) {
+      const y = top + plotH * i / 5;
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+    }
+
+    // 折线 + 点
+    ctx.beginPath();
+    errs.forEach((e, i) => {
+      const x = pad + plotW * i / (TOTAL - 1);
+      const y = y0 - (e / maxAbs) * (plotH / 2 - 8);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = 'rgba(167,139,250,.9)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    errs.forEach((e, i) => {
+      const x = pad + plotW * i / (TOTAL - 1);
+      const y = y0 - (e / maxAbs) * (plotH / 2 - 8);
+      const a = Math.abs(e);
+      ctx.beginPath();
+      ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = a < 120 ? '#34d399' : a < 300 ? '#22d3ee' : '#f87171';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.25)';
+      ctx.stroke();
+    });
+
+    // 标注
+    ctx.fillStyle = 'rgba(139,147,171,.85)';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('提前 ← 0 → 延迟', W / 2, H - 16);
+    ctx.fillStyle = 'rgba(34,211,238,.8)';
+    ctx.fillText('漂移曲线 · 10 轮', W / 2, pad - 8);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#34d399'; ctx.fillText('最佳 ' + best.toFixed(0) + 'ms', pad, top - 8);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#f87171'; ctx.fillText('最飘 ' + worst.toFixed(0) + 'ms', W - pad, top - 8);
+  }
+
+  // ---- 动画循环 ----
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    // 背景渐变
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, 'rgba(8,12,26,.9)'); bg.addColorStop(1, 'rgba(3,5,12,.9)');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    // 呼吸氛围粒子
+    if (Math.random() < 0.2) {
+      particles.push({
+        x: Math.random() * W, y: H + 5,
+        vx: (Math.random() - .5) * 12, vy: -(20 + Math.random() * 30),
+        life: 1, color: 'rgba(34,211,238,.35)'
+      });
+    }
+
+    if (state === 'waiting') {
+      const el = (performance.now() - startAt) / targetMs;   // 0→1
+      const prog = Math.min(el, 1);
+      const r = R0 - (R0 - R1) * prog;
+      const t = performance.now() / 1000;
+
+      // 刻度环（固定）
+      ctx.strokeStyle = 'rgba(255,255,255,.06)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(CX, CY, R0 + 14, 0, Math.PI * 2); ctx.stroke();
+
+      // 收束主环（发光）
+      ctx.save();
+      ctx.shadowColor = 'rgba(34,211,238,.9)';
+      ctx.shadowBlur = 26;
+      ctx.strokeStyle = prog < 0.92 ? 'rgba(34,211,238,.85)' : 'rgba(244,114,182,.9)';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(CX, CY, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // 内圈光晕
+      const grad = ctx.createRadialGradient(CX, CY, r - 8, CX, CY, r + 8);
+      grad.addColorStop(0, 'rgba(34,211,238,0)');
+      grad.addColorStop(.5, 'rgba(34,211,238,.18)');
+      grad.addColorStop(1, 'rgba(34,211,238,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(CX, CY, r + 8, 0, Math.PI * 2); ctx.fill();
+
+      // 中心计时
+      ctx.fillStyle = 'rgba(232,236,248,.9)';
+      ctx.font = '16px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(prog.toFixed(2), CX, CY - r - 18);
+      ctx.fillStyle = 'rgba(139,147,171,.7)';
+      ctx.font = '12px monospace';
+      ctx.fillText('点击判定', CX, CY + r + 26);
+    } else if (state === 'idle') {
+      // 待机呼吸环
+      const r = R0 * 0.45 + Math.sin(performance.now() / 500) * 6;
+      ctx.save();
+      ctx.shadowColor = 'rgba(167,139,250,.7)';
+      ctx.shadowBlur = 20;
+      ctx.strokeStyle = 'rgba(167,139,250,.6)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(CX, CY, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = 'rgba(139,147,171,.8)';
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('感知时间的实验', CX, CY + 6);
+      ctx.font = '12px monospace';
+      ctx.fillStyle = 'rgba(139,147,171,.5)';
+      ctx.fillText('点击开始，共 10 轮', CX, CY + 30);
+    }
+
+    // 粒子更新
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx / 60; p.y += p.vy / 60;
+      p.life -= 0.016;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    raf = requestAnimationFrame(frame);
+  }
+
+  // ---- 事件 ----
+  cv.addEventListener('pointerdown', e => {
+    if (state === 'waiting') judge();
+  });
+  startBtn.addEventListener('click', () => {
+    if (state === 'report') {
+      results = []; round = 0; bestCombo = 0;
+    }
+    if (state !== 'waiting') setState('waiting');
+  });
+
+  setState('idle');
+  raf = requestAnimationFrame(frame);
+})();
+
+/* ============ 滚动渐入 ============ */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+  });
+}, { threshold: .12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
