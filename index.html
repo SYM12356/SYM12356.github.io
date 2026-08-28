@@ -939,12 +939,17 @@
   }
 
   /* ============ 备用入口 ============ */
+  .backup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
   .backup-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 14px;
     background: rgba(255,255,255,.02);
     border: 1px dashed var(--border);
     border-radius: 14px;
@@ -1049,6 +1054,7 @@
     section { padding: 64px 0; }
     .hero-grid { grid-template-columns: 1fr; gap: 32px; text-align: center; }
     .hero-left { align-items: center; }
+    .backup-grid { grid-template-columns: 1fr; }
   }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/zhi-mang-xing@5.1.0/index.css">
@@ -1291,12 +1297,20 @@
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">04 / BACKUP</span></div>
       <h2 class="sec-title reveal" data-i18n="bk_title_full">备用</h2>
-      <p class="sec-sub reveal" data-i18n="bk_sub">同站双线路 · GitHub 线路主用，Cloudflare 线路备用</p>
-      <div class="backup-card reveal">
-        <p class="backup-desc" data-i18n="bk_desc">Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选</p>
-        <a href="https://sym12356.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-ghost backup-btn">
-          <span data-i18n="bk_btn">访问 Cloudflare 线路</span>
-        </a>
+      <p class="sec-sub reveal" data-i18n="bk_sub">多条访问线路 · 主站 + 备用镜像</p>
+      <div class="backup-grid reveal">
+        <div class="backup-card">
+          <p class="backup-desc" data-i18n="bk_desc">Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选</p>
+          <a href="https://sym12356.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-ghost backup-btn">
+            <span data-i18n="bk_btn">访问 Cloudflare 线路</span>
+          </a>
+        </div>
+        <div class="backup-card">
+          <p class="backup-desc" data-i18n="bk_cc_desc">短域名线路 · 好记的专属网址</p>
+          <a href="https://sym12356.cc.cd/" target="_blank" rel="noopener" class="btn btn-ghost backup-btn">
+            <span data-i18n="bk_cc_btn">访问 cc.cd 线路</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -1361,6 +1375,7 @@ const I18N = {
     b_title: '桌游', b_desc: '《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽', b_enter: '进入剑影江湖',
     bk_title: '入口', bk_sub: '同站双线路 · GitHub 线路主用，Cloudflare 线路备用',
     bk_desc: 'Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选', bk_btn: '访问 Cloudflare 线路',
+    bk_cc_desc: '短域名线路 · 好记的专属网址', bk_cc_btn: '访问 cc.cd 线路',
     l_title_full: '友链', l_sub: '一起折腾的朋友们', l_main: '主站', l_blog: '备用 / 博客站',
     c_title: '想认识我吗？', c_email: '邮件联系：', c_btn: '联系我',
     f_made: '© 2026 · 用心制作 · Powered by Cloudflare Pages', f_stats: '访问量', f_uv: '访客',
@@ -1387,6 +1402,7 @@ const I18N = {
     b_title: 'Board', b_desc: 'Sword Shadow Jianghu - a 2-player wuxia duel game with 5 heroes', b_enter: 'Enter Sword Shadow',
     bk_title: 'Entry', bk_sub: 'Dual lines · GitHub primary, Cloudflare backup',
     bk_desc: 'Cloudflare mirror · if this site is down, share this URL as an alternative', bk_btn: 'Cloudflare Line',
+    bk_cc_desc: 'Short domain · easy to remember', bk_cc_btn: 'cc.cd Line',
     l_title_full: 'Links', l_sub: 'Friends who tinker together', l_main: 'Main', l_blog: 'Mirror / Blog',
     c_title: 'Want to know me?', c_email: 'Email:', c_btn: 'Contact Me',
     f_made: '© 2026 · Made with care · Powered by Cloudflare Pages', f_stats: 'Views', f_uv: 'Visitors',
