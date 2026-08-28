@@ -777,10 +777,10 @@
   // ---------------- 绝学专属动画 ----------------
   var ULT_FLAVOR = {
     'Flying Immortal': 'A sword from the west — nothing can withstand it',
-    '般若金刚掌': 'Overwhelmingly fierce; those struck have their meridians shattered',
+    'Prajna Vajra Palm': 'Overwhelmingly fierce; those struck have their meridians shattered',
     'Nine-Turn Heaven Blade': 'One turn of the divine blade — gods and ghosts alike perish',
-    '暴雨梨花针': 'It always draws blood; returning empty-handed bodes ill',
-    '太极两仪掌': 'The tai chi circle turns — what comes must go'
+    'Pear-Blossom Needle Storm': 'It always draws blood; returning empty-handed bodes ill',
+    'Taiji Two-Polar Palm': 'The tai chi circle turns — what comes must go'
   };
 
   // 各角色绝学特效元素
