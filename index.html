@@ -1279,7 +1279,7 @@
       <p class="sec-sub reveal" data-i18n="b_sub">自研武侠对战游戏，热座双人对决</p>
       <div class="board-launch reveal">
         <p class="board-desc" data-i18n="b_desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
-        <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
+        <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn" id="boardEnterBtn">
           <span data-i18n="b_enter">进入剑影江湖</span>
         </a>
       </div>
@@ -1415,6 +1415,13 @@ const I18N = {
     });
     localStorage.setItem('lang', l);
     try { syncPhrases(); } catch(e) {}
+    // 桌游按钮按语言跳转：英文→英文版，中文→中文版
+    const boardBtn = document.getElementById('boardEnterBtn');
+    if (boardBtn) {
+      boardBtn.href = l === 'en'
+        ? 'https://sym12356.github.io/jianying-en/'
+        : 'https://sym12356.github.io/jianying/';
+    }
   }
   btn.addEventListener('click', () => apply(lang === 'zh' ? 'en' : 'zh'));
   window.__lang = function() { return lang; };

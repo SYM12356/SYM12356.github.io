@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jianying Jianghu · Two-Player Hotseat Digital Edition</title>
+<!-- Calligraphy fonts (loaded online; falls back to the system Kai style offline) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ Cover intro (pure CSS ink-wash composition) ============ -->
+  <div id="screen-cover" class="screen cover-screen">
+    <div class="cover-scene">
+      <div class="cover-moon"></div>
+      <div class="cover-pine"></div>
+      <div class="cover-mountains"></div>
+      <div class="cover-ground"></div>
+      <div class="cover-mist m1"></div>
+      <div class="cover-mist m2"></div>
+      <div class="cover-reed rl"></div>
+      <div class="cover-reed rr"></div>
+    </div>
+    <div class="cover-content">
+      <div class="cover-seal">Jianghu</div>
+      <h1 class="cover-title" aria-label="Jianying Jianghu">
+        <span class="ct-char" style="--i:0">Jian</span><span class="ct-char" style="--i:1">Ying</span><span class="ct-char" style="--i:2">Jiang</span><span class="ct-char" style="--i:3">Hu</span>
+      </h1>
+      <div class="cover-brush"></div>
+      <p class="cover-sub">A Full-Moon Night · Atop Mount Hua · One Sword, One Fist Decides the Victor</p>
+      <button id="btn-enter" class="btn btn-primary cover-btn">Enter the Jianghu</button>
+      <p class="cover-note">Local hotseat two-player duel · based on Jianying Jianghu (Balanced Revised Edition)</p>
+    </div>
+  </div>
+
+  <!-- ============ Setup screen ============ -->
+  <div id="screen-setup" class="screen hidden">
+    <div class="setup-wrap">
+      <div class="game-title">
+        <h1>JIAN YING JIANG HU</h1>
+        <p class="subtitle">Two-player wuxia duel · local hotseat battle · based on Jianying Jianghu (Balanced Revised Edition)</p>
+      </div>
+
+      <div class="setup-columns">
+        <div class="setup-col">
+          <h2>Player 1 (first mover)</h2>
+          <div id="hero-pick-0" class="hero-pick"></div>
+        </div>
+        <div class="setup-col">
+          <h2>Player 2 (second mover)</h2>
+          <div id="hero-pick-1" class="hero-pick"></div>
+        </div>
+      </div>
+
+      <div class="setup-opts">
+        <h2>Match Settings</h2>
+        <label class="opt"><input type="checkbox" id="opt-dark"> Night-ink dark theme (night ink)</label>
+        <div class="mode-row">
+          <span class="mode-label">Match Mode</span>
+          <label class="opt inline"><input type="radio" name="p2mode" id="mode-hotseat" checked> Two-Player Hotseat</label>
+          <label class="opt inline"><input type="radio" name="p2mode" id="mode-ai"> vs AI (Player 1 vs Computer)</label>
+        </div>
+        <div id="ai-level-row" class="mode-row hidden">
+          <span class="mode-label">AI Difficulty</span>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-easy"> Easy</label>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-normal" checked> Normal</label>
+          <label class="opt inline"><input type="radio" name="ailevel" id="ai-hard"> Hard</label>
+        </div>
+        <h2 class="second-h">Expansion Settings</h2>
+        <label class="opt"><input type="checkbox" id="opt-dlc2"> DLC2: Wulin Secrets public card pool (draft 2 cards, qi-return threshold becomes 5)</label>
+        <label class="opt"><input type="checkbox" id="opt-dlc3"> DLC3: Ten Directions Wonderland scenario cards</label>
+        <label class="opt"><input type="checkbox" id="opt-dlc4"> DLC4: Two Heroes Rise aid system (secretly invite 1 special ally each)</label>
+        <div id="scene-picker" class="scene-picker hidden">
+          <h3>Choose a Scenario</h3>
+          <div id="scene-list" class="scene-list"></div>
+        </div>
+      </div>
+
+      <div class="stats-box">
+        <div class="stats-head">Record</div>
+        <div id="stats-body" class="stats-body"></div>
+      </div>
+
+      <div class="start-row">
+        <button id="btn-start" class="btn btn-primary big" disabled>Start Duel</button>
+        <button id="btn-codex" class="btn big">Wulin Codex</button>
+      </div>
+
+      <details class="rules-note">
+        <summary>Quick Rules (click to expand)</summary>
+        <div class="rules-body">
+          <p><b>Goal:</b> Reduce your opponent's blood to 0 or below. If both reach 0 at once, it's a draw.</p>
+          <p><b>Distance:</b> Both players share one distance track (0 clinch – 4 far), starting at 2. Techniques must be used within their valid distance, or they miss (+1 flaw).</p>
+          <p><b>Qi:</b> Max 5, starts at 5, and recovers 1 at the start of each turn. Playing a card costs the qi shown on it.</p>
+          <p><b>Flaw:</b> Each stack lowers your technique speed by 1; 1 stack is removed at the start of your turn. <b>Internal Injury:</b> Each stack increases damage taken by 1. <b>Poison:</b> Take damage equal to your stacks at the start of your turn, then decay by 1.</p>
+          <p><b>Qi Return:</b> Played techniques go to the qi-return pile; when it reaches 4 cards (5 with DLC2), all return to your hand.</p>
+          <p><b>Showdown:</b> Reveal simultaneously and compare speed (technique speed − flaw + taiji stance − slow). The higher acts first, the lower acts second; on a tie, both act second and damage is −1 (min 1).</p>
+          <p><b>Ultimate:</b> Once per game; removed from play after use.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ============ DLC2 draft screen ============ -->
+  <div id="screen-draft" class="screen hidden">
+    <div class="draft-wrap">
+      <h1>DLC2 · Wulin Secrets</h1>
+      <p class="subtitle">Public martial-arts card pool: players take turns picking from 3 face-up cards (P1 first), 2 cards each; a picked card is immediately replaced</p>
+      <div id="draft-faceup" class="draft-faceup"></div>
+      <p id="draft-status" class="draft-status"></p>
+      <div id="draft-picks" class="draft-picks"></div>
+    </div>
+  </div>
+
+  <!-- ============ DLC4 aid draft screen ============ -->
+  <div id="screen-yuanhu" class="screen hidden">
+    <div class="draft-wrap">
+      <h1>DLC4 · Two Heroes Rise</h1>
+      <p class="subtitle">Secret aid: each player secretly picks 1 of 3 special-ally cards (kept hidden from the opponent until used)</p>
+      <div id="yuanhu-body"></div>
+    </div>
+  </div>
+
+  <!-- ============ Game screen ============ -->
+  <div id="screen-game" class="screen hidden">
+    <header class="game-header">
+      <div class="header-left">
+        <span class="brand">Jianying Jianghu</span>
+        <span id="g-scene" class="g-scene"></span>
+      </div>
+      <div id="phase-banner" class="phase-banner"></div>
+      <div class="header-right">
+        <span id="g-turn" class="g-turn"></span>
+        <button id="btn-sfx" class="btn small" title="Toggle sound effects">SFX</button>
+        <button id="btn-quit" class="btn small" title="Back to settings">Quit</button>
+      </div>
+    </header>
+
+    <div id="dist-track" class="dist-track"></div>
+
+    <div id="action-bar" class="action-bar"></div>
+
+    <div class="board" id="board">
+      <div id="panel-p1" class="player-panel"></div>
+      <div id="log-panel" class="log-panel">
+        <div class="log-head">Battle Log</div>
+        <div id="log-list" class="log-list"></div>
+      </div>
+      <div id="panel-p2" class="player-panel"></div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- ============ Wulin Codex ============ -->
+  <div id="screen-codex" class="screen hidden">
+    <div class="codex-head">
+      <h1>Wulin Codex</h1>
+      <button id="btn-codex-back" class="btn">Back to Settings</button>
+    </div>
+    <div id="codex-body" class="codex-body"></div>
+  </div>
+
+<div class="painting-colophon">A Full-Moon Night · Atop Mount Hua · One Sword, One Fist Settles All</div>
+
+<!-- Sea of clouds (drifting mist bands floating above the scroll) -->
+<div class="cloud-sea" aria-hidden="true">
+  <div class="cloud-band c1"></div>
+  <div class="cloud-band c2"></div>
+  <div class="cloud-band c3"></div>
+</div>
+<!-- Scroll edge as aged paper (frayed old-paper border) -->
+<div class="paper-edge" aria-hidden="true"></div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
