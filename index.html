@@ -17,16 +17,26 @@
     --violet: #a78bfa;
     --pink: #f472b6;
     --grad: linear-gradient(120deg, #22d3ee, #a78bfa, #f472b6);
+    --mono: "JetBrains Mono", var(--mono);
   }
   html { scroll-behavior: smooth; }
   body {
-    background: var(--bg);
+    background: #04060e;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    font-family: "Alibaba PuHuiTi", "阿里巴巴普惠体", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     line-height: 1.7;
     overflow-x: hidden;
   }
   ::selection { background: rgba(34,211,238,.3); }
+
+  /* ============ 字体引入（jsdelivr CDN） ============ */
+  /* 代码/等宽：JetBrains Mono */
+  @font-face {
+    font-family: "JetBrains Mono";
+    src: url("fonts/jetbrains-mono.woff2") format("woff2");
+    font-weight: 400; font-display: swap;
+  }
+
 
   /* ============ 背景层：网格 + 光晕 ============ */
   .bg-grid {
@@ -143,6 +153,174 @@
   .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
   .mobile-menu-btn.active span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
 
+  /* ============ 回到顶部按钮 ============ */
+  .back-top {
+    position: fixed;
+    right: 22px; bottom: 22px;
+    z-index: 150;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.2);
+    background: rgba(10,14,26,.85);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: .3s;
+    backdrop-filter: blur(8px);
+  }
+  .back-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .back-top:hover {
+    border-color: rgba(255,255,255,.45);
+    background: rgba(20,26,44,.9);
+  }
+
+  /* ============ 主题切换按钮 ============ */
+  .theme-toggle {
+    position: fixed;
+    top: 14px; left: 66px;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(5,7,15,.75);
+    backdrop-filter: blur(12px);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    transition: .25s;
+  }
+  .theme-toggle:hover { border-color: rgba(255,255,255,.45); }
+
+  /* ============ 语言切换按钮 ============ */
+  .lang-toggle {
+    position: fixed;
+    top: 14px; left: 118px;
+    z-index: 200;
+    width: 46px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(5,7,15,.75);
+    backdrop-filter: blur(12px);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: .25s;
+    font-family: var(--mono);
+  }
+  .lang-toggle:hover { border-color: rgba(255,255,255,.45); }
+
+  /* ============ 浅色主题（柔和灰蓝，精调） ============ */
+  body.light {
+    background: #eef1f6;
+    color: #1c2536;
+    --bg: #eef1f6;
+    --card: rgba(28,37,54,0.035);
+    --border: rgba(28,37,54,0.12);
+    --text: #1c2536;
+    --muted: #5a6478;
+    --cyan: #0e7490;
+    --violet: #6d5bd0;
+    --pink: #c2417c;
+  }
+  /* 导航/按钮条 */
+  body.light .index-nav,
+  body.light .mobile-menu-btn,
+  body.light .theme-toggle,
+  body.light .lang-toggle {
+    background: rgba(255,255,255,.92);
+    border-color: rgba(28,37,54,.14);
+    box-shadow: 0 2px 16px rgba(28,37,54,.08);
+  }
+  /* 卡片：白底 + 清晰边框 + 柔和阴影 */
+  body.light .hero-card,
+  body.light .clock,
+  body.light .game-card,
+  body.light .game-panel,
+  body.light .ttt-wrap,
+  body.light .backup-card,
+  body.light .contact-card,
+  body.light .link-card,
+  body.light .back-top,
+  body.light .ttt-rules {
+    background: #ffffff;
+    border-color: rgba(28,37,54,.12);
+    box-shadow: 0 2px 24px rgba(28,37,54,.08);
+  }
+  /* 终端卡片内部 */
+  body.light .hero-card .body { color: #2a3448; }
+  body.light .hero-card .body .k { color: #6d5bd0; }
+  body.light .hero-card .body .v { color: #0e7490; }
+  /* 标签 */
+  body.light .tag {
+    background: #ffffff;
+    border-color: rgba(28,37,54,.15);
+    color: #2a3448;
+  }
+  body.light .tag:hover { border-color: #0e7490; color: #0e7490; background: rgba(14,116,144,.06); }
+  /* 井字棋盘：清晰格子 */
+  body.light .ttt-board { background: rgba(28,37,54,.05); }
+  body.light .ttt-sub { background: #ffffff; border-color: rgba(28,37,54,.10); }
+  body.light .ttt-sub.active { border-color: #0e7490; background: rgba(14,116,144,.05); }
+  body.light .ttt-cell { background: #f6f8fb; color: #1c2536; }
+  body.light .ttt-cell.x { color: #1c2536; }
+  body.light .ttt-cell.o { color: #5a6478; }
+  body.light .ttt-cell:hover { background: rgba(14,116,144,.08); }
+  body.light .ttt-sub.won-x .ttt-cell { background: rgba(28,37,54,.06); }
+  body.light .ttt-sub.won-o .ttt-cell { background: rgba(28,37,54,.04); }
+  /* 时钟 */
+  body.light .clock-time { color: #1c2536; text-shadow: none; }
+  body.light .clock-ms { color: #0e7490; text-shadow: none; }
+  body.light .game-result .big { color: #1c2536; }
+  /* 按钮 */
+  body.light .btn-ghost { color: #1c2536; border-color: rgba(28,37,54,.3); background: transparent; }
+  body.light .btn-ghost:hover { border-color: #0e7490; color: #0e7490; background: rgba(14,116,144,.05); }
+  body.light .btn-primary { background: #0e7490; color: #fff; box-shadow: none; }
+  body.light .btn-primary:hover { background: #155e75; }
+  /* 渐变文字改深色系 */
+  body.light .hero h1 {
+    background: linear-gradient(120deg, #155e75, #6d5bd0, #b0427a, #155e75);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  body.light .sec-title span {
+    background: linear-gradient(120deg, #155e75, #6d5bd0, #b0427a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  /* 徽章：深色描边文字 */
+  body.light .ds-badge-wrap {
+    background: linear-gradient(135deg, rgba(28,37,54,.25) 0%, rgba(28,37,54,.06) 35%, rgba(28,37,54,.04) 65%, rgba(28,37,54,.18) 100%);
+    box-shadow: 0 0 12px rgba(28,37,54,.06);
+  }
+  body.light .ds-badge { background: #ffffff; color: #1c2536; }
+  /* 文字色修正 */
+  body.light .card { background: #ffffff; border-color: rgba(28,37,54,.12); }
+  body.light .card:hover { background: #fafbfd; border-color: rgba(28,37,54,.2); }
+  body.light .card .ico { background: rgba(14,116,144,.06); border-color: rgba(14,116,144,.2); }
+  body.light .card .ico svg { stroke: #0e7490; }
+  body.light .game-tab.is-active { background: #ffffff; color: #0e7490; }
+  body.light .ttt-label select { background: #ffffff; color: #1c2536; border-color: rgba(28,37,54,.2); }
+  body.light .link-desc { color: #6d5bd0; }
+  body.light footer { color: #5a6478; border-color: rgba(28,37,54,.1); }
+  body.light .clock-fold summary:hover { color: #0e7490; }
+  body.light .back-top { color: #1c2536; background: #ffffff; }
+  body.light .back-top:hover { background: #f0f2f6; }
+  body.light .ttt-rules-list b { color: #1c2536; }
+
   /* 鼠标跟随光斑 */
   .cursor-glow {
     position: fixed;
@@ -210,7 +388,7 @@
   }
 
   /* ============ 内容 ============ */
-  main { position: relative; z-index: 1; }
+  main { position: relative; z-index: 2; }
   .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 
   /* ============ 首屏 ============ */
@@ -218,21 +396,22 @@
     min-height: 100vh;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    text-align: center;
     padding: 40px 24px;
     position: relative;
   }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 60fr 40fr;
+    gap: 56px;
+    align-items: center;
+    max-width: 1000px;
+    width: 100%;
+    text-align: left;
+  }
+  .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
   .badge {
     display: inline-block;
-    font-size: 12.5px;
-    letter-spacing: 5px;
-    color: var(--cyan);
-    border: 1px solid rgba(34,211,238,.4);
-    border-radius: 999px;
-    padding: 7px 22px;
     margin-bottom: 34px;
-    background: rgba(34,211,238,.05);
-    box-shadow: 0 0 24px rgba(34,211,238,.15), inset 0 0 18px rgba(34,211,238,.05);
     animation: fadeUp 1s .2s both;
   }
   .hero-icon {
@@ -253,8 +432,9 @@
     background: #0a0e1c;
   }
   .hero h1 {
+    font-family: "Zhi Mang Xing", "Kaiti SC", "STKaiti", serif;
     font-size: clamp(44px, 10vw, 100px);
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 3px;
     line-height: 1.12;
     background: linear-gradient(120deg, #67e8f9, #a78bfa, #f0abfc, #67e8f9);
@@ -272,7 +452,7 @@
     margin-top: 26px;
     font-size: clamp(15px, 3vw, 20px);
     color: var(--muted);
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     min-height: 32px;
     animation: fadeUp 1s .55s both;
   }
@@ -290,38 +470,35 @@
   .btn {
     text-decoration: none;
     font-size: 15px;
-    padding: 13px 34px;
-    border-radius: 999px;
-    transition: .3s;
+    padding: 12px 32px;
+    border-radius: 10px;
+    transition: .2s;
     border: 1px solid transparent;
     letter-spacing: 1px;
+    cursor: pointer;
+    font-family: inherit;
   }
   .btn-primary {
-    background: var(--grad);
-    color: #fff; font-weight: 600;
-    box-shadow: 0 4px 34px rgba(34,211,238,.3);
+    background: #22d3ee;
+    color: #04060e; font-weight: 600;
+    box-shadow: 0 1px 0 rgba(255,255,255,.15) inset;
   }
   .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 50px rgba(167,139,250,.5);
+    background: #67e8f9;
   }
   .btn-ghost {
     color: var(--text);
-    border-color: var(--border);
-    background: var(--card);
-    backdrop-filter: blur(6px);
+    border-color: rgba(255,255,255,.2);
+    background: transparent;
   }
   .btn-ghost:hover {
-    border-color: var(--cyan);
-    color: var(--cyan);
-    transform: translateY(-3px);
-    box-shadow: 0 0 30px rgba(34,211,238,.15);
+    border-color: rgba(255,255,255,.45);
+    background: rgba(255,255,255,.05);
   }
 
-  /* 首屏底部终端小窗 */
+  /* 首屏右栏终端卡片（官网风格） */
   .hero-card {
-    margin-top: 56px;
-    width: min(560px, 100%);
+    width: 100%;
     text-align: left;
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -329,7 +506,7 @@
     backdrop-filter: blur(12px);
     box-shadow: 0 20px 60px rgba(0,0,0,.5);
     overflow: hidden;
-    animation: fadeUp 1s .9s both;
+    animation: fadeUp 1s .55s both;
   }
   .hero-card .bar {
     display: flex; align-items: center; gap: 7px;
@@ -341,15 +518,34 @@
   .hero-card .bar i:nth-child(1) { background: #ff5f57; }
   .hero-card .bar i:nth-child(2) { background: #febc2e; }
   .hero-card .bar i:nth-child(3) { background: #28c840; }
-  .hero-card .body { padding: 18px 20px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; line-height: 2; color: #c7d2e8; }
+  .hero-card .body { padding: 18px 20px; font-family: var(--mono); font-size: 13.5px; line-height: 2; color: #c7d2e8; }
   .hero-card .body .k { color: var(--violet); }
   .hero-card .body .v { color: var(--cyan); }
 
+  /* 折叠时钟（不占首屏） */
+  .clock-fold {
+    margin-top: 34px;
+    text-align: center;
+    animation: fadeUp 1s .8s both;
+  }
+  .clock-fold summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    list-style: none;
+    padding: 8px 0;
+    user-select: none;
+    transition: color .2s;
+  }
+  .clock-fold summary:hover { color: var(--cyan); }
+  .clock-fold summary::before { content: "▸ "; }
+  .clock-fold[open] summary::before { content: "▾ "; }
+
   /* ============ 实时时钟 ============ */
   .clock-wrap {
-    margin-top: 40px;
+    margin-top: 14px;
     text-align: center;
-    animation: fadeUp 1s 1.05s both;
   }
   .clock {
     display: inline-flex;
@@ -363,13 +559,13 @@
     box-shadow: 0 10px 40px rgba(0,0,0,.4), inset 0 0 30px rgba(34,211,238,.04);
   }
   .clock-date {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     font-size: clamp(13px, 2.4vw, 16px);
     color: var(--muted);
     letter-spacing: 2px;
   }
   .clock-time {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     font-size: clamp(30px, 6vw, 46px);
     font-weight: 700;
     color: var(--text);
@@ -384,14 +580,14 @@
     text-shadow: 0 0 14px rgba(34,211,238,.8);
   }
   .clock-week {
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     font-size: clamp(13px, 2.4vw, 16px);
     color: var(--pink);
     letter-spacing: 2px;
   }
   .clock-diff {
     margin-top: 12px;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     font-size: 12px;
     color: var(--muted);
     letter-spacing: 1px;
@@ -412,11 +608,10 @@
 
   /* ============ 须臾 · 时间感知实验 ============ */
   .game-card {
-    background: var(--card);
+    background: rgba(255,255,255,.03);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 14px;
     padding: 24px;
-    backdrop-filter: blur(10px);
   }
   .game-top {
     display: flex;
@@ -431,7 +626,7 @@
     gap: 20px;
     flex-wrap: wrap;
     font-size: 13px;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
     color: var(--muted);
   }
   .game-state b { color: var(--cyan); font-weight: 600; }
@@ -453,7 +648,7 @@
     font-size: 14px;
     color: var(--muted);
     text-align: center;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
   }
   .game-result .big {
     font-size: 34px;
@@ -467,6 +662,151 @@
   .game-result .warn { color: #fbbf24; }
   .game-result .bad { color: #f87171; }
 
+  /* ============ 游戏选项卡 ============ */
+  .game-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .game-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 10px 24px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: .3s;
+    font-family: inherit;
+  }
+  .game-tab:hover { color: var(--text); }
+  .game-tab.is-active {
+    color: var(--cyan);
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: 0 -2px 20px rgba(34,211,238,.08);
+  }
+  .game-panel { display: none; }
+  .game-panel.is-active { display: block; animation: fadeUp .5s both; }
+
+  /* ============ 终极井字棋（暗黑霓虹风） ============ */
+  .ttt-rules {
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(5,7,15,.5);
+    padding: 4px 16px;
+  }
+  .ttt-rules summary {
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    padding: 10px 0;
+    letter-spacing: 1px;
+    user-select: none;
+    list-style: none;
+    transition: color .2s;
+  }
+  .ttt-rules summary:hover { color: var(--cyan); }
+  .ttt-rules summary::before { content: "▸ "; }
+  .ttt-rules[open] summary::before { content: "▾ "; }
+  .ttt-rules-list {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.9;
+  }
+  .ttt-rules-list b { color: var(--text); font-weight: 600; }
+  .ttt-wrap {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .ttt-settings {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .ttt-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .ttt-label select {
+    background: rgba(5,7,15,.8);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+  }
+  .ttt-label select:focus { border-color: var(--cyan); }
+  .ttt-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  .ttt-sub {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: rgba(255,255,255,.02);
+    border-radius: 6px;
+    padding: 2px;
+    border: 1px solid rgba(255,255,255,.06);
+    transition: .2s;
+  }
+  .ttt-sub.active {
+    border-color: rgba(255,255,255,.45);
+    background: rgba(255,255,255,.04);
+  }
+  .ttt-cell {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,.02);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(16px, 3vw, 26px);
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background .15s;
+    user-select: none;
+  }
+  .ttt-cell:hover { background: rgba(255,255,255,.07); }
+  .ttt-cell.x { color: #e9edf9; }
+  .ttt-cell.o { color: #8b93ab; }
+  .ttt-sub.won-x .ttt-cell { background: rgba(255,255,255,.07); }
+  .ttt-sub.won-o .ttt-cell { background: rgba(255,255,255,.05); }
+  .ttt-sub.won-d .ttt-cell { opacity: .3; }
+  .ttt-status {
+    margin-top: 16px;
+    font-size: 15px;
+    text-align: center;
+    color: var(--text);
+    min-height: 24px;
+    font-family: var(--mono);
+    letter-spacing: 1px;
+  }
+  .ttt-status .cyan { color: #8b93ab; }
+  .ttt-status .pink { color: #e9edf9; }
+
   .scroll-hint {
     position: absolute; bottom: 28px;
     color: var(--muted); font-size: 12px;
@@ -477,8 +817,9 @@
   /* ============ 通用区块 ============ */
   section { padding: 100px 0; }
   .sec-title {
+    font-family: "Zhi Mang Xing", "Kaiti SC", "STKaiti", serif;
     font-size: clamp(26px, 4vw, 36px);
-    font-weight: 800;
+    font-weight: 700;
     margin-bottom: 12px;
     letter-spacing: 1px;
   }
@@ -492,41 +833,44 @@
 
   /* 区块小标号 */
   .sec-no {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 13px;
-    color: var(--cyan);
-    letter-spacing: 2px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
+
+  /* ============ 官网式渐变徽章 ============ */
+  .ds-badge-wrap {
+    display: inline-block;
+    border-radius: 9px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.08) 35%, rgba(255,255,255,.04) 65%, rgba(255,255,255,.35) 100%);
+    box-shadow: 0 0 16px rgba(255,255,255,.08), 0 0 32px rgba(255,255,255,.04);
+  }
+  .ds-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.35);
+    color: rgba(255,255,255,.95);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .ds-badge-wrap .ds-badge { display: block; }
 
   /* ============ 卡片（霓虹边框） ============ */
   .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
   .card {
-    background: var(--card);
+    background: rgba(255,255,255,.03);
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-    transition: .35s;
-    position: relative;
-  }
-  .card::after {
-    content: "";
-    position: absolute; inset: -1px;
-    border-radius: 18px;
-    padding: 1px;
-    background: var(--grad);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: .35s;
+    border-radius: 16px;
+    padding: 28px;
+    transition: .3s;
   }
   .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 18px 60px rgba(34,211,238,.1);
+    border-color: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.045);
   }
-  .card:hover::after { opacity: 1; }
   .card h3 { font-size: 18px; margin-bottom: 10px; }
   .card p { color: var(--muted); font-size: 14.5px; }
   .card .ico {
@@ -535,7 +879,7 @@
     margin-bottom: 18px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: rgba(34,211,238,.05);
+    background: rgba(255,255,255,.03);
   }
   .card .ico svg { width: 21px; height: 21px; stroke: var(--cyan); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -548,48 +892,14 @@
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--muted);
-    transition: .3s;
+    transition: .25s;
     letter-spacing: 1px;
   }
   .tag:hover {
     color: var(--text);
-    border-color: var(--cyan);
-    box-shadow: 0 0 24px rgba(34,211,238,.3), inset 0 0 12px rgba(34,211,238,.08);
-    transform: translateY(-2px);
+    border-color: rgba(255,255,255,.22);
+    background: rgba(255,255,255,.05);
   }
-
-  /* ============ 作品 ============ */
-  .works { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
-  .work {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 26px;
-    transition: .35s;
-    position: relative;
-    overflow: hidden;
-  }
-  .work::before {
-    content: "";
-    position: absolute; top: 0; left: -120%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(34,211,238,.1), transparent);
-    transition: .7s;
-  }
-  .work:hover::before { left: 120%; }
-  .work:hover {
-    border-color: rgba(167,139,250,.55);
-    transform: translateY(-6px);
-    box-shadow: 0 16px 50px rgba(167,139,250,.12);
-  }
-  .work .w-no {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 12px;
-    color: var(--violet);
-    letter-spacing: 2px;
-  }
-  .work h4 { font-size: 17px; margin: 12px 0 8px; }
-  .work p { color: var(--muted); font-size: 13.5px; }
 
   /* ============ SYM桌游 ============ */
   .board-title {
@@ -601,11 +911,10 @@
   .board-icon {
     width: 72px;
     height: 72px;
-    border-radius: 16px;
+    border-radius: 14px;
     flex-shrink: 0;
     background: #0a0e1c;
     border: 1px solid var(--border);
-    box-shadow: 0 0 24px rgba(225,29,72,.25);
     overflow: hidden;
     padding: 8px;
     box-sizing: border-box;
@@ -636,11 +945,10 @@
     justify-content: space-between;
     gap: 20px;
     flex-wrap: wrap;
-    background: var(--card);
+    background: rgba(255,255,255,.02);
     border: 1px dashed var(--border);
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 22px 26px;
-    backdrop-filter: blur(10px);
   }
   .backup-desc {
     color: var(--muted);
@@ -664,16 +972,14 @@
     gap: 6px;
     padding: 22px 24px;
     border: 1px solid var(--border);
-    border-radius: 16px;
-    background: var(--card);
+    border-radius: 14px;
+    background: rgba(255,255,255,.03);
     text-decoration: none;
-    transition: .3s;
-    backdrop-filter: blur(10px);
+    transition: .25s;
   }
   .link-card:hover {
-    border-color: rgba(34,211,238,.45);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(34,211,238,.1);
+    border-color: rgba(255,255,255,.18);
+    background: rgba(255,255,255,.05);
   }
   .link-name {
     font-size: 17px;
@@ -687,7 +993,7 @@
   .link-url {
     font-size: 12.5px;
     color: var(--muted);
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-family: var(--mono);
   }
   @media (max-width: 600px) {
     .links-grid { grid-template-columns: 1fr; }
@@ -696,19 +1002,10 @@
   /* ============ 联系 ============ */
   .contact-card {
     text-align: center;
-    background: var(--card);
+    background: rgba(255,255,255,.03);
     border: 1px solid var(--border);
-    border-radius: 22px;
-    padding: 64px 30px;
-    backdrop-filter: blur(10px);
-    position: relative;
-  }
-  .contact-card::before {
-    content: "";
-    position: absolute; inset: 0;
-    border-radius: 22px;
-    background: radial-gradient(ellipse at top, rgba(34,211,238,.08), transparent 60%);
-    pointer-events: none;
+    border-radius: 18px;
+    padding: 56px 30px;
   }
   .contact-card h3 { font-size: clamp(24px, 4vw, 32px); margin-bottom: 14px; }
   .contact-card p { color: var(--muted); margin-bottom: 32px; }
@@ -720,6 +1017,12 @@
     color: var(--muted);
     font-size: 13px;
     border-top: 1px solid var(--border);
+  }
+  .site-stats {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
   }
 
   /* ============ 动画 ============ */
@@ -744,8 +1047,11 @@
     .about-grid { grid-template-columns: 1fr; }
     .works { grid-template-columns: 1fr; }
     section { padding: 64px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 32px; text-align: center; }
+    .hero-left { align-items: center; }
   }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/zhi-mang-xing@5.1.0/index.css">
 </head>
 <body>
 
@@ -756,13 +1062,13 @@
   <!-- ============ 顶部导航条（点击汉堡按钮滑出/收起） ============ -->
   <nav class="index-nav" id="indexNav">
     <div class="index-nav-inner">
-      <a href="#top" class="index-nav-item">首页</a>
-      <a href="#skills" class="index-nav-item">标签</a>
-      <a href="#timegame" class="index-nav-item">须臾</a>
-      <a href="#board" class="index-nav-item">桌游</a>
-      <a href="#backup" class="index-nav-item">备用</a>
-      <a href="#links" class="index-nav-item">友链</a>
-      <a href="#contact" class="index-nav-item">联系</a>
+      <a href="#top" class="index-nav-item" data-i18n="nav_home">首页</a>
+      <a href="#skills" class="index-nav-item" data-i18n="nav_tags">标签</a>
+      <a href="#timegame" class="index-nav-item" data-i18n="nav_game">游戏</a>
+      <a href="#board" class="index-nav-item" data-i18n="nav_board">桌游</a>
+      <a href="#backup" class="index-nav-item" data-i18n="nav_backup">备用</a>
+      <a href="#links" class="index-nav-item" data-i18n="nav_links">友链</a>
+      <a href="#contact" class="index-nav-item" data-i18n="nav_contact">联系</a>
     </div>
   </nav>
 
@@ -771,71 +1077,134 @@
     <span></span><span></span><span></span>
   </button>
 
+  <!-- 主题切换按钮 -->
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">☾</button>
+
+  <!-- 语言切换按钮 -->
+  <button class="lang-toggle" id="langToggle" aria-label="切换语言">EN</button>
+
   <!-- ============ 首屏 ============ -->
   <header class="hero" id="top">
-    <div class="badge">SYM12356</div>
-    <h1>行至水穷处<br><span style="font-size: clamp(30px, 6.5vw, 66px);">坐看云起时</span></h1>
-    <div class="type-line"><span class="prompt">❯</span><span id="typeText"></span><span class="cursor"></span></div>
+    <div class="hero-grid">
+      <!-- 左栏：文字 -->
+      <div class="hero-left">
+        <div class="badge ds-badge-wrap"><span class="ds-badge">SYM12356</span></div>
+        <h1><span data-i18n="hero_l1">行至水穷处</span><br><span style="font-size: clamp(30px, 6.5vw, 66px);" data-i18n="hero_l2">坐看云起时</span></h1>
+        <div class="type-line"><span class="prompt">❯</span><span id="typeText"></span><span class="cursor"></span></div>
+      </div>
 
-    <!-- 终端风格小窗 -->
-    <div class="hero-card">
-      <div class="bar"><i></i><i></i><i></i></div>
-      <div class="body">
-        <div><span class="k">$ whoami</span> &nbsp;<span class="v">SYM12356</span></div>
-        <div><span class="k">$ status</span> &nbsp;<span class="v">行至水穷处，坐看云起时</span></div>
-        <div><span class="k">$ mission</span> &nbsp;<span class="v">探索 · 创造 · 分享</span></div>
-        <div><span class="k">$ now</span> &nbsp;<span class="v" id="liveTime">--:--:--</span></div>
+      <!-- 右栏：终端卡片（官网风格） -->
+      <div class="hero-card">
+        <div class="bar">
+          <i></i><i></i><i></i>
+        </div>
+        <div class="body">
+          <div><span class="k">$ whoami</span> &nbsp;<span class="v">SYM12356</span></div>
+          <div><span class="k">$ status</span> &nbsp;<span class="v" data-i18n="t_status">行至水穷处，坐看云起时</span></div>
+          <div><span class="k">$ mission</span> &nbsp;<span class="v" data-i18n="t_mission">探索 · 创造 · 分享</span></div>
+          <div><span class="k">$ now</span> &nbsp;<span class="v" id="liveTime">--:--:--</span></div>
+        </div>
       </div>
     </div>
 
-    <!-- 实时时钟（精确到毫秒 + 系统偏差对比） -->
-    <div class="clock-wrap">
-      <div class="clock">
-        <span class="clock-date" id="clockDate">----年--月--日</span>
-        <span class="clock-time" id="clockTime">--:--:--</span>
-        <span class="clock-week" id="clockWeek">星期-</span>
+    <!-- 实时时钟（收进折叠区，不占首屏） -->
+    <details class="clock-fold">
+      <summary data-i18n="clock_fold">精确时钟</summary>
+      <div class="clock-wrap">
+        <div class="clock">
+          <span class="clock-date" id="clockDate">----年--月--日</span>
+          <span class="clock-time" id="clockTime">--:--:--</span>
+          <span class="clock-week" id="clockWeek">星期-</span>
+        </div>
+        <div class="clock-diff" id="clockDiff">与系统时钟偏差 -- ms</div>
       </div>
-      <div class="clock-diff" id="clockDiff">与系统时钟偏差 -- ms</div>
-    </div>
+    </details>
 
-    <div class="scroll-hint">向下滑动</div>
+    <div class="scroll-hint" data-i18n="scroll_hint">向下滑动</div>
   </header>
 
   <!-- ============ 标签 ============ -->
   <section id="skills">
     <div class="wrap">
-      <div class="sec-no reveal">01 / TAGS</div>
-      <h2 class="sec-title reveal">我的<span>标签</span></h2>
-      <p class="sec-sub reveal">鼠标悬停会发光，好看就完事</p>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">01 / TAGS</span></div>
+      <h2 class="sec-title reveal" data-i18n="t_tags_full">我的标签</h2>
+      <p class="sec-sub reveal" data-i18n="t_tags_sub">鼠标悬停会发光，好看就完事</p>
       <div class="tags reveal">
-        <span class="tag">编程</span>
-        <span class="tag">游戏</span>
-        <span class="tag">睡觉</span>
-        <span class="tag">桌游</span>
+        <span class="tag" data-i18n="tag_code">编程</span>
+        <span class="tag" data-i18n="tag_game">游戏</span>
+        <span class="tag" data-i18n="tag_sleep">睡觉</span>
+        <span class="tag" data-i18n="tag_board">桌游</span>
       </div>
     </div>
   </section>
 
-  <!-- ============ 须臾 · 时间感知实验 ============ -->
+  <!-- ============ 游戏 ============ -->
   <section id="timegame">
     <div class="wrap">
-      <div class="sec-no reveal">02 / GAME</div>
-      <h2 class="sec-title reveal">须<span>臾</span></h2>
-      <p class="sec-sub reveal">你感知的时间，和真实的时间，差多少？</p>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">02 / GAME</span></div>
+      <h2 class="sec-title reveal" data-i18n="g_title_full">游戏</h2>
+      <p class="sec-sub reveal" data-i18n="g_sub">两个小游戏，一个感知时间，一个谋略棋盘</p>
 
-      <div class="game-card reveal">
-        <div class="game-top">
-          <div class="game-state">
-            <span class="gs-round" id="tgRound">第 0 / 10 轮</span>
-            <span class="gs-target" id="tgTarget">点击「开始实验」</span>
-            <span class="gs-combo" id="tgCombo"></span>
+      <!-- 游戏选项卡 -->
+      <div class="game-tabs reveal">
+        <button class="game-tab is-active" data-gtab="xu" data-i18n="g_tab_xu">须臾 · 时间感知</button>
+        <button class="game-tab" data-gtab="ttt" data-i18n="g_tab_ttt">终极井字棋</button>
+      </div>
+
+      <!-- 选项卡 1：须臾 -->
+      <div class="game-panel reveal is-active" data-gpanel="xu">
+        <p class="sec-sub" style="margin-bottom:18px" data-i18n="xu_sub">你感知的时间，和真实的时间，差多少？</p>
+        <div class="game-card">
+          <div class="game-top">
+            <div class="game-state">
+              <span class="gs-round" id="tgRound">第 0 / 10 轮</span>
+              <span class="gs-target" id="tgTarget" data-i18n="xu_target">点击「开始实验」</span>
+              <span class="gs-combo" id="tgCombo"></span>
+            </div>
+            <button class="btn btn-primary game-btn" id="tgStart" data-i18n="xu_start">开始实验</button>
           </div>
-          <button class="btn btn-primary game-btn" id="tgStart">开始实验</button>
+          <canvas id="tgCanvas" width="560" height="360"></canvas>
+          <div class="game-result" id="tgFeedback"></div>
         </div>
+      </div>
 
-        <canvas id="tgCanvas" width="560" height="360"></canvas>
+      <!-- 选项卡 2：终极井字棋 -->
+      <div class="game-panel reveal" data-gpanel="ttt">
+        <p class="sec-sub" style="margin-bottom:18px" data-i18n="ttt_sub">九宫格中的九宫格 · 与 AI 对弈，制霸全盘</p>
 
-        <div class="game-result" id="tgFeedback"></div>
+        <!-- 规则说明 -->
+        <details class="ttt-rules">
+          <summary data-i18n="ttt_rules">📖 玩法规则</summary>
+          <ul class="ttt-rules-list">
+            <li data-i18n="r1"><b>棋盘结构</b>：9 个子棋盘组成一个大局，每个子棋盘内有 3×3 格。赢下子棋盘者占得该格。</li>
+            <li data-i18n="r2"><b>落子规则</b>：你落在子棋盘的哪一格，对手下一手就必须进入对应编号的子棋盘。</li>
+            <li data-i18n="r3"><b>自由选择</b>：若落点对应的子棋盘已被赢下或下满，则改为自由选择任意可下子棋盘。</li>
+            <li data-i18n="r4"><b>获胜条件</b>：先在大局上连成三子（横/竖/斜）者获胜；若所有子棋盘下满仍无三连，则平局。</li>
+            <li data-i18n="r5"><b>高亮提示</b>：青色发光边框 = 当前必须落子的子棋盘。</li>
+            <li data-i18n="r6"><b>难度说明</b>：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。</li>
+          </ul>
+        </details>
+
+        <div class="ttt-wrap">
+          <div class="ttt-settings">
+            <label class="ttt-label"><span data-i18n="ttt_diff">难度</span>
+              <select id="tttDifficulty">
+                <option value="easy" data-i18n="ttt_easy">简单模式</option>
+                <option value="medium" selected data-i18n="ttt_medium">中等模式</option>
+                <option value="hard" data-i18n="ttt_hard">困难模式</option>
+              </select>
+            </label>
+            <label class="ttt-label"><span data-i18n="ttt_order">手序</span>
+              <select id="tttOrder">
+                <option value="first" selected data-i18n="ttt_first">先手</option>
+                <option value="second" data-i18n="ttt_second">后手</option>
+              </select>
+            </label>
+            <button class="btn btn-primary game-btn" id="tttNew" data-i18n="ttt_new">新游戏</button>
+          </div>
+          <div class="ttt-board" id="tttBoard"></div>
+          <div class="ttt-status" id="tttStatus" data-i18n="ttt_status">准备开始</div>
+        </div>
       </div>
     </div>
   </section>
@@ -843,7 +1212,7 @@
   <!-- ============ SYM桌游 ============ -->
   <section id="board">
     <div class="wrap">
-      <div class="sec-no reveal">03 / BOARD</div>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">03 / BOARD</span></div>
       <div class="board-title reveal">
         <div class="board-icon"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block"><!-- 粗臂十字架：两条粗红线交叉，中心自然融合成方块，无分割线 -->
   <g stroke="#e11d48" stroke-width="88" stroke-linecap="butt">
@@ -905,13 +1274,13 @@
     <rect x="262" y="286" width="12" height="12"/>
     <rect x="274" y="286" width="12" height="12"/>
   </g></svg></div>
-        <h2 class="sec-title" style="margin-bottom:0">SYM<span>桌游</span></h2>
+        <h2 class="sec-title" style="margin-bottom:0">SYM<span data-i18n="b_title">桌游</span></h2>
       </div>
-      <p class="sec-sub reveal">&nbsp;</p>
+      <p class="sec-sub reveal" data-i18n="b_sub">自研武侠对战游戏，热座双人对决</p>
       <div class="board-launch reveal">
-        <p class="board-desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
+        <p class="board-desc" data-i18n="b_desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
         <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
-          进入剑影江湖
+          <span data-i18n="b_enter">进入剑影江湖</span>
         </a>
       </div>
     </div>
@@ -920,13 +1289,13 @@
   <!-- ============ 备用入口 ============ -->
   <section id="backup">
     <div class="wrap">
-      <div class="sec-no reveal">04 / BACKUP</div>
-      <h2 class="sec-title reveal">备用<span>入口</span></h2>
-      <p class="sec-sub reveal">同站双线路 · GitHub 线路主用，Cloudflare 线路备用</p>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">04 / BACKUP</span></div>
+      <h2 class="sec-title reveal" data-i18n="bk_title_full">备用</h2>
+      <p class="sec-sub reveal" data-i18n="bk_sub">同站双线路 · GitHub 线路主用，Cloudflare 线路备用</p>
       <div class="backup-card reveal">
-        <p class="backup-desc">Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选</p>
+        <p class="backup-desc" data-i18n="bk_desc">Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选</p>
         <a href="https://sym12356.sym12356.workers.dev/" target="_blank" rel="noopener" class="btn btn-ghost backup-btn">
-          访问 Cloudflare 线路
+          <span data-i18n="bk_btn">访问 Cloudflare 线路</span>
         </a>
       </div>
     </div>
@@ -935,18 +1304,18 @@
   <!-- ============ 友链 ============ -->
   <section id="links">
     <div class="wrap">
-      <div class="sec-no reveal">05 / LINKS</div>
-      <h2 class="sec-title reveal">友<span>链</span></h2>
-      <p class="sec-sub reveal">一起折腾的朋友们</p>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">05 / LINKS</span></div>
+      <h2 class="sec-title reveal" data-i18n="l_title_full">友链</h2>
+      <p class="sec-sub reveal" data-i18n="l_sub">一起折腾的朋友们</p>
       <div class="links-grid reveal">
         <a href="https://cy3.cc.cd" target="_blank" rel="noopener" class="link-card">
           <span class="link-name">chenyuan3</span>
-          <span class="link-desc">主站</span>
+          <span class="link-desc" data-i18n="l_main">主站</span>
           <span class="link-url">cy3.cc.cd</span>
         </a>
         <a href="https://chenyuan33.github.io" target="_blank" rel="noopener" class="link-card">
           <span class="link-name">chenyuan3</span>
-          <span class="link-desc">备用 / 博客站</span>
+          <span class="link-desc" data-i18n="l_blog">备用 / 博客站</span>
           <span class="link-url">chenyuan33.github.io</span>
         </a>
       </div>
@@ -957,19 +1326,107 @@
   <section id="contact">
     <div class="wrap">
       <div class="contact-card reveal">
-        <h3>想认识我吗？</h3>
-        <p>邮件联系：<b style="color:var(--cyan)">3829343053@qq.com</b></p>
-        <a href="mailto:3829343053@qq.com" class="btn btn-primary">联系我</a>
+        <h3 data-i18n="c_title">想认识我吗？</h3>
+        <p><span data-i18n="c_email">邮件联系：</span><b style="color:var(--cyan)">3829343053@qq.com</b></p>
+        <a href="mailto:3829343053@qq.com" class="btn btn-primary" data-i18n="c_btn">联系我</a>
       </div>
     </div>
   </section>
 
   <footer>
-    <p>© 2026 · 用心制作 · Powered by Cloudflare Pages</p>
+    <p data-i18n="f_made">© 2026 · 用心制作 · Powered by Cloudflare Pages</p>
+    <p class="site-stats">
+      <span data-i18n="f_stats">访问量</span> <span id="busuanzi_value_site_pv">--</span> · <span data-i18n="f_uv">访客</span> <span id="busuanzi_value_site_uv">--</span>
+    </p>
   </footer>
 </main>
 
+<!-- 回到顶部按钮 -->
+<button class="back-top" id="backTop" aria-label="回到顶部">↑</button>
+
 <script>
+/* ============ 中英切换 ============ */
+const I18N = {
+  'zh': {
+    nav_home: '首页', nav_tags: '标签', nav_game: '游戏', nav_board: '桌游', nav_backup: '备用', nav_links: '友链', nav_contact: '联系',
+    t_status: '行至水穷处，坐看云起时', t_mission: '探索 · 创造 · 分享',
+    clock_fold: '精确时钟',
+    t_tags_full: '我的标签', t_tags_sub: '鼠标悬停会发光，好看就完事',
+    tag_code: '编程', tag_game: '游戏', tag_sleep: '睡觉', tag_board: '桌游',
+    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋',
+    xu_sub: '你感知的时间，和真实的时间，差多少？', xu_target: '点击「开始实验」', xu_start: '开始实验',
+    ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '📖 玩法规则',
+    ttt_diff: '难度', ttt_easy: '简单模式', ttt_medium: '中等模式', ttt_hard: '困难模式',
+    ttt_order: '手序', ttt_first: '先手', ttt_second: '后手', ttt_new: '新游戏', ttt_status: '准备开始',
+    b_title: '桌游', b_desc: '《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽', b_enter: '进入剑影江湖',
+    bk_title: '入口', bk_sub: '同站双线路 · GitHub 线路主用，Cloudflare 线路备用',
+    bk_desc: 'Cloudflare 镜像线路 · 若本站无法访问，可把下方网址发给朋友作为备选', bk_btn: '访问 Cloudflare 线路',
+    l_title_full: '友链', l_sub: '一起折腾的朋友们', l_main: '主站', l_blog: '备用 / 博客站',
+    c_title: '想认识我吗？', c_email: '邮件联系：', c_btn: '联系我',
+    f_made: '© 2026 · 用心制作 · Powered by Cloudflare Pages', f_stats: '访问量', f_uv: '访客',
+    r1: '棋盘结构：9 个子棋盘组成一个大局，每个子棋盘内有 3×3 格。赢下子棋盘者占得该格。',
+    r2: '落子规则：你落在子棋盘的哪一格，对手下一手就必须进入对应编号的子棋盘。',
+    r3: '自由选择：若落点对应的子棋盘已被赢下或下满，则改为自由选择任意可下子棋盘。',
+    r4: '获胜条件：先在大局上连成三子（横/竖/斜）者获胜；若所有子棋盘下满仍无三连，则平局。',
+    r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
+    r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
+    hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
+    g_sub: '两个小游戏，一个感知时间，一个谋略棋盘', b_sub: '自研武侠对战游戏，热座双人对决'
+  },
+  'en': {
+    nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_contact: 'Contact',
+    t_status: 'When water ends, clouds rise', t_mission: 'Explore · Create · Share',
+    clock_fold: 'Precise Clock',
+    t_tags_full: 'My Tags', t_tags_sub: 'Hover to glow',
+    tag_code: 'Coding', tag_game: 'Gaming', tag_sleep: 'Sleeping', tag_board: 'Board Games',
+    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe',
+    xu_sub: 'How far is your sense of time from real time?', xu_target: 'Click to start', xu_start: 'Start',
+    ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: '📖 Rules',
+    ttt_diff: 'Difficulty', ttt_easy: 'Easy', ttt_medium: 'Medium', ttt_hard: 'Hard',
+    ttt_order: 'Turn', ttt_first: 'First', ttt_second: 'Second', ttt_new: 'New Game', ttt_status: 'Ready',
+    b_title: 'Board', b_desc: 'Sword Shadow Jianghu - a 2-player wuxia duel game with 5 heroes', b_enter: 'Enter Sword Shadow',
+    bk_title: 'Entry', bk_sub: 'Dual lines · GitHub primary, Cloudflare backup',
+    bk_desc: 'Cloudflare mirror · if this site is down, share this URL as an alternative', bk_btn: 'Cloudflare Line',
+    l_title_full: 'Links', l_sub: 'Friends who tinker together', l_main: 'Main', l_blog: 'Mirror / Blog',
+    c_title: 'Want to know me?', c_email: 'Email:', c_btn: 'Contact Me',
+    f_made: '© 2026 · Made with care · Powered by Cloudflare Pages', f_stats: 'Views', f_uv: 'Visitors',
+    r1: 'Structure: 9 mini-boards form one big board, each with a 3x3 grid. Win a mini-board to claim that cell.',
+    r2: 'Placement: wherever you play, your opponent must play in the corresponding mini-board.',
+    r3: 'Free choice: if that mini-board is won or full, you may play any available mini-board.',
+    r4: 'Win: first to make 3-in-a-row (row/col/diag) on the big board wins; full board with no 3 = draw.',
+    r5: 'Highlight: the glowing border marks the mini-board you must play in.',
+    r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
+    hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
+    g_sub: 'Two mini games - sense time, master the board', b_sub: 'Our wuxia duel game - hot-seat 2-player battle'
+  }
+};
+(function() {
+  const btn = document.getElementById('langToggle');
+  if (!btn) return;
+  let lang = localStorage.getItem('lang') || 'zh';
+  function apply(l) {
+    lang = l;
+    document.body.setAttribute('data-lang', l);
+    btn.textContent = l === 'zh' ? 'EN' : '中';
+    const dict = I18N[l];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) el.textContent = dict[key];
+    });
+    localStorage.setItem('lang', l);
+    try { syncPhrases(); } catch(e) {}
+  }
+  btn.addEventListener('click', () => apply(lang === 'zh' ? 'en' : 'zh'));
+  window.__lang = function() { return lang; };
+  window.__t = function(key) { return I18N[lang] && I18N[lang][key] || key; };
+  // 首次应用延迟到页面加载完成后，避免 TDZ（打字机常量未初始化）
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => apply(lang));
+  } else {
+    apply(lang);
+  }
+})();
+
 /* ============ WebGL 流体背景（DeepSeek harness 风格） ============ */
 (function() {
   const canvas = document.getElementById('bgfx');
@@ -1315,7 +1772,7 @@
 })();
 
 /* ============ 终端打字机 ============ */
-const phrases = [
+const PHRASES_ZH = [
   '行至水穷处，坐看云起时 —— 王维',
   '天行健，君子以自强不息 —— 《周易》',
   '千里之行，始于足下 —— 老子',
@@ -1333,8 +1790,33 @@ const phrases = [
   '世界上只有一种英雄主义，就是看清生活的真相后依然热爱生活 —— 罗曼·罗兰',
   '黑夜给了我黑色的眼睛，我却用它寻找光明 —— 顾城'
 ];
+const PHRASES_EN = [
+  'When water ends, clouds rise - Wang Wei',
+  'As Heaven moves, the noble strives - I Ching',
+  'A thousand-mile journey starts with one step - Laozi',
+  'Life is limited, knowledge is boundless - Zhuangzi',
+  'The wise are free from doubt - Confucius',
+  'Someday I will ride the wind and waves - Li Bai',
+  'Bosom friends feel close even from afar - Wang Bo',
+  'Home is where the heart is at peace - Su Shi',
+  'Know thyself - Socrates',
+  'The unexamined life is not worth living - Socrates',
+  'I think, therefore I am - Descartes',
+  'Man is the measure of all things - Protagoras',
+  'What is rational is real - Hegel',
+  'Every day without dancing is a betrayal of life - Nietzsche',
+  'The only true heroism: loving life after seeing its truth - Romain Rolland',
+  'In the dark I seek the light - Gu Cheng'
+];
+let phrases = PHRASES_ZH;
 const el = document.getElementById('typeText');
 let pi = 0, ci = 0, deleting = false;
+
+function syncPhrases() {
+  const lang = document.body.getAttribute('data-lang') || 'zh';
+  phrases = lang === 'en' ? PHRASES_EN : PHRASES_ZH;
+  pi = 0; ci = 0; deleting = false;
+}
 
 function type() {
   const cur = phrases[pi];
@@ -1372,26 +1854,33 @@ type();
     // 用 performance 对齐：Date.now() 与 performance.now() 同源，差值即渲染延迟
     const drift = Math.max(0, Math.round(perfNow - lastRender));
 
-    dateEl.textContent = d.getFullYear() + '年' + pad(d.getMonth()+1) + '月' + pad(d.getDate()) + '日';
+    const L = (window.__lang && window.__lang()) || 'zh';
+    dateEl.textContent = L === 'en'
+      ? (d.getMonth()+1) + '/' + pad(d.getDate()) + '/' + d.getFullYear()
+      : d.getFullYear() + '年' + pad(d.getMonth()+1) + '月' + pad(d.getDate()) + '日';
     const h = d.getHours(), hh = h % 12 || 12;
     const ms = pad3(d.getMilliseconds());
     timeEl.innerHTML = pad(hh) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + '<span class="clock-ms">.' + ms + '</span>';
-    weekEl.textContent = '星期' + WEEKS[d.getDay()];
+    weekEl.textContent = L === 'en' ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] : '星期' + WEEKS[d.getDay()];
     liveEl.innerHTML = pad(h) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + '<span class="clock-ms">.' + ms + '</span>';
 
     // 偏差指示（颜色分级）
+    const driftTxt = L === 'en' ? 'Clock drift' : '与系统时钟偏差';
+    const syncTxt = L === 'en' ? 'synced' : '同步';
+    const lagTxt = L === 'en' ? 'lagging' : '稍慢';
+    const delayTxt = L === 'en' ? 'delayed' : '延迟';
     if (drift <= 1) {
       diffEl.className = 'clock-diff good';
-      diffEl.innerHTML = '与系统时钟偏差 <b>0</b> ms · 同步';
+      diffEl.innerHTML = driftTxt + ' <b>0</b> ms · ' + syncTxt;
     } else if (drift <= 50) {
       diffEl.className = 'clock-diff good';
-      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 同步';
+      diffEl.innerHTML = driftTxt + ' <b>' + drift + '</b> ms · ' + syncTxt;
     } else if (drift <= 200) {
       diffEl.className = 'clock-diff warn';
-      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 稍慢';
+      diffEl.innerHTML = driftTxt + ' <b>' + drift + '</b> ms · ' + lagTxt;
     } else {
       diffEl.className = 'clock-diff bad';
-      diffEl.innerHTML = '与系统时钟偏差 <b>' + drift + '</b> ms · 延迟';
+      diffEl.innerHTML = driftTxt + ' <b>' + drift + '</b> ms · ' + delayTxt;
     }
 
     lastRender = perfNow;
@@ -1403,6 +1892,7 @@ type();
 /* ============ 须臾 · 时间感知实验 ============ */
 (function() {
   const cv = document.getElementById('tgCanvas');
+  const L = () => (window.__lang ? window.__lang() : 'zh');
   if (!cv) return;
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
@@ -1430,11 +1920,11 @@ type();
   }
   function grade(err) {
     const a = Math.abs(err);
-    if (a < 30) return { cls: 'good', word: '分毫不差' };     // 真·神
-    if (a < 120) return { cls: 'good', word: '精准' };        // 51ms 在这里，绿色！
-    if (a < 300) return { cls: 'mid', word: '接近' };         // 青色，中性
-    if (a < 600) return { cls: 'warn', word: '有点飘' };      // 黄色
-    return { cls: 'bad', word: '错得离谱' };                  // 红色，600ms+ 才算
+    if (a < 30) return { cls: 'good', word: L()==='en' ? 'Flawless' : '分毫不差' };
+    if (a < 120) return { cls: 'good', word: L()==='en' ? 'Precise' : '精准' };
+    if (a < 300) return { cls: 'mid', word: L()==='en' ? 'Close' : '接近' };
+    if (a < 600) return { cls: 'warn', word: L()==='en' ? 'Off' : '有点飘' };
+    return { cls: 'bad', word: L()==='en' ? 'Way off' : '错得离谱' };
   }
   function burst(x, y, color) {
     for (let i = 0; i < 26; i++) {
@@ -1453,16 +1943,16 @@ type();
       comboEl.textContent = '';
       targetMs = (2000 + Math.random() * 5000);   // 2~7 秒
       startAt = performance.now();
-      roundEl.innerHTML = '第 <b>' + round + '</b> / ' + TOTAL + ' 轮';
-      targetEl.innerHTML = '请等待 <b>' + (targetMs/1000).toFixed(1) + '</b> 秒后点击';
+      roundEl.innerHTML = (L()==='en' ? 'Round <b>' + round + '</b> / ' + TOTAL : '第 <b>' + round + '</b> / ' + TOTAL + ' 轮');
+      targetEl.innerHTML = (L()==='en' ? 'Wait <b>' + (targetMs/1000).toFixed(1) + '</b>s then click' : '请等待 <b>' + (targetMs/1000).toFixed(1) + '</b> 秒后点击');
       fbEl.innerHTML = '';
       burst(CX, CY, 'rgba(34,211,238,.5)');
     } else if (s === 'idle') {
-      roundEl.innerHTML = '第 <b>0</b> / ' + TOTAL + ' 轮';
-      targetEl.innerHTML = '点击「开始实验」';
+      roundEl.innerHTML = (L()==='en' ? 'Round <b>0</b> / ' + TOTAL : '第 <b>0</b> / ' + TOTAL + ' 轮');
+      targetEl.innerHTML = L()==='en' ? 'Click to start' : '点击「开始实验」';
       comboEl.textContent = '';
       fbEl.innerHTML = '';
-      startBtn.textContent = '开始实验';
+      startBtn.textContent = L()==='en' ? 'Start' : '开始实验';
     } else if (s === 'report') {
       showReport();
     }
@@ -1478,7 +1968,7 @@ type();
     const g = grade(err);
     if (a < 120) { combo++; bestCombo = Math.max(bestCombo, combo); }
     else combo = 0;
-    comboEl.textContent = combo >= 2 ? '须臾连击 ×' + combo : '';
+    comboEl.textContent = combo >= 2 ? (L()==='en' ? 'Combo ×' + combo : '须臾连击 ×' + combo) : '';
 
     fbEl.innerHTML = '<span class="big ' + g.cls + '">' + fmt(err) + '</span><span class="' + g.cls + '">' + g.word + '</span>';
     burst(CX, CY, a < 120 ? 'rgba(52,211,153,.7)' : a < 300 ? 'rgba(34,211,238,.6)' : 'rgba(248,113,113,.6)');
@@ -1496,14 +1986,14 @@ type();
     const best = Math.min(...errs.map(Math.abs));
     const worst = Math.max(...errs.map(Math.abs));
     let verdict;
-    if (avg < 60) verdict = '须臾之间，分毫不差 —— 你与时间同频';
-    else if (avg < 150) verdict = '感知敏锐，时间在你的掌握之中';
-    else if (avg < 300) verdict = '正常人类的时间感知，从容即可';
-    else verdict = '时间如流水，还需静心修行';
-    roundEl.innerHTML = '实验完成';
-    targetEl.innerHTML = '平均误差 <b>' + avg.toFixed(0) + '</b> ms';
-    comboEl.textContent = '最佳一击 ' + best.toFixed(0) + ' ms';
-    startBtn.textContent = '再来一局';
+    if (avg < 60) verdict = L()==='en' ? 'Perfect sync with time' : '须臾之间，分毫不差 —— 你与时间同频';
+    else if (avg < 150) verdict = L()==='en' ? 'Keen sense, time in your hands' : '感知敏锐，时间在你的掌握之中';
+    else if (avg < 300) verdict = L()==='en' ? 'Normal human time sense - be at ease' : '正常人类的时间感知，从容即可';
+    else verdict = L()==='en' ? 'Time flows - keep practicing' : '时间如流水，还需静心修行';
+    roundEl.innerHTML = L()==='en' ? 'Experiment done' : '实验完成';
+    targetEl.innerHTML = (L()==='en' ? 'Avg error <b>' : '平均误差 <b>') + avg.toFixed(0) + '</b> ms';
+    comboEl.textContent = (L()==='en' ? 'Best hit ' : '最佳一击 ') + best.toFixed(0) + ' ms';
+    startBtn.textContent = L()==='en' ? 'Play again' : '再来一局';
     fbEl.innerHTML = '<span style="color:#e8ecf8;font-size:16px">' + verdict + '</span>';
     state = 'report';
     drawReport(errs, avg, best, worst);
@@ -1562,13 +2052,13 @@ type();
     ctx.fillStyle = 'rgba(139,147,171,.85)';
     ctx.font = '12px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('提前 ← 0 → 延迟', W / 2, H - 16);
+    ctx.fillText(L()==='en' ? 'Early ← 0 → Late' : '提前 ← 0 → 延迟', W / 2, H - 16);
     ctx.fillStyle = 'rgba(34,211,238,.8)';
-    ctx.fillText('漂移曲线 · 10 轮', W / 2, pad - 8);
+    ctx.fillText(L()==='en' ? 'Drift curve · 10 rounds' : '漂移曲线 · 10 轮', W / 2, pad - 8);
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#34d399'; ctx.fillText('最佳 ' + best.toFixed(0) + 'ms', pad, top - 8);
+    ctx.fillStyle = '#34d399'; ctx.fillText((L()==='en' ? 'Best ' : '最佳 ') + best.toFixed(0) + 'ms', pad, top - 8);
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#f87171'; ctx.fillText('最飘 ' + worst.toFixed(0) + 'ms', W - pad, top - 8);
+    ctx.fillStyle = '#f87171'; ctx.fillText((L()==='en' ? 'Worst ' : '最飘 ') + worst.toFixed(0) + 'ms', W - pad, top - 8);
   }
 
   // ---- 动画循环 ----
@@ -1624,7 +2114,7 @@ type();
       ctx.fillText(prog.toFixed(2), CX, CY - r - 18);
       ctx.fillStyle = 'rgba(139,147,171,.7)';
       ctx.font = '12px monospace';
-      ctx.fillText('点击判定', CX, CY + r + 26);
+      ctx.fillText(L()==='en' ? 'Click to judge' : '点击判定', CX, CY + r + 26);
     } else if (state === 'idle') {
       // 待机呼吸环
       const r = R0 * 0.45 + Math.sin(performance.now() / 500) * 6;
@@ -1639,10 +2129,10 @@ type();
       ctx.fillStyle = 'rgba(139,147,171,.8)';
       ctx.font = '14px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('感知时间的实验', CX, CY + 6);
+      ctx.fillText(L()==='en' ? 'A time-perception experiment' : '感知时间的实验', CX, CY + 6);
       ctx.font = '12px monospace';
       ctx.fillStyle = 'rgba(139,147,171,.5)';
-      ctx.fillText('点击开始，共 10 轮', CX, CY + 30);
+      ctx.fillText(L()==='en' ? 'Click to start · 10 rounds' : '点击开始，共 10 轮', CX, CY + 30);
     }
 
     // 粒子更新
@@ -1675,7 +2165,187 @@ type();
   raf = requestAnimationFrame(frame);
 })();
 
-/* ============ 汉堡按钮：控制顶部导航条滑出/收起 ============ */
+/* ============ 游戏选项卡切换 ============ */
+(function() {
+  const tabs = document.querySelectorAll('.game-tab');
+  const panels = document.querySelectorAll('.game-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      panels.forEach(p => p.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.querySelector('.game-panel[data-gpanel="' + tab.dataset.gtab + '"]').classList.add('is-active');
+    });
+  });
+})();
+
+/* ============ 终极井字棋（暗黑霓虹风） ============ */
+(function() {
+  const boardEl = document.getElementById('tttBoard');
+  const L = () => (window.__lang ? window.__lang() : 'zh');
+  const statusEl = document.getElementById('tttStatus');
+  const diffEl = document.getElementById('tttDifficulty');
+  const orderEl = document.getElementById('tttOrder');
+  const newBtn = document.getElementById('tttNew');
+  if (!boardEl || !statusEl) return;
+
+  const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  let game = null;
+
+  function checkWin(cells) {
+    return LINES.some(([a,b,c]) => cells[a] && cells[a] === cells[b] && cells[a] === cells[c]);
+  }
+
+  function newGame() {
+    const humanFirst = orderEl.value === 'first';
+    const human = humanFirst ? 'X' : 'O';
+    const ai = humanFirst ? 'O' : 'X';
+    game = {
+      human, ai,
+      active: null,
+      boards: Array(9).fill().map(() => ({ cells: Array(9).fill(''), winner: null })),
+      over: false,
+      playerTurn: humanFirst   // 轮到玩家时为 true
+    };
+    render();
+    if (!humanFirst) aiMove();
+  }
+
+  function validMoves() {
+    const moves = [];
+    const targets = game.active !== null ? [game.active] : Array.from({length:9},(_,i)=>i);
+    targets.forEach(bi => {
+      if (game.boards[bi].winner) return;
+      game.boards[bi].cells.forEach((c, ci) => { if (!c) moves.push({bi, ci}); });
+    });
+    return moves;
+  }
+
+  function subWinner(bi) {
+    const cells = game.boards[bi].cells;
+    for (const [a,b,c] of LINES) {
+      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) return cells[a];
+    }
+    return cells.includes('') ? null : 'D';
+  }
+
+  function makeMove(bi, ci, sym, isAI) {
+    game.boards[bi].cells[ci] = sym;
+    const w = subWinner(bi);
+    if (w) game.boards[bi].winner = w;
+    game.active = game.boards[ci].winner ? null : ci;
+    game.playerTurn = isAI ? true : false;
+    checkGameOver();
+    render();
+    if (!game.over && !isAI) aiMove();
+  }
+
+  function checkGameOver() {
+    const winners = game.boards.map(b => b.winner);
+    for (const [a,b,c] of LINES) {
+      if (winners[a] && winners[a] === winners[b] && winners[a] === winners[c]) { game.over = true; return; }
+    }
+    if (winners.every(w => w !== null)) game.over = true;
+  }
+
+  function evalBoard() {
+    let score = 0;
+    const main = game.boards.map(b => b.winner === game.ai ? 1 : b.winner === game.human ? -1 : 0);
+    for (const [a,b,c] of LINES) {
+      const sum = main[a] + main[b] + main[c];
+      if (Math.abs(sum) === 3) return sum * 1000;
+      if (sum === 2) score += 400;
+      if (sum === -2) score -= 400;
+    }
+    game.boards.forEach(b => {
+      if (b.winner === game.ai) score += 100;
+      else if (b.winner === game.human) score -= 100;
+    });
+    return score;
+  }
+
+  function minimax(depth, alpha, beta, maxP) {
+    if (depth === 0 || game.over) return [evalBoard(), null];
+    const moves = validMoves();
+    let best = maxP ? -Infinity : Infinity, bestMove = null;
+    for (const m of moves) {
+      game.boards[m.bi].cells[m.ci] = maxP ? game.ai : game.human;
+      const w = subWinner(m.bi);
+      const prevW = game.boards[m.bi].winner;
+      if (w) game.boards[m.bi].winner = w;
+      const [v] = minimax(depth-1, alpha, beta, !maxP);
+      game.boards[m.bi].cells[m.ci] = '';
+      game.boards[m.bi].winner = prevW;
+      if (maxP) {
+        if (v > best) { best = v; bestMove = m; alpha = Math.max(alpha, best); }
+      } else {
+        if (v < best) { best = v; bestMove = m; beta = Math.min(beta, best); }
+      }
+      if (beta <= alpha) break;
+    }
+    return [best, bestMove];
+  }
+
+  function strategicMove(moves) {
+    const center = moves.filter(m => m.ci === 4);
+    if (center.length) return center[0];
+    const win = moves.find(m => { const t=[...game.boards[m.bi].cells]; t[m.ci]=game.ai; return checkWin(t); });
+    if (win) return win;
+    const block = moves.find(m => { const t=[...game.boards[m.bi].cells]; t[m.ci]=game.human; return checkWin(t); });
+    if (block) return block;
+    return moves[0];
+  }
+
+  function aiMove() {
+    const moves = validMoves();
+    if (!moves.length || game.over) return;
+    let best;
+    const d = diffEl.value;
+    if (d === 'hard') best = minimax(3, -Infinity, Infinity, true)[1];
+    else if (d === 'medium') best = strategicMove(moves);
+    else best = moves[Math.floor(Math.random() * moves.length)];
+    setTimeout(() => { if (game && !game.over) makeMove(best.bi, best.ci, game.ai, true); }, 450);
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    game.boards.forEach((b, bi) => {
+      const sub = document.createElement('div');
+      sub.className = 'ttt-sub' + (b.winner === 'X' ? ' won-x' : b.winner === 'O' ? ' won-o' : b.winner === 'D' ? ' won-d' : '');
+      if (!game.over && !b.winner && (game.active === null || game.active === bi)) sub.classList.add('active');
+      b.cells.forEach((c, ci) => {
+        const cell = document.createElement('div');
+        cell.className = 'ttt-cell' + (c === 'X' ? ' x' : c === 'O' ? ' o' : '');
+        cell.textContent = c;
+        if (!c && !game.over) {
+          cell.addEventListener('click', () => {
+            if (game.over) return;
+            const target = game.active !== null ? [game.active] : Array.from({length:9},(_,i)=>i);
+            if (!target.includes(bi) || b.winner || c) return;
+            makeMove(bi, ci, game.human, false);
+          });
+        }
+        sub.appendChild(cell);
+      });
+      boardEl.appendChild(sub);
+    });
+    if (game.over) {
+      const winners = game.boards.map(x => x.winner);
+      const win = LINES.find(([a,b,c]) => winners[a] && winners[a]===winners[b] && winners[a]===winners[c]);
+      if (win) {
+        const sym = winners[win[0]];
+        statusEl.innerHTML = sym === game.human ? ('<span class="pink">' + (L()==='en'?'You win ✦':'你赢了 ✦') + '</span>') : ('<span class="cyan">' + (L()==='en'?'AI wins':'AI 获胜') + '</span>');
+      } else {
+        statusEl.innerHTML = '<span style="color:#8b93ab">' + (L()==='en'?'Draw':'平局') + '</span>';
+      }
+    } else {
+      statusEl.innerHTML = game.playerTurn ? ('<span class="pink">' + (L()==='en'?'Your turn · X':'你的回合 · X') + '</span>') : ('<span class="cyan">' + (L()==='en'?'AI thinking…':'AI 思考中…') + '</span>');
+    }
+  }
+
+  newBtn.addEventListener('click', newGame);
+  newGame();
+})();
 (function() {
   const btn = document.getElementById('navToggleBtn');
   const nav = document.getElementById('indexNav');
@@ -1701,6 +2371,35 @@ type();
   });
 })();
 
+/* ============ 主题切换（深色/浅色） ============ */
+(function() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    btn.textContent = '☀';
+  }
+  btn.addEventListener('click', () => {
+    const light = document.body.classList.toggle('light');
+    btn.textContent = light ? '☀' : '☾';
+    localStorage.setItem('theme', light ? 'light' : 'dark');
+  });
+})();
+
+/* ============ 回到顶部 ============ */
+(function() {
+  const btn = document.getElementById('backTop');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) btn.classList.add('show');
+    else btn.classList.remove('show');
+  }, { passive: true });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
 /* ============ 滚动渐入 ============ */
 const io = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -1708,6 +2407,14 @@ const io = new IntersectionObserver(entries => {
   });
 }, { threshold: .12 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ============ 访问统计（不蒜子） ============ */
+(function() {
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = '//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+  document.body.appendChild(s);
+})();
 </script>
 </body>
 </html>
