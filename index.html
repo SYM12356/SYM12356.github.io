@@ -691,6 +691,8 @@
   }
   .game-panel { display: none; }
   .game-panel.is-active { display: block; animation: fadeUp .5s both; }
+  .race-frame { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #0b1120; }
+  .race-frame iframe { display: block; width: 100%; height: 560px; border: none; }
 
   /* ============ 终极井字棋（暗黑霓虹风） ============ */
   .ttt-rules {
@@ -1044,6 +1046,19 @@
   .gb-item .gb-content { font-size: 14px; color: var(--text); line-height: 1.6; word-break: break-word; }
   .gb-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
 
+  /* ============ 更新日志 ============ */
+  .cl-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 22px; }
+  .cl-item { position: relative; padding: 4px 0 22px; }
+  .cl-item::before {
+    content: ""; position: absolute; left: -27px; top: 8px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 10px rgba(34,211,238,.6);
+  }
+  .cl-item .cl-date { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .cl-item .cl-ver { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .cl-item .cl-ver span { color: var(--cyan); }
+  .cl-item ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; line-height: 1.9; }
+
   /* ============ 联系 ============ */
   .contact-card {
     text-align: center;
@@ -1114,6 +1129,7 @@
       <a href="#board" class="index-nav-item" data-i18n="nav_board">桌游</a>
       <a href="#backup" class="index-nav-item" data-i18n="nav_backup">备用</a>
       <a href="#links" class="index-nav-item" data-i18n="nav_links">友链</a>
+      <a href="#guestbook" class="index-nav-item" data-i18n="nav_gb">留言板</a>
       <a href="#contact" class="index-nav-item" data-i18n="nav_contact">联系</a>
     </div>
   </nav>
@@ -1174,7 +1190,6 @@
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">01 / TAGS</span></div>
       <h2 class="sec-title reveal" data-i18n="t_tags_full">我的标签</h2>
-      <p class="sec-sub reveal" data-i18n="t_tags_sub">鼠标悬停会发光，好看就完事</p>
       <div class="tags reveal">
         <span class="tag" data-i18n="tag_code">编程</span>
         <span class="tag" data-i18n="tag_game">游戏</span>
@@ -1195,6 +1210,7 @@
       <div class="game-tabs reveal">
         <button class="game-tab is-active" data-gtab="xu" data-i18n="g_tab_xu">须臾 · 时间感知</button>
         <button class="game-tab" data-gtab="ttt" data-i18n="g_tab_ttt">终极井字棋</button>
+        <button class="game-tab" data-gtab="race" data-i18n="g_tab_race">六边形赛车</button>
       </div>
 
       <!-- 选项卡 1：须臾 -->
@@ -1250,6 +1266,14 @@
           </div>
           <div class="ttt-board" id="tttBoard"></div>
           <div class="ttt-status" id="tttStatus" data-i18n="ttt_status">准备开始</div>
+        </div>
+      </div>
+
+      <!-- 选项卡 3：六边形赛车（iframe 嵌入） -->
+      <div class="game-panel reveal" data-gpanel="race">
+        <p class="sec-sub" style="margin-bottom:18px" data-i18n="race_sub">六边形平台上生死竞速，缩圈之前逃到中心！</p>
+        <div class="race-frame">
+          <iframe src="https://sym12356.github.io/racing/" title="六边形缩圈赛车" loading="lazy"></iframe>
         </div>
       </div>
     </div>
@@ -1407,6 +1431,16 @@
     </div>
   </section>
 
+  <!-- ============ 更新日志 ============ -->
+  <section id="changelog">
+    <div class="wrap">
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / CHANGELOG</span></div>
+      <h2 class="sec-title reveal">更新<span data-i18n="cl_title">日志</span></h2>
+      <p class="sec-sub reveal" data-i18n="cl_sub">记录每一次成长</p>
+      <div class="cl-list reveal" id="clList"></div>
+    </div>
+  </section>
+
   <!-- ============ 联系 ============ -->
   <section id="contact">
     <div class="wrap">
@@ -1433,12 +1467,12 @@
 /* ============ 中英切换 ============ */
 const I18N = {
   'zh': {
-    nav_home: '首页', nav_tags: '标签', nav_game: '游戏', nav_board: '桌游', nav_backup: '备用', nav_links: '友链', nav_contact: '联系',
+    nav_home: '首页', nav_tags: '标签', nav_game: '游戏', nav_board: '桌游', nav_backup: '备用', nav_links: '友链', nav_gb: '留言板', nav_contact: '联系',
     t_status: '行至水穷处，坐看云起时', t_mission: '探索 · 创造 · 分享',
     clock_fold: '精确时钟',
-    t_tags_full: '我的标签', t_tags_sub: '鼠标悬停会发光，好看就完事',
+    t_tags_full: '我的标签',
     tag_code: '编程', tag_game: '游戏', tag_sleep: '睡觉', tag_board: '桌游',
-    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋',
+    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！',
     xu_sub: '你感知的时间，和真实的时间，差多少？', xu_target: '点击「开始实验」', xu_start: '开始实验',
     ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '📖 玩法规则',
     ttt_diff: '难度', ttt_easy: '简单模式', ttt_medium: '中等模式', ttt_hard: '困难模式',
@@ -1458,15 +1492,16 @@ const I18N = {
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
     g_sub: '两个小游戏，一个感知时间，一个谋略棋盘', b_sub: '自研武侠对战游戏，热座双人对决',
-    gb_title: '言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！'
+    gb_title: '言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
+    cl_title: '日志', cl_sub: '记录每一次成长'
   },
   'en': {
-    nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_contact: 'Contact',
+    nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_gb: 'Guestbook', nav_contact: 'Contact',
     t_status: 'When water ends, clouds rise', t_mission: 'Explore · Create · Share',
     clock_fold: 'Precise Clock',
-    t_tags_full: 'My Tags', t_tags_sub: 'Hover to glow',
+    t_tags_full: 'My Tags',
     tag_code: 'Coding', tag_game: 'Gaming', tag_sleep: 'Sleeping', tag_board: 'Board Games',
-    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe',
+    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!',
     xu_sub: 'How far is your sense of time from real time?', xu_target: 'Click to start', xu_start: 'Start',
     ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: '📖 Rules',
     ttt_diff: 'Difficulty', ttt_easy: 'Easy', ttt_medium: 'Medium', ttt_hard: 'Hard',
@@ -1486,7 +1521,8 @@ const I18N = {
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
     g_sub: 'Two mini games - sense time, master the board', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
-    gb_title: 'uestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!'
+    gb_title: 'uestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
+    cl_title: 'og', cl_sub: 'Every step recorded'
   }
 };
 (function() {
@@ -2527,6 +2563,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   function initGuestbook() {
     loadMessages();
     refreshAuth();
+    checkEmailVerification();
 
     $('gbLoginBtn').addEventListener('click', showLoginModal);
     $('gbLogoutBtn').addEventListener('click', async () => {
@@ -2534,6 +2571,35 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       refreshAuth();
     });
     $('gbSendBtn').addEventListener('click', sendMessage);
+  }
+
+  // 处理邮箱验证回调（邮件里的链接会带 code，点击后网站处理确认）
+  async function checkEmailVerification() {
+    try {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      const code = params.get('code');
+      const error = params.get('error');
+      if (error) {
+        alert('验证失败: ' + (params.get('error_description') || error));
+        return;
+      }
+      if (code) {
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          type: 'email',
+          token_hash: code
+        });
+        if (verifyError) {
+          alert('验证失败: ' + verifyError.message);
+        } else {
+          alert('邮箱验证成功！');
+          // 清理 URL，去掉验证参数
+          history.replaceState(null, '', window.location.pathname);
+          refreshAuth();
+        }
+      }
+    } catch (e) {
+      // 忽略（可能是非验证场景）
+    }
   }
 
   // 登录弹窗（简单表单）
@@ -2613,6 +2679,33 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   function escapeHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+})();
+
+/* ============ 更新日志 ============ */
+(function() {
+  const cl = document.getElementById('clList');
+  if (!cl) return;
+  const LOGS = [
+    { date: '2026-08-28', ver: 'v1.3', zh: ['新增留言板（Supabase 后端：登录/注册/留言）', '新增更新日志板块', '导航栏加入留言板入口', '邮箱验证回调支持'], en: ['Added guestbook (Supabase: login/signup/messages)', 'Added changelog section', 'Guestbook added to nav', 'Email verification callback support'] },
+    { date: '2026-08-27', ver: 'v1.2', zh: ['新增中英双语切换', '新增深色/浅色主题切换', '新增回到顶部按钮', '新增访问统计'], en: ['Added zh/en language switch', 'Added dark/light theme toggle', 'Added back-to-top button', 'Added visit counter'] },
+    { date: '2026-08-26', ver: 'v1.1', zh: ['新增《须臾》时间感知小游戏', '新增《终极井字棋》', '剑影江湖上线（中英双版本）'], en: ['Added "Moment" time-sense game', 'Added Ultimate Tic-Tac-Toe', 'Jianying Jianghu released (zh/en)'] },
+    { date: '2026-08-25', ver: 'v1.0', zh: ['个人站正式上线', '暗黑流体背景（DeepSeek 风格）', '哲思名句打字机', '毫秒级精确时钟'], en: ['Site launched', 'Dark fluid background (DeepSeek style)', 'Wisdom quote typewriter', 'Millisecond precision clock'] }
+  ];
+  function render() {
+    const lang = (window.__lang && window.__lang()) || 'zh';
+    const isEn = lang === 'en';
+    cl.innerHTML = LOGS.map(l => {
+      const items = (isEn ? l.en : l.zh).map(i => '<li>' + i + '</li>').join('');
+      return '<div class="cl-item"><div class="cl-date">' + l.date + '</div><div class="cl-ver">' + l.ver + '</div><ul>' + items + '</ul></div>';
+    }).join('');
+  }
+  render();
+  // 语言切换时重新渲染
+  const origSetAttr = document.body.setAttribute;
+  document.body.setAttribute = function(name, val) {
+    origSetAttr.call(this, name, val);
+    if (name === 'data-lang') render();
+  };
 })();
 
 /* ============ 访问统计（不蒜子） ============ */
