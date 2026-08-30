@@ -1004,6 +1004,46 @@
     .links-grid { grid-template-columns: 1fr; }
   }
 
+  /* ============ 留言板 ============ */
+  .gb-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .gb-auth { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+  .gb-user { color: var(--cyan); font-size: 14px; margin-right: 14px; align-self: center; }
+  .gb-input { display: flex; gap: 12px; margin-bottom: 18px; }
+  .gb-input textarea {
+    flex: 1;
+    background: rgba(5,7,15,.6);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+  }
+  .gb-input textarea:focus { border-color: var(--cyan); }
+  .gb-send-btn { align-self: flex-end; }
+  .gb-list { display: flex; flex-direction: column; gap: 12px; }
+  .gb-item {
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .gb-item .gb-meta {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted);
+    margin-bottom: 6px; font-family: var(--mono);
+  }
+  .gb-item .gb-name { color: var(--violet); }
+  .gb-item .gb-content { font-size: 14px; color: var(--text); line-height: 1.6; word-break: break-word; }
+  .gb-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
+
   /* ============ 联系 ============ */
   .contact-card {
     text-align: center;
@@ -1336,6 +1376,37 @@
     </div>
   </section>
 
+  <!-- ============ 留言板 ============ -->
+  <section id="guestbook">
+    <div class="wrap">
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">06 / GUESTBOOK</span></div>
+      <h2 class="sec-title reveal">留<span data-i18n="gb_title">言板</span></h2>
+      <p class="sec-sub reveal" data-i18n="gb_sub">说点什么吧，我会看到的</p>
+
+      <div class="gb-card reveal">
+        <!-- 登录区 -->
+        <div class="gb-auth" id="gbAuth">
+          <div id="gbLoggedOut">
+            <button class="btn btn-primary game-btn" id="gbLoginBtn" data-i18n="gb_login">登录 / 注册</button>
+          </div>
+          <div id="gbLoggedIn" style="display:none">
+            <span class="gb-user" id="gbUser"></span>
+            <button class="btn btn-ghost game-btn" id="gbLogoutBtn" data-i18n="gb_logout">退出</button>
+          </div>
+        </div>
+
+        <!-- 留言输入 -->
+        <div class="gb-input" id="gbInput">
+          <textarea id="gbText" rows="3" placeholder="写下你的留言…" data-i18n-placeholder="gb_placeholder"></textarea>
+          <button class="btn btn-primary game-btn" id="gbSendBtn" data-i18n="gb_send">发送</button>
+        </div>
+
+        <!-- 留言列表 -->
+        <div class="gb-list" id="gbList"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 联系 ============ -->
   <section id="contact">
     <div class="wrap">
@@ -1386,7 +1457,8 @@ const I18N = {
     r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
-    g_sub: '两个小游戏，一个感知时间，一个谋略棋盘', b_sub: '自研武侠对战游戏，热座双人对决'
+    g_sub: '两个小游戏，一个感知时间，一个谋略棋盘', b_sub: '自研武侠对战游戏，热座双人对决',
+    gb_title: '言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！'
   },
   'en': {
     nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_contact: 'Contact',
@@ -1413,7 +1485,8 @@ const I18N = {
     r5: 'Highlight: the glowing border marks the mini-board you must play in.',
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
-    g_sub: 'Two mini games - sense time, master the board', b_sub: 'Our wuxia duel game - hot-seat 2-player battle'
+    g_sub: 'Two mini games - sense time, master the board', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
+    gb_title: 'uestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!'
   }
 };
 (function() {
@@ -2430,6 +2503,117 @@ const io = new IntersectionObserver(entries => {
   });
 }, { threshold: .12 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* ============ 留言板（Supabase） ============ */
+(function() {
+  // Supabase 配置
+  const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
+
+  let supabase = null;
+  const $ = id => document.getElementById(id);
+
+  // 加载 Supabase SDK
+  const sdk = document.createElement('script');
+  sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sdk.onload = function() {
+    if (window.supabase) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      initGuestbook();
+    }
+  };
+  document.body.appendChild(sdk);
+
+  function initGuestbook() {
+    loadMessages();
+    refreshAuth();
+
+    $('gbLoginBtn').addEventListener('click', showLoginModal);
+    $('gbLogoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      refreshAuth();
+    });
+    $('gbSendBtn').addEventListener('click', sendMessage);
+  }
+
+  // 登录弹窗（简单表单）
+  function showLoginModal() {
+    const email = prompt('邮箱 / Email:');
+    if (!email) return;
+    const password = prompt('密码 / Password:');
+    if (!password) return;
+    const mode = confirm('确定注册？点"确定"=注册，点"取消"=登录');
+    if (mode) {
+      supabase.auth.signUp({ email, password }).then(({ error }) => {
+        if (error) alert('注册失败: ' + error.message);
+        else { alert('注册成功！请查收邮箱验证（测试环境可能无需验证）'); refreshAuth(); }
+      });
+    } else {
+      supabase.auth.signInWithPassword({ email, password }).then(({ error }) => {
+        if (error) alert('登录失败: ' + error.message);
+        else refreshAuth();
+      });
+    }
+  }
+
+  function refreshAuth() {
+    const user = supabase.auth.getUser();
+    user.then(({ data }) => {
+      const u = data && data.user;
+      if (u) {
+        $('gbLoggedOut').style.display = 'none';
+        $('gbLoggedIn').style.display = 'flex';
+        $('gbUser').textContent = u.email || 'user';
+      } else {
+        $('gbLoggedOut').style.display = 'block';
+        $('gbLoggedIn').style.display = 'none';
+      }
+    });
+  }
+
+  async function loadMessages() {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      renderMessages(data || []);
+    } catch (e) {
+      $('gbList').innerHTML = '<div class="gb-empty">留言加载失败：' + (e.message || e) + '</div>';
+    }
+  }
+
+  function renderMessages(list) {
+    const el = $('gbList');
+    if (!list.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
+    el.innerHTML = list.map(m => {
+      const name = m.user_email || '匿名';
+      const time = m.created_at ? new Date(m.created_at).toLocaleString('zh-CN') : '';
+      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div></div>';
+    }).join('');
+  }
+
+  async function sendMessage() {
+    const text = $('gbText').value.trim();
+    if (!text) { alert('留言不能为空'); return; }
+    const user = await supabase.auth.getUser();
+    const u = user.data && user.data.user;
+    if (!u) { alert('请先登录'); showLoginModal(); return; }
+    const { error } = await supabase.from('messages').insert({
+      content: text,
+      user_email: u.email || 'user'
+    });
+    if (error) { alert('发送失败: ' + error.message); return; }
+    $('gbText').value = '';
+    loadMessages();
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+})();
 
 /* ============ 访问统计（不蒜子） ============ */
 (function() {
