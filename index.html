@@ -348,12 +348,94 @@
   .auth-in {
     display: none;
     flex-direction: column;
-    align-items: center;
-    gap: 18px;
-    padding: 12px 0 4px;
+    align-items: stretch;
+    gap: 13px;
+    padding: 4px 0 2px;
   }
-  .auth-in .auth-welcome { font-size: 14px; color: var(--muted); }
-  .auth-in .gb-user { font-size: 20px; margin: 0; }
+
+  /* 个人中心 */
+  .pc-avatar {
+    align-self: center;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700; color: #04060e;
+    background: linear-gradient(135deg, #22d3ee, #a78bfa);
+    box-shadow: 0 0 24px rgba(34,211,238,.35);
+    font-family: var(--mono);
+  }
+  .pc-name { align-self: center; font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+  .pc-email { align-self: center; font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+  .pc-title {
+    align-self: center;
+    padding: 2px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: #1a1204;
+    background: linear-gradient(135deg, #f5d78a, #e8b84b 60%, #c8932e);
+    box-shadow: 0 0 10px rgba(232,184,75,.35);
+  }
+  .pc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .pc-stat {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 4px;
+    text-align: center;
+  }
+  .pc-stat b { display: block; font-size: 18px; color: var(--cyan); font-family: var(--mono); }
+  .pc-stat span { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .pc-progress { display: none; }
+  .pc-systems { display: flex; flex-direction: column; gap: 7px; }
+  .pc-sys-row { display: flex; align-items: center; gap: 10px; }
+  .pc-sys-name { width: 58px; flex-shrink: 0; font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .pc-sys-lv { width: 104px; flex-shrink: 0; font-size: 12.5px; color: var(--text); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-sys-track { flex: 1; height: 6px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--border); overflow: hidden; }
+  .pc-sys-fill { height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, #22d3ee, #a78bfa); transition: width .4s ease; }
+  .pc-sys-next { width: 74px; flex-shrink: 0; font-size: 11px; color: var(--muted); text-align: right; font-family: var(--mono); }
+
+  .pc-ach { border-top: 1px dashed var(--border); padding-top: 12px; }
+  .pc-ach-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 2px; }
+  .pc-ach-item { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; background: rgba(255,255,255,.02); }
+  .pc-ach-item.on { border-color: rgba(232,184,75,.45); background: rgba(232,184,75,.06); }
+  .pc-ach-item.off { opacity: .55; }
+  .pc-ach-name { font-size: 13px; color: var(--text); letter-spacing: 1px; }
+  .pc-ach-item.on .pc-ach-name { color: #e8b84b; }
+  .pc-ach-desc { font-size: 11px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .pc-ach-state { font-size: 10.5px; margin-top: 4px; letter-spacing: 1px; }
+  .pc-ach-item.on .pc-ach-state { color: #34d399; }
+  .pc-ach-item.off .pc-ach-state { color: var(--muted); }
+  @media (max-width: 480px) { .pc-ach-list { grid-template-columns: 1fr; } }
+  .pc-edit { display: flex; gap: 8px; }
+  .pc-edit input {
+    flex: 1; min-width: 0;
+    background: rgba(5,7,15,.6);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+  }
+  .pc-edit input:focus { border-color: var(--cyan); }
+  .pc-edit-msg { min-height: 16px; font-size: 12px; }
+  .pc-edit-msg.ok { color: #34d399; }
+  .pc-edit-msg.err { color: #f87171; }
+  .pc-history { border-top: 1px dashed var(--border); padding-top: 12px; }
+  .pc-history-title { font-size: 12px; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; }
+  .pc-history-list {
+    max-height: 150px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .pc-h-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .pc-h-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .pc-h-dot.ok { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,.6); }
+  .pc-h-dot.gold { background: #e8b84b; box-shadow: 0 0 6px rgba(232,184,75,.6); }
+  .pc-h-empty { text-align: center; color: var(--muted); font-size: 12.5px; padding: 8px; }
+  body.light .pc-edit input { background: rgba(28,37,54,.045); border-color: rgba(28,37,54,.14); color: #1c2536; }
+  body.light .pc-stat { background: rgba(28,37,54,.03); border-color: rgba(28,37,54,.12); }
   body.light .auth-fab { background: rgba(255,255,255,.92); border-color: rgba(28,37,54,.14); box-shadow: 0 2px 16px rgba(28,37,54,.08); }
   body.light .auth-box { background: rgba(255,255,255,.96); border-color: rgba(28,37,54,.14); }
   body.light .auth-field input { background: rgba(28,37,54,.045); border-color: rgba(28,37,54,.14); color: #1c2536; }
@@ -1269,6 +1351,17 @@
     vertical-align: middle;
   }
   .gb-item .gb-content { font-size: 14px; color: var(--text); line-height: 1.6; word-break: break-word; }
+  .gb-reply {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-left: 2px solid var(--cyan);
+    background: rgba(34,211,238,.05);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .gb-reply b { color: var(--cyan); font-weight: 600; }
   .gb-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
 
   /* ============ 兑换 ============ */
@@ -1808,7 +1901,7 @@
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-box" role="dialog" aria-modal="true">
     <button class="auth-close" id="authClose" aria-label="关闭">✕</button>
-    <h3 class="auth-title"><span data-i18n="gb_auth_title">登录 / 注册</span></h3>
+    <h3 class="auth-title"><span id="authTitle">登录 / 注册</span></h3>
 
     <div class="auth-form" id="authFormBox">
       <div class="auth-field">
@@ -1832,8 +1925,36 @@
     </div>
 
     <div class="auth-in" id="authIn">
-      <span class="auth-welcome" data-i18n="gb_welcome">已登录</span>
-      <span class="gb-user" id="authUserName"></span>
+      <div class="pc-avatar" id="pcAvatar">?</div>
+      <div class="pc-name" id="pcName"></div>
+      <div class="pc-email" id="pcEmail"></div>
+      <div class="pc-title" id="pcTitle" style="display:none"></div>
+
+      <div class="pc-stats">
+        <div class="pc-stat"><b id="pcPoints">0</b><span data-i18n="pc_pts">积分</span></div>
+        <div class="pc-stat"><b id="pcStreak">0</b><span data-i18n="pc_streak">连签</span></div>
+        <div class="pc-stat"><b id="pcReds">0</b><span data-i18n="pc_reds">兑换</span></div>
+        <div class="pc-stat"><b id="pcDays">0</b><span data-i18n="pc_days">累计签到</span></div>
+      </div>
+
+      <div class="pc-systems" id="pcSystems"></div>
+
+      <div class="pc-ach">
+        <div class="pc-history-title" data-i18n="pc_ach_title">成就墙</div>
+        <div class="pc-ach-list" id="pcAchList"></div>
+      </div>
+
+      <div class="pc-edit">
+        <input id="pcNameInput" type="text" maxlength="20" autocomplete="off">
+        <button class="btn btn-ghost game-btn" id="pcNameSave" data-i18n="pc_save">保存</button>
+      </div>
+      <div class="pc-edit-msg" id="pcEditMsg"></div>
+
+      <div class="pc-history">
+        <div class="pc-history-title" data-i18n="pc_history">最近动态</div>
+        <div class="pc-history-list" id="pcHistoryList"></div>
+      </div>
+
       <button class="btn btn-ghost game-btn" id="authLogoutBtn" data-i18n="gb_logout">退出</button>
     </div>
   </div>
@@ -1871,6 +1992,11 @@ const I18N = {
     gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
     gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
     rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
+    pc_title: '个人中心', pc_pts: '积分', pc_lv: '等级', pc_streak: '连签', pc_days: '累计签到', pc_to_next: '距下一级还差 {n} 积分', pc_max_lv: '已达最高等级', pc_save: '保存', pc_saved: '用户名已更新', pc_name_ph: '输入新用户名', pc_name_empty: '用户名不能为空', pc_history: '最近动态', pc_no_history: '暂无记录', pc_checked: '签到', pc_redeemed: '兑换了码', pc_go: '个人中心',
+    msg_lv1: '潜水新人', msg_lv2: '偶尔冒泡', msg_lv3: '话痨本痨', msg_lv4: '留言板主',
+    sign_lv1: '躺平咸鱼', sign_lv2: '早八战士', sign_lv3: '全勤小标兵', sign_lv4: '时间管理大师',
+    ach_pioneer: '拓荒者', ach_pioneer_d: '前 10 名注册用户', ach_lucky: '欧皇', ach_lucky_d: '兑换过隐藏彩蛋码', ach_replied: '被翻牌', ach_replied_d: '留言被站长回复过', ach_full_attendance: '全勤之王', ach_full_attendance_d: '累计签到 30 天', ach_social: '社交达人', ach_social_d: '累计留言 50 条', ach_seven_days: '七日之约', ach_seven_days_d: '连续签到 7 天', ach_collector: '收藏家', ach_collector_d: '累计兑换 3 个奖励码', ach_month_old: '站龄满月', ach_month_old_d: '注册满 30 天',
+    pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复',
     cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_more: '展开更多历史', cl_less: '收起'
   },
   'en': {
@@ -1902,6 +2028,11 @@ const I18N = {
     gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
     gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
     rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
+    pc_title: 'My Profile', pc_pts: 'Points', pc_lv: 'Level', pc_streak: 'Streak', pc_days: 'Total', pc_to_next: '{n} pts to next level', pc_max_lv: 'Max level', pc_save: 'Save', pc_saved: 'Username updated', pc_name_ph: 'Enter new username', pc_name_empty: 'Username cannot be empty', pc_history: 'Recent activity', pc_no_history: 'No activity yet', pc_checked: 'Check-in', pc_redeemed: 'Redeemed code', pc_go: 'My Profile',
+    msg_lv1: 'Lurker', msg_lv2: 'Bubble Blower', msg_lv3: 'Chatterbox', msg_lv4: 'Board Master',
+    sign_lv1: 'Lazy Fish', sign_lv2: 'Early Bird', sign_lv3: 'Perfect Attendance', sign_lv4: 'Time Master',
+    ach_pioneer: 'Pioneer', ach_pioneer_d: 'Among the first 10 to register', ach_lucky: 'Lucky One', ach_lucky_d: 'Redeemed a hidden lottery code', ach_replied: 'Noticed', ach_replied_d: 'Your message got a reply from the owner', ach_full_attendance: 'Attendance King', ach_full_attendance_d: '30 total check-ins', ach_social: 'Social Butterfly', ach_social_d: 'Post 50 messages', ach_seven_days: '7-Day Vow', ach_seven_days_d: 'Check in 7 days in a row', ach_collector: 'Collector', ach_collector_d: 'Redeem 3 reward codes', ach_month_old: 'One Month Old', ach_month_old_d: 'Registered for 30+ days',
+    pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply',
     cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_more: 'Show all history', cl_less: 'Collapse'
   }
 };
@@ -3025,9 +3156,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       $('authIn').style.display = loggedIn ? 'flex' : 'none';
       $('authMsg').textContent = '';
       $('authMsg').className = 'auth-msg';
+      const titleEl = document.getElementById('authTitle');
       if (loggedIn) {
-        $('authUserName').textContent = userName(u);
+        if (titleEl) titleEl.textContent = (window.__t && __t('pc_title')) || '个人中心';
+        try { if (window.__onPcShow) window.__onPcShow(); } catch (e) {}
       } else {
+        if (titleEl) titleEl.textContent = (window.__t && __t('gb_auth_title')) || '登录 / 注册';
         setTimeout(() => { const e = $('authEmail'); if (e) e.focus(); }, 60);
       }
     });
@@ -3093,6 +3227,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       try { if (window.__onAuthChange) window.__onAuthChange(); } catch (e) {}
     });
   }
+  window.__refreshAuth = refreshAuth;   // 供个人中心改名后刷新左上角按钮
 
   async function loadMessages() {
     try {
@@ -3116,7 +3251,10 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const badge = m.user_title ? '<span class="gb-badge">' + escapeHtml(m.user_title) + '</span>' : '';
       const pts = m.user_points ? '<span class="gb-pts">' + m.user_points + '</span>' : '';
       const time = m.created_at ? new Date(m.created_at).toLocaleString('zh-CN') : '';
-      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div></div>';
+      const reply = (m.replied && m.reply)
+        ? '<div class="gb-reply"><b>' + ((window.__t && __t('gb_reply_label')) || '站长回复') + '：</b>' + escapeHtml(m.reply) + '</div>'
+        : '';
+      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + '</div>';
     }).join('');
   }
 
@@ -3126,19 +3264,27 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     const user = await supabase.auth.getUser();
     const u = user.data && user.data.user;
     if (!u) { alert('请先登录'); openAuthModal(); return; }
-    // 带当前称号/积分快照
+    // 带当前积分 + 最终称号快照
     let title = '', points = 0;
     try {
       const r = await supabase.rpc('my_status');
-      if (r.data && r.data.ok) { title = r.data.title || ''; points = r.data.points || 0; }
+      if (r.data && r.data.ok) points = r.data.points || 0;
+      const tt = await supabase.rpc('my_titles');
+      if (tt.data && tt.data.ok && window.__finalTitleOf) {
+        const ft = window.__finalTitleOf(tt.data);
+        if (ft && ft.name) title = ft.name;
+      }
     } catch (e) {}
     const { error } = await supabase.from('messages').insert({
       content: text,
       user_email: userName(u),
+      user_id: u.id,
       user_title: title,
       user_points: points
     });
     if (error) { alert('发送失败: ' + error.message); return; }
+    // 触发成就判定（社交达人等）
+    try { supabase.rpc('unlock_achievements').then(() => {}); } catch (e) {}
     $('gbText').value = '';
     loadMessages();
   }
@@ -3226,7 +3372,10 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const lv = levelOf(points);
       const lvName = LV_KEYS[lv] ? t(LV_KEYS[lv]) : 'Lv.' + lv;
       const titleHtml = title ? ' <span class="rd-title">「' + esc(title) + '」</span>' : '';
-      st.innerHTML = t('rd_cur') + '：<b>' + points + '</b> ' + t('rd_pts_unit') + ' · ' + t('rd_lv') + ' <span class="rd-lv">Lv.' + lv + ' ' + lvName + '</span>' + titleHtml;
+      st.innerHTML = t('rd_cur') + '：<b>' + points + '</b> ' + t('rd_pts_unit') + ' · ' + t('rd_lv') + ' <span class="rd-lv">Lv.' + lv + ' ' + lvName + '</span>' + titleHtml
+        + ' <button class="rd-login" id="rdPcBtn">' + t('pc_go') + '</button>';
+      const pcBtn = $('rdPcBtn');
+      if (pcBtn) pcBtn.addEventListener('click', () => { try { window.__openAuth && window.__openAuth(); } catch (e) {} });
       if (signBtn) {
         signBtn.disabled = checked;
         signBtn.textContent = checked ? t('rd_sign_done') : t('rd_sign_btn');
@@ -3255,8 +3404,14 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         if (error) { setMsg(error.message, false); return; }
         if (data && data.ok) {
           const gain = [];
-          if (data.title) gain.push(t('rd_gain_title') + '「' + data.title + '」');
           if (data.points) gain.push(data.points + ' ' + t('rd_pts_unit'));
+          if (data.unlocked && data.unlocked.length) {
+            const names = data.unlocked.map(k => {
+              const a = (window.__ACH || []).find(x => x.key === k);
+              return a ? t(a.nameKey) : k;
+            }).join('、');
+            gain.push(t('pc_ach_new') + '：' + names);
+          }
           setMsg(t('rd_ok') + '：' + gain.join(' + '), true);
           rdCode.value = '';
           updateStatus();
@@ -3288,7 +3443,15 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         const { data, error } = await supabase.rpc('daily_checkin');
         if (error) { setSignMsg(error.message, false); return; }
         if (data && data.ok) {
-          setSignMsg(t('rd_sign_ok') + '：+' + data.points + ' ' + t('rd_pts_unit'), true);
+          let m = t('rd_sign_ok') + '：+' + data.points + ' ' + t('rd_pts_unit');
+          if (data.unlocked && data.unlocked.length) {
+            const names = data.unlocked.map(k => {
+              const a = (window.__ACH || []).find(x => x.key === k);
+              return a ? t(a.nameKey) : k;
+            }).join('、');
+            m += ' · ' + t('pc_ach_new') + '：' + names;
+          }
+          setSignMsg(m, true);
         } else {
           const map = { ALREADY: t('rd_sign_again'), NOT_LOGGED_IN: t('rd_sign_need_login') };
           setSignMsg(map[data && data.msg] || t('rd_fail'), false);
@@ -3309,11 +3472,194 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   updateStatus();
 })();
 
+/* ============ 个人中心 ============ */
+(function() {
+  const $ = id => document.getElementById(id);
+  if (!$('authIn')) return;
+  const t = k => (window.__t ? __t(k) : k);
+
+  // 成就定义（key 与 SQL 里的判定 key 一致；rarity 越小越稀有/优先级越高）
+  const ACH = [
+    { key: 'pioneer', rarity: 1, nameKey: 'ach_pioneer', descKey: 'ach_pioneer_d' },
+    { key: 'lucky', rarity: 1, nameKey: 'ach_lucky', descKey: 'ach_lucky_d' },
+    { key: 'replied', rarity: 2, nameKey: 'ach_replied', descKey: 'ach_replied_d' },
+    { key: 'full_attendance', rarity: 3, nameKey: 'ach_full_attendance', descKey: 'ach_full_attendance_d' },
+    { key: 'social', rarity: 3, nameKey: 'ach_social', descKey: 'ach_social_d' },
+    { key: 'seven_days', rarity: 4, nameKey: 'ach_seven_days', descKey: 'ach_seven_days_d' },
+    { key: 'collector', rarity: 4, nameKey: 'ach_collector', descKey: 'ach_collector_d' },
+    { key: 'month_old', rarity: 5, nameKey: 'ach_month_old', descKey: 'ach_month_old_d' }
+  ];
+  window.__ACH = ACH;
+
+  // 三体系升级阈值（与 SQL 一致）
+  const TH = {
+    points: [0, 50, 200, 500],
+    messages: [0, 5, 20, 50],
+    checkins: [0, 5, 15, 30]
+  };
+  const LV_KEY = { points: 'rd_lv', messages: 'msg_lv', checkins: 'sign_lv' };
+  const SYS_LABEL = { points: 'pc_sys_pts', messages: 'pc_sys_msg', checkins: 'pc_sys_sign' };
+
+  // 计算最终显示称号：站长授予 > 成就 > 体系（平级时 积分 > 留言 > 签到）
+  function finalTitleOf(d) {
+    if (!d) return null;
+    if (d.owner_title && d.owner_title.name) return { name: d.owner_title.name, type: 'owner' };
+    const unlocked = {};
+    (d.achievements || []).forEach(a => { unlocked[a.key] = true; });
+    let best = null;
+    ACH.forEach(a => { if (unlocked[a.key] && (!best || a.rarity < best.rarity)) best = a; });
+    if (best) return { name: t(best.nameKey), type: 'ach', key: best.key };
+    const s = d.systems || {};
+    const items = [
+      { key: 'points', lv: (s.points || {}).level || 1 },
+      { key: 'messages', lv: (s.messages || {}).level || 1 },
+      { key: 'checkins', lv: (s.checkins || {}).level || 1 }
+    ].sort((a, b) => b.lv - a.lv);
+    const top = items[0];
+    return { name: t(LV_KEY[top.key] + top.lv), type: 'sys', key: top.key };
+  }
+  window.__finalTitleOf = finalTitleOf;
+
+  function waitSupabase(cb) {
+    if (window.__supabase) { cb(window.__supabase); return; }
+    let n = 0;
+    const timer = setInterval(() => {
+      if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
+      else if (++n > 80) clearInterval(timer);
+    }, 250);
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmtDay(d) {
+    if (!d) return '';
+    const s = String(d);
+    const p = s.slice(0, 10).split('-');
+    return p.length === 3 ? (parseInt(p[1], 10) + '/' + parseInt(p[2], 10)) : s;
+  }
+
+  function sysRow(sysKey, data) {
+    const th = TH[sysKey];
+    const min = th[data.level - 1] || 0;
+    const pct = data.next ? Math.min(100, Math.round((data.value - min) / (data.next - min) * 100)) : 100;
+    const nextTxt = data.next ? (t('pc_left') + ' ' + (data.next - data.value)) : t('pc_max_lv_short');
+    return '<div class="pc-sys-row">'
+      + '<span class="pc-sys-name">' + t(SYS_LABEL[sysKey]) + '</span>'
+      + '<span class="pc-sys-lv">Lv.' + data.level + ' ' + t(LV_KEY[sysKey] + data.level) + '</span>'
+      + '<span class="pc-sys-track"><span class="pc-sys-fill" style="width:' + pct + '%"></span></span>'
+      + '<span class="pc-sys-next">' + nextTxt + '</span>'
+      + '</div>';
+  }
+
+  function renderPc() {
+    waitSupabase(async supabase => {
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) return;
+      const name = (u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || u.email || 'user';
+      $('pcAvatar').textContent = (name.charAt(0) || '?').toUpperCase();
+      $('pcName').textContent = name;
+      $('pcEmail').textContent = u.email || '';
+
+      let d = null, streak = 0, totalChecks = 0, totalReds = 0, reds = [], checks = [];
+      try {
+        const [tt, h] = await Promise.all([
+          supabase.rpc('my_titles'),
+          supabase.rpc('my_history')
+        ]);
+        if (tt.data && tt.data.ok) d = tt.data;
+        if (h.data && h.data.ok) {
+          streak = h.data.streak || 0;
+          totalChecks = h.data.total_checkins || 0;
+          totalReds = h.data.total_redemptions || 0;
+          reds = h.data.redemptions || [];
+          checks = h.data.checkins || [];
+        }
+      } catch (e) {}
+
+      // 最终称号
+      const ft = finalTitleOf(d);
+      const titleEl = $('pcTitle');
+      if (ft && ft.name) { titleEl.textContent = ft.name; titleEl.style.display = 'inline-block'; }
+      else { titleEl.style.display = 'none'; }
+
+      // 统计
+      const s = (d && d.systems) || {};
+      $('pcPoints').textContent = (s.points || {}).value || 0;
+      $('pcStreak').textContent = streak;
+      $('pcReds').textContent = totalReds;
+      $('pcDays').textContent = totalChecks;
+
+      // 三体系
+      $('pcSystems').innerHTML = (d && d.systems)
+        ? ['points', 'messages', 'checkins'].map(k => sysRow(k, d.systems[k])).join('')
+        : '';
+
+      // 成就墙
+      const unlockedSet = {};
+      (d && d.achievements || []).forEach(a => { unlockedSet[a.key] = true; });
+      $('pcAchList').innerHTML = ACH.map(a => {
+        const on = !!unlockedSet[a.key];
+        return '<div class="pc-ach-item ' + (on ? 'on' : 'off') + '">'
+          + '<div class="pc-ach-name">' + t(a.nameKey) + '</div>'
+          + '<div class="pc-ach-desc">' + t(a.descKey) + '</div>'
+          + '<div class="pc-ach-state">' + (on ? t('pc_ach_on') : t('pc_ach_off')) + '</div>'
+          + '</div>';
+      }).join('');
+
+      // 最近动态
+      const list = [];
+      (checks || []).slice(0, 8).forEach(c => {
+        list.push('<div class="pc-h-item"><span class="pc-h-dot ok"></span><span>' + t('pc_checked') + ' +' + c.points + ' ' + t('rd_pts_unit') + ' · ' + fmtDay(c.day) + '</span></div>');
+      });
+      (reds || []).slice(0, 8).forEach(r => {
+        list.push('<div class="pc-h-item"><span class="pc-h-dot gold"></span><span>' + t('pc_redeemed') + '「' + esc(r.code || '') + '」' + (r.title ? ' · ' + esc(r.title) : '') + ' · ' + fmtDay(r.created_at) + '</span></div>');
+      });
+      $('pcHistoryList').innerHTML = list.length ? list.join('') : '<div class="pc-h-empty">' + t('pc_no_history') + '</div>';
+
+      $('pcNameInput').placeholder = t('pc_name_ph');
+      const editMsg = $('pcEditMsg');
+      editMsg.textContent = '';
+      editMsg.className = 'pc-edit-msg';
+    });
+  }
+  window.__onPcShow = renderPc;
+
+  // 修改用户名
+  $('pcNameSave').addEventListener('click', () => {
+    waitSupabase(async supabase => {
+      const v = $('pcNameInput').value.trim();
+      const msgEl = $('pcEditMsg');
+      if (!v) { msgEl.textContent = t('pc_name_empty'); msgEl.className = 'pc-edit-msg err'; return; }
+      $('pcNameSave').disabled = true;
+      try {
+        const { error } = await supabase.auth.updateUser({ data: { username: v } });
+        if (error) { msgEl.textContent = error.message; msgEl.className = 'pc-edit-msg err'; return; }
+        msgEl.textContent = t('pc_saved');
+        msgEl.className = 'pc-edit-msg ok';
+        $('pcNameInput').value = '';
+        renderPc();
+        try { if (window.__refreshAuth) window.__refreshAuth(); } catch (e) {}
+        try { if (window.__onAuthChange) window.__onAuthChange(); } catch (e) {}
+      } catch (e) {
+        msgEl.textContent = e.message;
+        msgEl.className = 'pc-edit-msg err';
+      } finally {
+        $('pcNameSave').disabled = false;
+      }
+    });
+  });
+})();
+
 /* ============ 更新日志 ============ */
 (function() {
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v1.7', zh: ['称号体系大升级：积分/留言/签到三体系 + 8 个条件成就 + 站长授予称号', '个人中心成就墙', '奖励码改为纯积分 + 隐藏彩蛋码', '站长可授予/收回称号、回复留言'], en: ['Title system v2: points/messages/check-ins tiers + 8 achievement titles + owner-granted titles', 'Achievement wall in personal center', 'Reward codes now grant points only + hidden lottery codes', 'Owner can grant/revoke titles and reply to messages'] },
+    { date: '2026-08-31', ver: 'v1.6', zh: ['新增个人中心（资料 / 称号 / 积分 / 等级进度 / 签到记录 / 兑换记录 / 改名）'], en: ['Added personal center (profile / title / points / level progress / check-in & redemption history / rename)'] },
     { date: '2026-08-31', ver: 'v1.5', zh: ['新增每日签到（每天领积分，可配置）', '站长管理页升级：码列表 / 用户 / 兑换记录 / 签到设置'], en: ['Added daily check-in (earn points daily, configurable)', 'Admin console upgraded: code list / users / redemptions / check-in settings'] },
     { date: '2026-08-31', ver: 'v1.4', zh: ['新增奖励码兑换板块（称号 + 积分/等级）', '留言板显示金色称号徽章', '新增隐藏的站长发码页'], en: ['Added reward code redemption (titles + points/levels)', 'Golden title badges in guestbook', 'Added hidden admin code generator page'] },
     { date: '2026-08-28', ver: 'v1.3', zh: ['新增留言板（Supabase 后端：登录/注册/留言）', '新增更新日志板块', '导航栏加入留言板入口', '邮箱验证回调支持'], en: ['Added guestbook (Supabase: login/signup/messages)', 'Added changelog section', 'Guestbook added to nav', 'Email verification callback support'] },

@@ -18,7 +18,7 @@
       radial-gradient(50% 40% at 20% 20%, rgba(34,120,210,.16), transparent 70%),
       radial-gradient(45% 40% at 80% 70%, rgba(88,60,190,.12), transparent 70%);
   }
-  .wrap { max-width: 860px; margin: 0 auto; }
+  .wrap { max-width: 900px; margin: 0 auto; }
   h1 {
     font-size: 24px; letter-spacing: 3px; margin-bottom: 4px;
     background: linear-gradient(120deg, #22d3ee, #a78bfa, #e8b84b);
@@ -48,6 +48,10 @@
   }
   .key-row button:hover, .btn:hover { background: #67e8f9; }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); letter-spacing: 1px; }
+  .btn.ghost:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(34,211,238,.06); }
+  .btn.red { background: transparent; color: var(--red); border: 1px solid rgba(248,113,113,.4); letter-spacing: 1px; }
+  .btn.red:hover { background: rgba(248,113,113,.1); border-color: var(--red); }
   .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
   .console { display: none; margin-top: 18px; }
@@ -70,32 +74,47 @@
 
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 1px; }
-  .field input {
+  .field input, .field select {
     width: 100%; padding: 11px 13px;
     background: rgba(5,7,15,.7); color: var(--text);
     border: 1px solid var(--border); border-radius: 10px;
     font-size: 14px; outline: none; transition: .2s;
   }
-  .field input:focus { border-color: var(--cyan); }
+  .field input:focus, .field select:focus { border-color: var(--cyan); }
   .field .mono { font-family: ui-monospace, monospace; letter-spacing: 3px; text-transform: uppercase; }
   .row2 { display: flex; gap: 12px; }
   .row2 .field { flex: 1; }
+  .check { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .check input { width: 16px; height: 16px; accent-color: #22d3ee; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
   th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: 1px; }
-  td { color: var(--text); word-break: break-all; }
+  td { color: var(--text); word-break: break-all; vertical-align: top; }
   tr:hover td { background: rgba(255,255,255,.02); }
   .tcode { font-family: ui-monospace, monospace; color: var(--cyan); letter-spacing: 1px; }
-  .ttitle { color: var(--gold); }
+  .tgold { color: var(--gold); }
   .tbadge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; }
   .tbadge.yes { background: rgba(52,211,153,.12); color: var(--green); border: 1px solid rgba(52,211,153,.3); }
   .tbadge.no { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .tbadge.lot { background: rgba(232,184,75,.12); color: var(--gold); border: 1px solid rgba(232,184,75,.35); }
   .empty { color: var(--muted); text-align: center; padding: 26px; font-size: 13px; }
   .config-row { display: flex; align-items: flex-end; gap: 12px; }
   .config-row .field { margin-bottom: 0; flex: 1; }
   .tip { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); line-height: 1.9; }
   .tip b { color: var(--gold); }
+
+  .reply-form { display: flex; gap: 8px; margin-top: 8px; }
+  .reply-form input {
+    flex: 1; min-width: 0; padding: 8px 10px;
+    background: rgba(5,7,15,.7); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12.5px; outline: none;
+  }
+  .reply-form input:focus { border-color: var(--cyan); }
+  .reply-form button { padding: 8px 14px; font-size: 12.5px; letter-spacing: 1px; }
+  .m-reply { margin-top: 6px; padding: 6px 10px; border-left: 2px solid var(--cyan); background: rgba(34,211,238,.06); font-size: 12.5px; color: var(--muted); }
+
   @media (max-width: 600px) {
     body { padding: 14px; }
     .panel { padding: 16px; }
@@ -108,22 +127,24 @@
 <body>
 <div class="wrap">
   <h1>CODE VAULT</h1>
-  <div class="sub">站长控制台 · 奖励码 / 用户 / 兑换记录 / 签到设置</div>
+  <div class="sub">站长控制台 · 发码 / 授予称号 / 回复留言 / 数据总览</div>
 
   <div class="panel">
     <div class="key-row">
       <input id="k" type="password" autocomplete="off" placeholder="输入密钥（SQL 里的 ADMIN_KEY）">
       <button id="unlock">解 锁</button>
     </div>
-    <div class="hint">此页不发到主页，入口即本页网址。忘记密钥？重跑 SQL 脚本修改 YOUR_ADMIN_KEY 即可。</div>
+    <div class="hint">此页不发到主页，入口即本页网址。</div>
     <div class="msg" id="keyMsg"></div>
 
     <div class="console" id="console">
       <div class="tabs" id="tabs">
         <button class="tab active" data-tab="gen">发码</button>
+        <button class="tab" data-tab="grant">授予称号</button>
         <button class="tab" data-tab="codes">奖励码</button>
         <button class="tab" data-tab="users">用户</button>
         <button class="tab" data-tab="reds">兑换记录</button>
+        <button class="tab" data-tab="msgs">留言</button>
         <button class="tab" data-tab="cfg">设置</button>
       </div>
 
@@ -139,18 +160,40 @@
             <input id="p" type="number" min="0" step="1" value="100">
           </div>
         </div>
-        <div class="field">
-          <label>称号 / TITLE（留空则只给积分）</label>
-          <input id="t" type="text" autocomplete="off" placeholder="如：VIP 元老">
-        </div>
+        <label class="check"><input id="lot" type="checkbox"> 隐藏彩蛋码（兑换者解锁「欧皇」成就）</label>
         <button class="btn" id="gen">生 成 奖 励 码</button>
         <div class="msg" id="genMsg"></div>
+        <div class="tip">
+          <b>注意</b>：奖励码只发积分，称号由体系/成就/站长授予自动决定。同码重复生成会覆盖积分。
+        </div>
+      </div>
+
+      <!-- 授予称号 -->
+      <div class="tab-page" id="pg-grant">
+        <div class="row2">
+          <div class="field">
+            <label>用户邮箱 / EMAIL</label>
+            <input id="gEmail" type="text" autocomplete="off" placeholder="user@example.com">
+          </div>
+          <div class="field">
+            <label>站长称号 / TITLE</label>
+            <select id="gTitle"></select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="gGrant" style="flex:1">授 予</button>
+          <button class="btn red" id="gRevoke" style="flex:1">收 回</button>
+        </div>
+        <div class="msg" id="gMsg"></div>
+        <div class="tip">
+          <b>规则</b>：一人一个站长授予称号，新授予会替换旧的；收回后称号自动回到体系/成就称号。
+        </div>
       </div>
 
       <!-- 奖励码列表 -->
       <div class="tab-page" id="pg-codes">
         <table>
-          <thead><tr><th>码</th><th>称号</th><th>积分</th><th>已兑换</th><th>创建时间</th></tr></thead>
+          <thead><tr><th>码</th><th>积分</th><th>彩蛋</th><th>已兑换</th><th>创建时间</th></tr></thead>
           <tbody id="codesBody"></tbody>
         </table>
         <div class="empty" id="codesEmpty" style="display:none">还没有奖励码</div>
@@ -159,7 +202,7 @@
       <!-- 用户 -->
       <div class="tab-page" id="pg-users">
         <table>
-          <thead><tr><th>邮箱</th><th>称号</th><th>积分</th><th>今日签到</th><th>注册时间</th></tr></thead>
+          <thead><tr><th>邮箱</th><th>站长称号</th><th>积分</th><th>今日签到</th><th>注册时间</th></tr></thead>
           <tbody id="usersBody"></tbody>
         </table>
         <div class="empty" id="usersEmpty" style="display:none">还没有用户</div>
@@ -174,6 +217,12 @@
         <div class="empty" id="redsEmpty" style="display:none">还没有兑换记录</div>
       </div>
 
+      <!-- 留言 -->
+      <div class="tab-page" id="pg-msgs">
+        <div id="msgsList"></div>
+        <div class="empty" id="msgsEmpty" style="display:none">还没有留言</div>
+      </div>
+
       <!-- 设置 -->
       <div class="tab-page" id="pg-cfg">
         <div class="config-row">
@@ -184,10 +233,6 @@
           <button class="btn" id="cfgSave">保 存</button>
         </div>
         <div class="msg" id="cfgMsg"></div>
-        <div class="tip">
-          <b>注意</b>：奖励码自动转大写；同码重复生成会覆盖称号/积分（不影响已兑换记录）。<br>
-          签到按北京时间（Asia/Shanghai）计算自然日。已发码/用户数据实时从数据库读取。
-        </div>
       </div>
     </div>
   </div>
@@ -204,15 +249,19 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const $ = id => document.getElementById(id);
     let KEY = '';
-    let dash = null;   // admin_dashboard 数据
+    let dash = null;
 
     function esc(s) {
       return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
     function fmt(iso) {
       if (!iso) return '';
-      const d = new Date(iso);
-      return d.toLocaleString('zh-CN', { hour12: false });
+      return new Date(iso).toLocaleString('zh-CN', { hour12: false });
+    }
+    function setMsg(id, text, ok) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
     }
 
     // ---- 解锁 + 加载总览 ----
@@ -220,11 +269,12 @@
       const { data, error } = await supabase.rpc('admin_dashboard', { p_key: KEY });
       if (error) throw error;
       if (!data || !data.ok) {
-        if (showErr) { $('keyMsg').className = 'msg err'; $('keyMsg').textContent = '密钥错误'; }
+        if (showErr) setMsg('keyMsg', '密钥错误', false);
         return false;
       }
       dash = data;
-      renderCodes(); renderUsers(); renderReds();
+      renderCodes(); renderUsers(); renderReds(); renderMsgs();
+      fillGrantTitles();
       const cp = (data.config && data.config.checkin_points) || '10';
       $('cfgPts').value = cp;
       return true;
@@ -233,28 +283,25 @@
     $('unlock').addEventListener('click', async () => {
       KEY = $('k').value.trim();
       $('keyMsg').textContent = '';
-      if (!KEY) { $('keyMsg').className = 'msg err'; $('keyMsg').textContent = '请输入密钥'; return; }
+      if (!KEY) { setMsg('keyMsg', '请输入密钥', false); return; }
       $('unlock').disabled = true;
       try {
         const ok = await loadDashboard(true);
         if (ok) {
           $('console').style.display = 'block';
-          $('keyMsg').className = 'msg ok';
-          $('keyMsg').textContent = '已解锁，数据加载成功';
+          setMsg('keyMsg', '已解锁，数据加载成功', true);
         }
       } catch (e) {
-        $('keyMsg').className = 'msg err';
-        $('keyMsg').textContent = '加载失败：' + e.message;
+        setMsg('keyMsg', '加载失败：' + e.message, false);
       } finally {
         $('unlock').disabled = false;
       }
     });
 
-    // ---- 选项卡切换 ----
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
+    // ---- 选项卡 ----
+    document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        tabs.forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
         tab.classList.add('active');
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         $('pg-' + tab.dataset.tab).classList.add('active');
@@ -264,79 +311,159 @@
     // ---- 渲染 ----
     function renderCodes() {
       const list = (dash && dash.codes) || [];
-      const body = $('codesBody');
       $('codesEmpty').style.display = list.length ? 'none' : 'block';
-      body.innerHTML = list.map(c =>
-        '<tr><td class="tcode">' + esc(c.code) + '</td><td class="ttitle">' + (c.title ? esc(c.title) : '—') + '</td><td>' + (c.points || 0) + '</td><td>' + (c.used || 0) + '</td><td>' + fmt(c.created_at) + '</td></tr>'
+      $('codesBody').innerHTML = list.map(c =>
+        '<tr><td class="tcode">' + esc(c.code) + '</td><td>' + (c.points || 0) + '</td><td>' +
+        (c.lottery ? '<span class="tbadge lot">彩蛋</span>' : '—') +
+        '</td><td>' + (c.used || 0) + '</td><td>' + fmt(c.created_at) + '</td></tr>'
       ).join('');
     }
     function renderUsers() {
       const list = (dash && dash.profiles) || [];
-      const body = $('usersBody');
+      const titles = {};
+      ((dash && dash.owner_titles) || []).forEach(t => { titles[t.key] = t.name; });
       $('usersEmpty').style.display = list.length ? 'none' : 'block';
-      body.innerHTML = list.map(u =>
-        '<tr><td>' + esc(u.email || '—') + '</td><td class="ttitle">' + (u.title ? esc(u.title) : '—') + '</td><td>' + (u.points || 0) + '</td><td>' +
+      $('usersBody').innerHTML = list.map(u =>
+        '<tr><td>' + esc(u.email || '—') + '</td><td>' +
+        (u.owner_title_key ? '<span class="tgold">' + esc(titles[u.owner_title_key] || u.owner_title_key) + '</span>' : '—') +
+        '</td><td>' + (u.points || 0) + '</td><td>' +
         (u.checked_today ? '<span class="tbadge yes">已签</span>' : '<span class="tbadge no">未签</span>') +
         '</td><td>' + fmt(u.created_at) + '</td></tr>'
       ).join('');
     }
     function renderReds() {
       const list = (dash && dash.redemptions) || [];
-      const body = $('redsBody');
       $('redsEmpty').style.display = list.length ? 'none' : 'block';
-      body.innerHTML = list.map(r =>
+      $('redsBody').innerHTML = list.map(r =>
         '<tr><td class="tcode">' + esc(r.code || '?') + '</td><td>' + esc(r.email || '?') + '</td><td>' + fmt(r.created_at) + '</td></tr>'
       ).join('');
+    }
+    function renderMsgs() {
+      const list = (dash && dash.messages) || [];
+      $('msgsEmpty').style.display = list.length ? 'none' : 'block';
+      $('msgsList').innerHTML = list.map(m =>
+        '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:10px">' +
+          '<div style="font-size:12px;color:var(--muted);font-family:ui-monospace,monospace;margin-bottom:4px">' +
+            esc(m.user_email || '匿名') + ' · ' + fmt(m.created_at) + (m.replied ? ' · <span style="color:#34d399">已回复</span>' : '') +
+          '</div>' +
+          '<div style="font-size:13.5px;line-height:1.6">' + esc(m.content || '') + '</div>' +
+          (m.replied && m.reply ? '<div class="m-reply">站长回复：' + esc(m.reply) + '</div>' : '') +
+          (m.replied ? '' :
+            '<div class="reply-form"><input id="rp_' + m.id + '" type="text" placeholder="回复这条留言…">' +
+            '<button class="btn ghost" data-reply="' + m.id + '">回复</button></div>') +
+        '</div>'
+      ).join('');
+      document.querySelectorAll('[data-reply]').forEach(btn => {
+        btn.addEventListener('click', () => doReply(btn.getAttribute('data-reply')));
+      });
+    }
+    function fillGrantTitles() {
+      const titles = (dash && dash.owner_titles) || [];
+      $('gTitle').innerHTML = titles.map(t => '<option value="' + esc(t.key) + '">' + esc(t.name) + '</option>').join('');
     }
 
     // ---- 发码 ----
     $('gen').addEventListener('click', async () => {
-      const msg = $('genMsg');
       const code = $('c').value.trim();
-      const title = $('t').value.trim();
       const points = parseInt($('p').value, 10) || 0;
-      msg.className = 'msg';
-      if (!code) { msg.className = 'msg err'; msg.textContent = '请输入奖励码'; return; }
+      const lottery = $('lot').checked;
+      if (!code) { setMsg('genMsg', '请输入奖励码', false); return; }
       $('gen').disabled = true;
-      msg.textContent = '生成中…';
+      setMsg('genMsg', '生成中…', false);
       try {
-        const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_title: title, p_points: points, p_key: KEY });
-        if (error) { msg.className = 'msg err'; msg.textContent = '失败：' + error.message; return; }
+        const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_points: points, p_key: KEY, p_lottery: lottery });
+        if (error) { setMsg('genMsg', '失败：' + error.message, false); return; }
         if (data && data.ok) {
-          msg.className = 'msg ok';
-          msg.textContent = '已生成：' + code.toUpperCase() + (title ? ' · 称号「' + title + '」' : '') + ' · ' + points + ' 积分';
-          $('c').value = ''; $('t').value = '';
+          setMsg('genMsg', '已生成：' + code.toUpperCase() + ' · ' + points + ' 积分' + (lottery ? ' · 彩蛋码' : ''), true);
+          $('c').value = '';
+          $('lot').checked = false;
           await loadDashboard(false);
-          renderCodes();
         } else {
-          msg.className = 'msg err';
-          msg.textContent = (data && data.msg === 'BAD_KEY') ? '密钥错误' : '生成失败';
+          setMsg('genMsg', (data && data.msg === 'BAD_KEY') ? '密钥错误' : '生成失败', false);
         }
       } catch (e) {
-        msg.className = 'msg err'; msg.textContent = '失败：' + e.message;
+        setMsg('genMsg', '失败：' + e.message, false);
       } finally {
         $('gen').disabled = false;
       }
     });
 
-    // ---- 保存设置 ----
+    // ---- 授予 / 收回 ----
+    async function doGrant() {
+      const email = $('gEmail').value.trim();
+      const tkey = $('gTitle').value;
+      if (!email) { setMsg('gMsg', '请输入用户邮箱', false); return; }
+      $('gGrant').disabled = true;
+      try {
+        const { data, error } = await supabase.rpc('admin_grant_title', { p_key: KEY, p_email: email, p_title_key: tkey });
+        if (error) { setMsg('gMsg', '失败：' + error.message, false); return; }
+        if (data && data.ok) {
+          setMsg('gMsg', '已授予 ' + email + ' 称号「' + ($('gTitle').selectedOptions[0] ? $('gTitle').selectedOptions[0].textContent : tkey) + '」', true);
+          $('gEmail').value = '';
+          await loadDashboard(false);
+        } else {
+          const map = { USER_NOT_FOUND: '用户不存在', BAD_TITLE: '称号不存在', BAD_KEY: '密钥错误' };
+          setMsg('gMsg', map[data && data.msg] || '授予失败', false);
+        }
+      } catch (e) {
+        setMsg('gMsg', '失败：' + e.message, false);
+      } finally {
+        $('gGrant').disabled = false;
+      }
+    }
+    async function doRevoke() {
+      const email = $('gEmail').value.trim();
+      if (!email) { setMsg('gMsg', '请输入用户邮箱', false); return; }
+      $('gRevoke').disabled = true;
+      try {
+        const { data, error } = await supabase.rpc('admin_revoke_title', { p_key: KEY, p_email: email });
+        if (error) { setMsg('gMsg', '失败：' + error.message, false); return; }
+        if (data && data.ok) {
+          setMsg('gMsg', '已收回 ' + email + ' 的站长授予称号', true);
+          $('gEmail').value = '';
+          await loadDashboard(false);
+        } else {
+          setMsg('gMsg', (data && data.msg === 'USER_NOT_FOUND') ? '用户不存在' : '收回失败', false);
+        }
+      } catch (e) {
+        setMsg('gMsg', '失败：' + e.message, false);
+      } finally {
+        $('gRevoke').disabled = false;
+      }
+    }
+    $('gGrant').addEventListener('click', doGrant);
+    $('gRevoke').addEventListener('click', doRevoke);
+
+    // ---- 回复留言 ----
+    async function doReply(msgId) {
+      const input = $('rp_' + msgId);
+      const text = input ? input.value.trim() : '';
+      if (!text) { alert('请输入回复内容'); return; }
+      try {
+        const { data, error } = await supabase.rpc('admin_reply_message', { p_key: KEY, p_msg_id: msgId, p_reply: text });
+        if (error) { alert('失败：' + error.message); return; }
+        if (data && data.ok) {
+          await loadDashboard(false);
+        } else {
+          alert('密钥错误');
+        }
+      } catch (e) {
+        alert('失败：' + e.message);
+      }
+    }
+
+    // ---- 设置 ----
     $('cfgSave').addEventListener('click', async () => {
-      const msg = $('cfgMsg');
       const val = parseInt($('cfgPts').value, 10);
-      msg.className = 'msg';
-      if (isNaN(val) || val < 0) { msg.className = 'msg err'; msg.textContent = '请输入有效积分值'; return; }
+      if (isNaN(val) || val < 0) { setMsg('cfgMsg', '请输入有效积分值', false); return; }
       $('cfgSave').disabled = true;
       try {
         const { data, error } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: 'checkin_points', p_value: String(val) });
-        if (error) { msg.className = 'msg err'; msg.textContent = '失败：' + error.message; return; }
-        if (data && data.ok) {
-          msg.className = 'msg ok';
-          msg.textContent = '已保存：每日签到 +' + val + ' 积分';
-        } else {
-          msg.className = 'msg err'; msg.textContent = '密钥错误';
-        }
+        if (error) { setMsg('cfgMsg', '失败：' + error.message, false); return; }
+        if (data && data.ok) setMsg('cfgMsg', '已保存：每日签到 +' + val + ' 积分', true);
+        else setMsg('cfgMsg', '密钥错误', false);
       } catch (e) {
-        msg.className = 'msg err'; msg.textContent = '失败：' + e.message;
+        setMsg('cfgMsg', '失败：' + e.message, false);
       } finally {
         $('cfgSave').disabled = false;
       }
