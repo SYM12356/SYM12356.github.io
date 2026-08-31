@@ -90,9 +90,9 @@
     transition: transform .35s ease;
     pointer-events: none;
   }
-  /* 展开状态（点按钮后） */
+  /* 展开状态（点按钮后）——下移到顶部按钮行下方，避免被固定按钮遮挡（全端生效） */
   .index-nav.open {
-    transform: translateY(0);
+    transform: translateY(60px);
     pointer-events: auto;
   }
   .index-nav-inner {
@@ -220,6 +220,144 @@
     font-family: var(--mono);
   }
   .lang-toggle:hover { border-color: rgba(255,255,255,.45); }
+
+  /* ============ 左上角登录/注册按钮 ============ */
+  .auth-fab {
+    position: fixed;
+    top: 14px; left: 172px;
+    z-index: 200;
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(5,7,15,.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: .25s;
+    font-family: var(--mono);
+    white-space: nowrap;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .auth-fab:hover { border-color: rgba(34,211,238,.5); color: var(--cyan); }
+  .auth-fab.is-in { color: var(--cyan); border-color: rgba(34,211,238,.35); }
+
+  /* ============ 登录/注册大弹窗 ============ */
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(2,4,10,.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 20px;
+  }
+  .auth-box {
+    position: relative;
+    width: min(460px, 100%);
+    background: rgba(8,12,24,.92);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    padding: 38px 36px 30px;
+    box-shadow: 0 30px 90px rgba(0,0,0,.6), 0 0 0 1px rgba(34,211,238,.06), 0 0 60px rgba(34,211,238,.07);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: authPop .25s ease;
+  }
+  @keyframes authPop {
+    from { opacity: 0; transform: translateY(16px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .auth-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 34px; height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: .2s;
+  }
+  .auth-close:hover { color: var(--text); border-color: rgba(255,255,255,.4); }
+  .auth-title {
+    font-family: "Zhi Mang Xing", "Kaiti SC", "STKaiti", serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .auth-title span {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .auth-form { display: block; }
+  .auth-field { margin-bottom: 16px; }
+  .auth-field label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+    font-family: var(--mono);
+  }
+  .auth-field input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(5,7,15,.6);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: .2s;
+  }
+  .auth-field input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(34,211,238,.12); }
+  .auth-msg {
+    min-height: 20px;
+    font-size: 13px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .auth-msg.ok { color: var(--cyan); }
+  .auth-msg.err { color: #f87171; }
+  .auth-actions { display: flex; gap: 12px; }
+  .auth-actions .btn { flex: 1; padding: 12px 0; text-align: center; }
+  .auth-note {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: .5px;
+  }
+  .auth-in {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 0 4px;
+  }
+  .auth-in .auth-welcome { font-size: 14px; color: var(--muted); }
+  .auth-in .gb-user { font-size: 20px; margin: 0; }
+  body.light .auth-fab { background: rgba(255,255,255,.92); border-color: rgba(28,37,54,.14); box-shadow: 0 2px 16px rgba(28,37,54,.08); }
+  body.light .auth-box { background: rgba(255,255,255,.96); border-color: rgba(28,37,54,.14); }
+  body.light .auth-field input { background: rgba(28,37,54,.045); border-color: rgba(28,37,54,.14); color: #1c2536; }
+  body.light .auth-close:hover { color: #1c2536; border-color: rgba(28,37,54,.35); }
 
   /* ============ 浅色主题（柔和灰蓝，精调） ============ */
   body.light {
@@ -361,6 +499,47 @@
     z-index: 0;
     pointer-events: none;
   }
+
+  /* WebGL 不可用时的 CSS 流体光斑（QQ 浏览器/老旧内核等） */
+  .bfx-fallback {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 105vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: linear-gradient(180deg, #05070f 0%, #0a1330 55%, #05070f 100%);
+    mask-image: linear-gradient(#000000fc 0%, #000000e8 8.98%, transparent 100%);
+    -webkit-mask-image: linear-gradient(#000000fc 0%, #000000e8 8.98%, transparent 100%);
+  }
+  .bfx-blob {
+    position: absolute;
+    border-radius: 50%;
+    will-change: transform;
+  }
+  .bfx-b1 {
+    width: 72vmax; height: 72vmax; left: -16vmax; top: -22vmax;
+    background: radial-gradient(circle, rgba(34,120,210,.42), transparent 66%);
+    animation: bfxDrift1 16s ease-in-out infinite alternate;
+  }
+  .bfx-b2 {
+    width: 62vmax; height: 62vmax; right: -14vmax; top: 6vmax;
+    background: radial-gradient(circle, rgba(88,60,190,.36), transparent 66%);
+    animation: bfxDrift2 20s ease-in-out infinite alternate;
+  }
+  .bfx-b3 {
+    width: 52vmax; height: 52vmax; left: 18vmax; bottom: -18vmax;
+    background: radial-gradient(circle, rgba(20,90,170,.36), transparent 66%);
+    animation: bfxDrift3 22s ease-in-out infinite alternate;
+  }
+  .bfx-b4 {
+    width: 38vmax; height: 38vmax; left: 56vw; top: 40vh;
+    background: radial-gradient(circle, rgba(220,190,140,.16), transparent 66%);
+    animation: bfxDrift4 18s ease-in-out infinite alternate;
+  }
+  @keyframes bfxDrift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(8vmax, 6vmax) scale(1.15); } }
+  @keyframes bfxDrift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-7vmax, 9vmax) scale(1.1); } }
+  @keyframes bfxDrift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(6vmax, -8vmax) scale(1.2); } }
+  @keyframes bfxDrift4 { from { transform: translate(0,0) scale(1); } to { transform: translate(-5vmax, 4vmax) scale(1.15); } }
 
   /* ============ DeepSeek 官网式四角星 ============ */
   .sparkle-layer {
@@ -833,27 +1012,33 @@
   }
   .sec-sub { color: var(--muted); margin-bottom: 48px; font-size: 15px; }
 
-  /* 更新日志折叠 */
-  .cl-fold { margin-top: 6px; }
-  .cl-fold summary {
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-  .cl-fold summary::-webkit-details-marker { display: none; }
-  .cl-fold summary .sec-title { margin-bottom: 0; }
-  .cl-fold .sec-sub { margin-bottom: 32px; }
-  .cl-fold-hint {
-    font-size: 13px;
+  /* 更新日志：显示最新两条，其余折叠 */
+  .cl-more { margin-top: 10px; text-align: center; }
+  .cl-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
     color: var(--muted);
-    opacity: .55;
+    font-size: 13px;
     letter-spacing: 1px;
-    transition: opacity .3s;
+    padding: 7px 20px;
+    cursor: pointer;
+    transition: .25s;
+    font-family: inherit;
   }
-  .cl-fold[open] .cl-fold-hint { opacity: 0; }
+  .cl-more-btn:hover { color: var(--cyan); border-color: rgba(34,211,238,.45); }
+  .cl-more-btn::after {
+    content: "";
+    margin-left: 4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid currentColor;
+    transition: transform .25s;
+  }
+  .cl-more.open .cl-more-btn::after { transform: rotate(180deg); }
 
   /* 区块小标号 */
   .sec-no {
@@ -1065,8 +1250,98 @@
     margin-bottom: 6px; font-family: var(--mono);
   }
   .gb-item .gb-name { color: var(--violet); }
+  .gb-item .gb-name .gb-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #1a1204;
+    background: linear-gradient(135deg, #f5d78a, #e8b84b 60%, #c8932e);
+    box-shadow: 0 0 10px rgba(232,184,75,.35);
+    vertical-align: middle;
+  }
+  .gb-item .gb-name .gb-pts {
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    vertical-align: middle;
+  }
   .gb-item .gb-content { font-size: 14px; color: var(--text); line-height: 1.6; word-break: break-word; }
   .gb-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
+
+  /* ============ 兑换 ============ */
+  .redeem-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px;
+    max-width: 520px;
+  }
+  .redeem-row { display: flex; gap: 12px; }
+  .redeem-row input {
+    flex: 1;
+    min-width: 0;
+    background: rgba(5,7,15,.6);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 16px;
+    font-family: var(--mono);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    outline: none;
+    transition: .2s;
+  }
+  .redeem-row input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(34,211,238,.12); }
+  .redeem-row input::placeholder { letter-spacing: 1px; }
+  .rd-msg {
+    min-height: 22px;
+    margin-top: 12px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .rd-msg.ok { color: #34d399; }
+  .rd-msg.err { color: #f87171; }
+  .rd-status {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+  .rd-status b { color: var(--cyan); font-weight: 600; }
+  .rd-status .rd-title { color: #e8b84b; }
+  .rd-status .rd-lv { color: var(--pink); }
+  .rd-status .rd-login {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: .2s;
+    font-family: inherit;
+  }
+  .rd-status .rd-login:hover { color: var(--cyan); border-color: rgba(34,211,238,.45); }
+
+  /* 每日签到 */
+  .rd-divider { margin: 18px 0; border-top: 1px dashed var(--border); }
+  .rd-checkin {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .rd-checkin-info { display: flex; flex-direction: column; gap: 4px; }
+  .rd-checkin-title { font-size: 14.5px; color: var(--text); letter-spacing: 1px; }
+  .rd-checkin-sub { font-size: 12.5px; color: var(--muted); }
+  #rdSignBtn:disabled { opacity: .45; cursor: not-allowed; }
 
   /* ============ 更新日志 ============ */
   .cl-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 22px; }
@@ -1132,6 +1407,20 @@
     .hero-grid { grid-template-columns: 1fr; gap: 32px; text-align: center; }
     .hero-left { align-items: center; }
     .backup-grid { grid-template-columns: 1fr; }
+
+    /* 手机端：左上角只留汉堡按钮，主题/语言/登录移到右上角，避免挤占、挡住导航 */
+    .mobile-menu-btn { top: 10px; left: 10px; width: 40px; height: 40px; }
+    .theme-toggle { top: 10px; left: auto; right: 184px; width: 40px; height: 40px; font-size: 16px; }
+    .lang-toggle { top: 10px; left: auto; right: 136px; width: 40px; height: 40px; }
+    .auth-fab { top: 10px; left: auto; right: 10px; height: 40px; padding: 0 13px; font-size: 12px; max-width: 28vw; }
+
+    /* 游戏标签：窄屏下可换行、紧凑显示，避免溢出 */
+    .game-tabs { flex-wrap: wrap; }
+    .game-tab { flex: 1 1 auto; min-width: 0; padding: 10px 8px; font-size: 13px; white-space: nowrap; }
+    /* 赛车 iframe：手机屏高较小，降低高度 */
+    .race-frame iframe { height: 440px; }
+    /* 登录弹窗：手机窄屏收紧内边距 */
+    .auth-box { padding: 30px 22px 24px; }
   }
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/zhi-mang-xing@5.1.0/index.css">
@@ -1140,6 +1429,14 @@
 
 <canvas id="bgfx"></canvas>
 <canvas id="stars" style="display:none"></canvas>
+
+<!-- WebGL 不可用时的 CSS 流体背景 -->
+<div class="bfx-fallback" id="bfxFallback" style="display:none">
+  <div class="bfx-blob bfx-b1"></div>
+  <div class="bfx-blob bfx-b2"></div>
+  <div class="bfx-blob bfx-b3"></div>
+  <div class="bfx-blob bfx-b4"></div>
+</div>
 
 <main>
   <!-- ============ 顶部导航条（点击汉堡按钮滑出/收起） ============ -->
@@ -1166,6 +1463,9 @@
 
   <!-- 语言切换按钮 -->
   <button class="lang-toggle" id="langToggle" aria-label="切换语言">EN</button>
+
+  <!-- 左上角登录/注册按钮 -->
+  <button class="auth-fab" id="authFab" data-i18n="gb_login">登录 / 注册</button>
 
   <!-- ============ 首屏 ============ -->
   <header class="hero" id="top">
@@ -1258,7 +1558,7 @@
 
         <!-- 规则说明 -->
         <details class="ttt-rules">
-          <summary data-i18n="ttt_rules">📖 玩法规则</summary>
+          <summary data-i18n="ttt_rules">玩法规则</summary>
           <ul class="ttt-rules-list">
             <li data-i18n="r1"><b>棋盘结构</b>：9 个子棋盘组成一个大局，每个子棋盘内有 3×3 格。赢下子棋盘者占得该格。</li>
             <li data-i18n="r2"><b>落子规则</b>：你落在子棋盘的哪一格，对手下一手就必须进入对应编号的子棋盘。</li>
@@ -1426,21 +1726,10 @@
   <section id="guestbook">
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">06 / GUESTBOOK</span></div>
-      <h2 class="sec-title reveal">留<span data-i18n="gb_title">言板</span></h2>
+      <h2 class="sec-title reveal"><span data-i18n="gb_title">留言板</span></h2>
       <p class="sec-sub reveal" data-i18n="gb_sub">说点什么吧，我会看到的</p>
 
       <div class="gb-card reveal">
-        <!-- 登录区 -->
-        <div class="gb-auth" id="gbAuth">
-          <div id="gbLoggedOut">
-            <button class="btn btn-primary game-btn" id="gbLoginBtn" data-i18n="gb_login">登录 / 注册</button>
-          </div>
-          <div id="gbLoggedIn" style="display:none">
-            <span class="gb-user" id="gbUser"></span>
-            <button class="btn btn-ghost game-btn" id="gbLogoutBtn" data-i18n="gb_logout">退出</button>
-          </div>
-        </div>
-
         <!-- 留言输入 -->
         <div class="gb-input" id="gbInput">
           <textarea id="gbText" rows="3" placeholder="写下你的留言…" data-i18n-placeholder="gb_placeholder"></textarea>
@@ -1453,18 +1742,43 @@
     </div>
   </section>
 
+  <!-- ============ 兑换 ============ -->
+  <section id="redeem">
+    <div class="wrap">
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / REDEEM</span></div>
+      <h2 class="sec-title reveal"><span data-i18n="rd_title">兑换</span></h2>
+      <p class="sec-sub reveal" data-i18n="rd_sub">奖励码解锁称号积分 · 每日签到也能攒积分</p>
+
+      <div class="redeem-card reveal">
+        <div class="redeem-row">
+          <input id="rdCode" type="text" autocomplete="off" spellcheck="false">
+          <button class="btn btn-primary game-btn" id="rdBtn" data-i18n="rd_btn">兑换</button>
+        </div>
+        <div class="rd-msg" id="rdMsg"></div>
+
+        <div class="rd-divider"></div>
+
+        <div class="rd-checkin">
+          <div class="rd-checkin-info">
+            <span class="rd-checkin-title" data-i18n="rd_sign_title">每日签到</span>
+            <span class="rd-checkin-sub" id="rdSignSub"></span>
+          </div>
+          <button class="btn btn-ghost game-btn" id="rdSignBtn" data-i18n="rd_sign_btn">签到</button>
+        </div>
+        <div class="rd-msg" id="rdSignMsg"></div>
+
+        <div class="rd-status" id="rdStatus"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 更新日志 ============ -->
   <section id="changelog">
     <div class="wrap">
-      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / CHANGELOG</span></div>
-      <details class="cl-fold reveal">
-        <summary>
-          <h2 class="sec-title"><span data-i18n="cl_p1">更新</span><span data-i18n="cl_title">日志</span></h2>
-          <span class="cl-fold-hint" data-i18n="cl_fold">点击展开</span>
-        </summary>
-        <p class="sec-sub" data-i18n="cl_sub">记录每一次成长</p>
-        <div class="cl-list" id="clList"></div>
-      </details>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">08 / CHANGELOG</span></div>
+      <h2 class="sec-title reveal"><span data-i18n="cl_p1">更新</span><span data-i18n="cl_title">日志</span></h2>
+      <p class="sec-sub reveal" data-i18n="cl_sub">记录每一次成长</p>
+      <div class="cl-list" id="clList"></div>
     </div>
   </section>
 
@@ -1490,6 +1804,41 @@
 <!-- 回到顶部按钮 -->
 <button class="back-top" id="backTop" aria-label="回到顶部">↑</button>
 
+<!-- ============ 登录 / 注册 大弹窗 ============ -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box" role="dialog" aria-modal="true">
+    <button class="auth-close" id="authClose" aria-label="关闭">✕</button>
+    <h3 class="auth-title"><span data-i18n="gb_auth_title">登录 / 注册</span></h3>
+
+    <div class="auth-form" id="authFormBox">
+      <div class="auth-field">
+        <label for="authUsername" data-i18n="gb_username">用户名</label>
+        <input id="authUsername" type="text" autocomplete="nickname">
+      </div>
+      <div class="auth-field">
+        <label for="authEmail" data-i18n="gb_email">邮箱</label>
+        <input id="authEmail" type="email" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label for="authPass" data-i18n="gb_pass">密码</label>
+        <input id="authPass" type="password" autocomplete="current-password">
+      </div>
+      <div class="auth-msg" id="authMsg"></div>
+      <div class="auth-actions">
+        <button class="btn btn-primary game-btn" id="authLoginBtn" data-i18n="gb_login_btn">登 录</button>
+        <button class="btn btn-ghost game-btn" id="authSignupBtn" data-i18n="gb_signup_btn">注 册</button>
+      </div>
+      <p class="auth-note" data-i18n="gb_note">注册需验证邮箱 · 登录后可留言</p>
+    </div>
+
+    <div class="auth-in" id="authIn">
+      <span class="auth-welcome" data-i18n="gb_welcome">已登录</span>
+      <span class="gb-user" id="authUserName"></span>
+      <button class="btn btn-ghost game-btn" id="authLogoutBtn" data-i18n="gb_logout">退出</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============ 中英切换 ============ */
 const I18N = {
@@ -1501,7 +1850,7 @@ const I18N = {
     tag_code: '编程', tag_game: '游戏', tag_sleep: '睡觉', tag_board: '桌游',
     g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！',
     xu_sub: '你感知的时间，和真实的时间，差多少？', xu_target: '点击「开始实验」', xu_start: '开始实验',
-    ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '📖 玩法规则',
+    ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '玩法规则',
     ttt_diff: '难度', ttt_easy: '简单模式', ttt_medium: '中等模式', ttt_hard: '困难模式',
     ttt_order: '手序', ttt_first: '先手', ttt_second: '后手', ttt_new: '新游戏', ttt_status: '准备开始',
     b_title: '桌游', b_desc: '《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽', b_enter: '进入剑影江湖',
@@ -1519,8 +1868,10 @@ const I18N = {
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
     g_sub: '三个小游戏，一个感知时间，一个谋略对弈，一个极限竞速', b_sub: '自研武侠对战游戏，热座双人对决',
-    gb_title: '言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
-    cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_fold: '点击展开'
+    gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
+    gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
+    rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
+    cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_more: '展开更多历史', cl_less: '收起'
   },
   'en': {
     nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_gb: 'Guestbook', nav_contact: 'Contact',
@@ -1530,7 +1881,7 @@ const I18N = {
     tag_code: 'Coding', tag_game: 'Gaming', tag_sleep: 'Sleeping', tag_board: 'Board Games',
     g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!',
     xu_sub: 'How far is your sense of time from real time?', xu_target: 'Click to start', xu_start: 'Start',
-    ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: '📖 Rules',
+    ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: 'Rules',
     ttt_diff: 'Difficulty', ttt_easy: 'Easy', ttt_medium: 'Medium', ttt_hard: 'Hard',
     ttt_order: 'Turn', ttt_first: 'First', ttt_second: 'Second', ttt_new: 'New Game', ttt_status: 'Ready',
     b_title: 'Board', b_desc: 'Sword Shadow Jianghu - a 2-player wuxia duel game with 5 heroes', b_enter: 'Enter Sword Shadow',
@@ -1548,8 +1899,10 @@ const I18N = {
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
     g_sub: 'Three mini games - sense time, master the board, race to the center', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
-    gb_title: 'uestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
-    cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_fold: 'Click to expand'
+    gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
+    gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
+    rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
+    cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_more: 'Show all history', cl_less: 'Collapse'
   }
 };
 (function() {
@@ -1590,8 +1943,25 @@ const I18N = {
 (function() {
   const canvas = document.getElementById('bgfx');
   if (!canvas) return;
-  const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false, powerPreference: 'low-power' });
-  if (!gl) { document.getElementById('stars').style.display = 'block'; return; }
+
+  // WebGL 不可用/出错时：切换为 CSS 流体光斑（QQ 浏览器等）
+  function enableFallback() {
+    try {
+      const fb = document.getElementById('bfxFallback');
+      if (fb) fb.style.display = 'block';
+      const stars = document.getElementById('stars');
+      if (stars) stars.style.display = 'none';
+    } catch (e) {}
+  }
+
+  let gl = null;
+  try {
+    gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false, powerPreference: 'low-power' });
+  } catch (e) { gl = null; }
+  if (!gl) { enableFallback(); return; }
+  canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); enableFallback(); });
+
+  try {
 
   // ---- 工具 ----
   function compile(type, src) {
@@ -1928,6 +2298,7 @@ const I18N = {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+  } catch (e) { enableFallback(); }
 })();
 
 /* ============ 终端打字机 ============ */
@@ -2582,6 +2953,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   sdk.onload = function() {
     if (window.supabase) {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      window.__supabase = supabase;   // 供兑换等其它模块复用
       initGuestbook();
     }
   };
@@ -2592,9 +2964,16 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     refreshAuth();
     checkEmailVerification();
 
-    $('gbLoginBtn').addEventListener('click', showLoginModal);
-    $('gbLogoutBtn').addEventListener('click', async () => {
+    // 左上角登录按钮 + 大弹窗
+    $('authFab').addEventListener('click', openAuthModal);
+    $('authClose').addEventListener('click', closeAuthModal);
+    $('authOverlay').addEventListener('click', e => { if (e.target === $('authOverlay')) closeAuthModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('authOverlay').style.display === 'flex') closeAuthModal(); });
+    $('authLoginBtn').addEventListener('click', doLogin);
+    $('authSignupBtn').addEventListener('click', doSignup);
+    $('authLogoutBtn').addEventListener('click', async () => {
       await supabase.auth.signOut();
+      closeAuthModal();
       refreshAuth();
     });
     $('gbSendBtn').addEventListener('click', sendMessage);
@@ -2629,38 +3008,89 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     }
   }
 
-  // 登录弹窗（简单表单）
-  function showLoginModal() {
-    const email = prompt('邮箱 / Email:');
-    if (!email) return;
-    const password = prompt('密码 / Password:');
-    if (!password) return;
-    const mode = confirm('确定注册？点"确定"=注册，点"取消"=登录');
-    if (mode) {
-      supabase.auth.signUp({ email, password }).then(({ error }) => {
-        if (error) alert('注册失败: ' + error.message);
-        else { alert('注册成功！请查收邮箱验证（测试环境可能无需验证）'); refreshAuth(); }
-      });
+  // 登录用户名（优先 user_metadata 里的 username）
+  function userName(u) {
+    if (!u) return '';
+    return (u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || u.email || 'user';
+  }
+
+  // 打开大弹窗
+  function openAuthModal() {
+    const overlay = $('authOverlay');
+    overlay.style.display = 'flex';
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data && data.user;
+      const loggedIn = !!u;
+      $('authFormBox').style.display = loggedIn ? 'none' : 'block';
+      $('authIn').style.display = loggedIn ? 'flex' : 'none';
+      $('authMsg').textContent = '';
+      $('authMsg').className = 'auth-msg';
+      if (loggedIn) {
+        $('authUserName').textContent = userName(u);
+      } else {
+        setTimeout(() => { const e = $('authEmail'); if (e) e.focus(); }, 60);
+      }
+    });
+  }
+
+  function closeAuthModal() {
+    $('authOverlay').style.display = 'none';
+  }
+
+  function setAuthMsg(text, ok) {
+    const el = $('authMsg');
+    el.textContent = text;
+    el.className = 'auth-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  // 登录
+  async function doLogin() {
+    const email = $('authEmail').value.trim();
+    const password = $('authPass').value;
+    if (!email || !password) { setAuthMsg('请输入邮箱和密码'); return; }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setAuthMsg(error.message); return; }
+    closeAuthModal();
+    refreshAuth();
+  }
+
+  // 注册（用户名存入 user_metadata）
+  async function doSignup() {
+    const username = $('authUsername').value.trim();
+    const email = $('authEmail').value.trim();
+    const password = $('authPass').value;
+    if (!username) { setAuthMsg('请输入用户名'); return; }
+    if (!email || !password) { setAuthMsg('请输入邮箱和密码'); return; }
+    if (password.length < 6) { setAuthMsg('密码至少 6 位'); return; }
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { username } }
+    });
+    if (error) { setAuthMsg(error.message); return; }
+    if (data && data.session) {
+      closeAuthModal();
+      refreshAuth();
     } else {
-      supabase.auth.signInWithPassword({ email, password }).then(({ error }) => {
-        if (error) alert('登录失败: ' + error.message);
-        else refreshAuth();
-      });
+      // 邮箱验证开启：注册成功但尚未登录，提示查收邮件
+      setAuthMsg('注册成功！请查收邮箱验证链接后登录', true);
+      $('authPass').value = '';
     }
   }
 
   function refreshAuth() {
-    const user = supabase.auth.getUser();
-    user.then(({ data }) => {
+    supabase.auth.getUser().then(({ data }) => {
       const u = data && data.user;
+      const fab = $('authFab');
       if (u) {
-        $('gbLoggedOut').style.display = 'none';
-        $('gbLoggedIn').style.display = 'flex';
-        $('gbUser').textContent = u.email || 'user';
+        fab.textContent = userName(u);
+        fab.setAttribute('data-i18n', '');
+        fab.classList.add('is-in');
       } else {
-        $('gbLoggedOut').style.display = 'block';
-        $('gbLoggedIn').style.display = 'none';
+        fab.textContent = (window.__t && __t('gb_login')) || '登录 / 注册';
+        fab.setAttribute('data-i18n', 'gb_login');
+        fab.classList.remove('is-in');
       }
+      try { if (window.__onAuthChange) window.__onAuthChange(); } catch (e) {}
     });
   }
 
@@ -2682,9 +3112,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     const el = $('gbList');
     if (!list.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
     el.innerHTML = list.map(m => {
-      const name = m.user_email || '匿名';
+      const name = escapeHtml(m.user_email || '匿名');
+      const badge = m.user_title ? '<span class="gb-badge">' + escapeHtml(m.user_title) + '</span>' : '';
+      const pts = m.user_points ? '<span class="gb-pts">' + m.user_points + '</span>' : '';
       const time = m.created_at ? new Date(m.created_at).toLocaleString('zh-CN') : '';
-      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div></div>';
+      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div></div>';
     }).join('');
   }
 
@@ -2693,10 +3125,18 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     if (!text) { alert('留言不能为空'); return; }
     const user = await supabase.auth.getUser();
     const u = user.data && user.data.user;
-    if (!u) { alert('请先登录'); showLoginModal(); return; }
+    if (!u) { alert('请先登录'); openAuthModal(); return; }
+    // 带当前称号/积分快照
+    let title = '', points = 0;
+    try {
+      const r = await supabase.rpc('my_status');
+      if (r.data && r.data.ok) { title = r.data.title || ''; points = r.data.points || 0; }
+    } catch (e) {}
     const { error } = await supabase.from('messages').insert({
       content: text,
-      user_email: u.email || 'user'
+      user_email: userName(u),
+      user_title: title,
+      user_points: points
     });
     if (error) { alert('发送失败: ' + error.message); return; }
     $('gbText').value = '';
@@ -2708,23 +3148,205 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   }
 })();
 
+/* ============ 兑换（奖励码） ============ */
+(function() {
+  const $ = id => document.getElementById(id);
+  const rdCode = $('rdCode');
+  if (!rdCode) return;
+
+  const t = k => (window.__t ? __t(k) : k);
+
+  // 等级体系（按累计积分）
+  const TIERS = [
+    { min: 500, lv: 4 },
+    { min: 200, lv: 3 },
+    { min: 50, lv: 2 },
+    { min: 0, lv: 1 }
+  ];
+  const LV_KEYS = { 1: 'rd_lv1', 2: 'rd_lv2', 3: 'rd_lv3', 4: 'rd_lv4' };
+
+  function waitSupabase(cb) {
+    if (window.__supabase) { cb(window.__supabase); return; }
+    let n = 0;
+    const timer = setInterval(() => {
+      if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
+      else if (++n > 80) clearInterval(timer);
+    }, 250);
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function setMsg(text, ok) {
+    const el = $('rdMsg');
+    el.textContent = text;
+    el.className = 'rd-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  function setSignMsg(text, ok) {
+    const el = $('rdSignMsg');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'rd-msg ' + (ok ? 'ok' : 'err');
+  }
+
+  function levelOf(points) {
+    for (const tier of TIERS) if (points >= tier.min) return tier.lv;
+    return 1;
+  }
+
+  // 兑换区状态：未登录→提示登录；已登录→显示称号/积分/等级 + 签到状态
+  function updateStatus() {
+    waitSupabase(async supabase => {
+      const st = $('rdStatus');
+      if (!st) return;
+      const signBtn = $('rdSignBtn');
+      const signSub = $('rdSignSub');
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) {
+        st.innerHTML = t('rd_need_login') + ' <button class="rd-login" id="rdLoginBtn">' + t('rd_go_login') + '</button>';
+        const btn = $('rdLoginBtn');
+        if (btn) btn.addEventListener('click', () => { try { window.__openAuth && window.__openAuth(); } catch (e) {} });
+        if (signBtn) { signBtn.disabled = false; signBtn.textContent = t('rd_sign_btn'); }
+        if (signSub) signSub.textContent = t('rd_sign_sub');
+        return;
+      }
+      let title = '', points = 0, checked = false, cps = 10;
+      try {
+        const r = await supabase.rpc('my_status');
+        if (r.data && r.data.ok) {
+          title = r.data.title || '';
+          points = r.data.points || 0;
+          checked = !!r.data.checked_today;
+          if (r.data.checkin_points) cps = r.data.checkin_points;
+        }
+      } catch (e) {}
+      const lv = levelOf(points);
+      const lvName = LV_KEYS[lv] ? t(LV_KEYS[lv]) : 'Lv.' + lv;
+      const titleHtml = title ? ' <span class="rd-title">「' + esc(title) + '」</span>' : '';
+      st.innerHTML = t('rd_cur') + '：<b>' + points + '</b> ' + t('rd_pts_unit') + ' · ' + t('rd_lv') + ' <span class="rd-lv">Lv.' + lv + ' ' + lvName + '</span>' + titleHtml;
+      if (signBtn) {
+        signBtn.disabled = checked;
+        signBtn.textContent = checked ? t('rd_sign_done') : t('rd_sign_btn');
+      }
+      if (signSub) {
+        signSub.textContent = checked
+          ? t('rd_sign_again')
+          : ('+' + cps + ' ' + t('rd_pts_unit') + t('rd_per_day'));
+      }
+    });
+  }
+
+  window.__onAuthChange = updateStatus;
+
+  $('rdBtn').addEventListener('click', () => {
+    waitSupabase(async supabase => {
+      const code = rdCode.value.trim();
+      if (!code) { setMsg(t('rd_empty'), false); return; }
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) { setMsg(t('rd_need_login_short'), false); updateStatus(); return; }
+      const btn = $('rdBtn');
+      btn.disabled = true;
+      try {
+        const { data, error } = await supabase.rpc('redeem_code', { p_code: code });
+        if (error) { setMsg(error.message, false); return; }
+        if (data && data.ok) {
+          const gain = [];
+          if (data.title) gain.push(t('rd_gain_title') + '「' + data.title + '」');
+          if (data.points) gain.push(data.points + ' ' + t('rd_pts_unit'));
+          setMsg(t('rd_ok') + '：' + gain.join(' + '), true);
+          rdCode.value = '';
+          updateStatus();
+        } else {
+          const map = {
+            NOT_LOGGED_IN: t('rd_need_login_short'),
+            INVALID_CODE: t('rd_invalid'),
+            ALREADY_USED: t('rd_used')
+          };
+          setMsg(map[data && data.msg] || t('rd_fail'), false);
+        }
+      } catch (e) {
+        setMsg(t('rd_fail'), false);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // 每日签到
+  $('rdSignBtn').addEventListener('click', () => {
+    waitSupabase(async supabase => {
+      const btn = $('rdSignBtn');
+      btn.disabled = true;
+      try {
+        const user = await supabase.auth.getUser();
+        const u = user.data && user.data.user;
+        if (!u) { setSignMsg(t('rd_sign_need_login'), false); return; }
+        const { data, error } = await supabase.rpc('daily_checkin');
+        if (error) { setSignMsg(error.message, false); return; }
+        if (data && data.ok) {
+          setSignMsg(t('rd_sign_ok') + '：+' + data.points + ' ' + t('rd_pts_unit'), true);
+        } else {
+          const map = { ALREADY: t('rd_sign_again'), NOT_LOGGED_IN: t('rd_sign_need_login') };
+          setSignMsg(map[data && data.msg] || t('rd_fail'), false);
+        }
+      } catch (e) {
+        setSignMsg(t('rd_fail'), false);
+      } finally {
+        updateStatus();   // 恢复/更新按钮状态（已签到则禁用）
+      }
+    });
+  });
+
+  // 打开登录弹窗（复用左上角按钮的点击）
+  window.__openAuth = function() {
+    try { document.getElementById('authFab').click(); } catch (e) {}
+  };
+
+  updateStatus();
+})();
+
 /* ============ 更新日志 ============ */
 (function() {
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v1.5', zh: ['新增每日签到（每天领积分，可配置）', '站长管理页升级：码列表 / 用户 / 兑换记录 / 签到设置'], en: ['Added daily check-in (earn points daily, configurable)', 'Admin console upgraded: code list / users / redemptions / check-in settings'] },
+    { date: '2026-08-31', ver: 'v1.4', zh: ['新增奖励码兑换板块（称号 + 积分/等级）', '留言板显示金色称号徽章', '新增隐藏的站长发码页'], en: ['Added reward code redemption (titles + points/levels)', 'Golden title badges in guestbook', 'Added hidden admin code generator page'] },
     { date: '2026-08-28', ver: 'v1.3', zh: ['新增留言板（Supabase 后端：登录/注册/留言）', '新增更新日志板块', '导航栏加入留言板入口', '邮箱验证回调支持'], en: ['Added guestbook (Supabase: login/signup/messages)', 'Added changelog section', 'Guestbook added to nav', 'Email verification callback support'] },
     { date: '2026-08-27', ver: 'v1.2', zh: ['新增中英双语切换', '新增深色/浅色主题切换', '新增回到顶部按钮', '新增访问统计'], en: ['Added zh/en language switch', 'Added dark/light theme toggle', 'Added back-to-top button', 'Added visit counter'] },
     { date: '2026-08-26', ver: 'v1.1', zh: ['新增《须臾》时间感知小游戏', '新增《终极井字棋》', '剑影江湖上线（中英双版本）'], en: ['Added "Moment" time-sense game', 'Added Ultimate Tic-Tac-Toe', 'Jianying Jianghu released (zh/en)'] },
     { date: '2026-08-25', ver: 'v1.0', zh: ['个人站正式上线', '暗黑流体背景（DeepSeek 风格）', '哲思名句打字机', '毫秒级精确时钟'], en: ['Site launched', 'Dark fluid background (DeepSeek style)', 'Wisdom quote typewriter', 'Millisecond precision clock'] }
   ];
+  const SHOW_FIRST = 2;
+  let moreOpen = false;
+
+  function itemHtml(l, isEn) {
+    const items = (isEn ? l.en : l.zh).map(i => '<li>' + i + '</li>').join('');
+    return '<div class="cl-item"><div class="cl-date">' + l.date + '</div><div class="cl-ver">' + l.ver + '</div><ul>' + items + '</ul></div>';
+  }
+
   function render() {
     const lang = (window.__lang && window.__lang()) || 'zh';
     const isEn = lang === 'en';
-    cl.innerHTML = LOGS.map(l => {
-      const items = (isEn ? l.en : l.zh).map(i => '<li>' + i + '</li>').join('');
-      return '<div class="cl-item"><div class="cl-date">' + l.date + '</div><div class="cl-ver">' + l.ver + '</div><ul>' + items + '</ul></div>';
-    }).join('');
+    const t = k => (window.__t ? __t(k) : k);
+    const head = LOGS.slice(0, SHOW_FIRST);
+    const rest = LOGS.slice(SHOW_FIRST);
+    let html = head.map(l => itemHtml(l, isEn)).join('');
+    if (rest.length) {
+      html += '<div class="cl-old" id="clOld" style="display:' + (moreOpen ? 'block' : 'none') + '">'
+            + rest.map(l => itemHtml(l, isEn)).join('')
+            + '</div>'
+            + '<div class="cl-more' + (moreOpen ? ' open' : '') + '"><button class="cl-more-btn" id="clMoreBtn">'
+            + (moreOpen ? t('cl_less') : t('cl_more'))
+            + '</button></div>';
+    }
+    cl.innerHTML = html;
+    const btn = document.getElementById('clMoreBtn');
+    if (btn) btn.addEventListener('click', () => { moreOpen = !moreOpen; render(); });
   }
   render();
   // 语言切换时重新渲染

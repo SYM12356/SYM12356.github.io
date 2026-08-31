@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CODE VAULT · 站长控制台</title>
+<style>
+  :root {
+    --bg: #05070f; --card: rgba(255,255,255,.03); --border: rgba(255,255,255,.12);
+    --text: #e9edf9; --muted: #8b93ab; --cyan: #22d3ee; --gold: #e8b84b; --red: #f87171; --green: #34d399;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh; padding: 24px;
+    background-image:
+      radial-gradient(50% 40% at 20% 20%, rgba(34,120,210,.16), transparent 70%),
+      radial-gradient(45% 40% at 80% 70%, rgba(88,60,190,.12), transparent 70%);
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 {
+    font-size: 24px; letter-spacing: 3px; margin-bottom: 4px;
+    background: linear-gradient(120deg, #22d3ee, #a78bfa, #e8b84b);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; letter-spacing: 1px; }
+  .panel {
+    background: rgba(10,14,26,.9);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  }
+  .key-row { display: flex; gap: 10px; margin-bottom: 4px; }
+  .key-row input {
+    flex: 1; padding: 12px 14px;
+    background: rgba(5,7,15,.7); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14px; outline: none; transition: .2s;
+  }
+  .key-row input:focus { border-color: var(--cyan); }
+  .key-row button, .btn {
+    padding: 12px 22px; background: #22d3ee; color: #04060e;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+    letter-spacing: 2px; cursor: pointer; transition: .2s; white-space: nowrap;
+  }
+  .key-row button:hover, .btn:hover { background: #67e8f9; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .console { display: none; margin-top: 18px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .tab {
+    background: transparent; border: 1px solid transparent; border-bottom: none;
+    color: var(--muted); font-size: 13.5px; padding: 10px 18px;
+    border-radius: 10px 10px 0 0; cursor: pointer; letter-spacing: 1px; transition: .25s;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--cyan); background: var(--card); border-color: var(--border); }
+
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  .msg { min-height: 20px; margin-top: 12px; font-size: 13px; line-height: 1.6; }
+  .msg.ok { color: var(--green); }
+  .msg.err { color: var(--red); }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 1px; }
+  .field input {
+    width: 100%; padding: 11px 13px;
+    background: rgba(5,7,15,.7); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px;
+    font-size: 14px; outline: none; transition: .2s;
+  }
+  .field input:focus { border-color: var(--cyan); }
+  .field .mono { font-family: ui-monospace, monospace; letter-spacing: 3px; text-transform: uppercase; }
+  .row2 { display: flex; gap: 12px; }
+  .row2 .field { flex: 1; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: 1px; }
+  td { color: var(--text); word-break: break-all; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .tcode { font-family: ui-monospace, monospace; color: var(--cyan); letter-spacing: 1px; }
+  .ttitle { color: var(--gold); }
+  .tbadge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; }
+  .tbadge.yes { background: rgba(52,211,153,.12); color: var(--green); border: 1px solid rgba(52,211,153,.3); }
+  .tbadge.no { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .empty { color: var(--muted); text-align: center; padding: 26px; font-size: 13px; }
+  .config-row { display: flex; align-items: flex-end; gap: 12px; }
+  .config-row .field { margin-bottom: 0; flex: 1; }
+  .tip { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); line-height: 1.9; }
+  .tip b { color: var(--gold); }
+  @media (max-width: 600px) {
+    body { padding: 14px; }
+    .panel { padding: 16px; }
+    .row2, .config-row { flex-direction: column; }
+    th, td { padding: 7px 6px; font-size: 12px; }
+    .tab { padding: 9px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CODE VAULT</h1>
+  <div class="sub">站长控制台 · 奖励码 / 用户 / 兑换记录 / 签到设置</div>
+
+  <div class="panel">
+    <div class="key-row">
+      <input id="k" type="password" autocomplete="off" placeholder="输入密钥（SQL 里的 ADMIN_KEY）">
+      <button id="unlock">解 锁</button>
+    </div>
+    <div class="hint">此页不发到主页，入口即本页网址。忘记密钥？重跑 SQL 脚本修改 YOUR_ADMIN_KEY 即可。</div>
+    <div class="msg" id="keyMsg"></div>
+
+    <div class="console" id="console">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="gen">发码</button>
+        <button class="tab" data-tab="codes">奖励码</button>
+        <button class="tab" data-tab="users">用户</button>
+        <button class="tab" data-tab="reds">兑换记录</button>
+        <button class="tab" data-tab="cfg">设置</button>
+      </div>
+
+      <!-- 发码 -->
+      <div class="tab-page active" id="pg-gen">
+        <div class="row2">
+          <div class="field">
+            <label>奖励码 / CODE</label>
+            <input id="c" class="mono" type="text" autocomplete="off" placeholder="如 SYM-VIP1" maxlength="24">
+          </div>
+          <div class="field">
+            <label>积分 / PTS</label>
+            <input id="p" type="number" min="0" step="1" value="100">
+          </div>
+        </div>
+        <div class="field">
+          <label>称号 / TITLE（留空则只给积分）</label>
+          <input id="t" type="text" autocomplete="off" placeholder="如：VIP 元老">
+        </div>
+        <button class="btn" id="gen">生 成 奖 励 码</button>
+        <div class="msg" id="genMsg"></div>
+      </div>
+
+      <!-- 奖励码列表 -->
+      <div class="tab-page" id="pg-codes">
+        <table>
+          <thead><tr><th>码</th><th>称号</th><th>积分</th><th>已兑换</th><th>创建时间</th></tr></thead>
+          <tbody id="codesBody"></tbody>
+        </table>
+        <div class="empty" id="codesEmpty" style="display:none">还没有奖励码</div>
+      </div>
+
+      <!-- 用户 -->
+      <div class="tab-page" id="pg-users">
+        <table>
+          <thead><tr><th>邮箱</th><th>称号</th><th>积分</th><th>今日签到</th><th>注册时间</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+        <div class="empty" id="usersEmpty" style="display:none">还没有用户</div>
+      </div>
+
+      <!-- 兑换记录 -->
+      <div class="tab-page" id="pg-reds">
+        <table>
+          <thead><tr><th>码</th><th>用户</th><th>时间</th></tr></thead>
+          <tbody id="redsBody"></tbody>
+        </table>
+        <div class="empty" id="redsEmpty" style="display:none">还没有兑换记录</div>
+      </div>
+
+      <!-- 设置 -->
+      <div class="tab-page" id="pg-cfg">
+        <div class="config-row">
+          <div class="field">
+            <label>每日签到积分 / CHECK-IN PTS</label>
+            <input id="cfgPts" type="number" min="0" step="1">
+          </div>
+          <button class="btn" id="cfgSave">保 存</button>
+        </div>
+        <div class="msg" id="cfgMsg"></div>
+        <div class="tip">
+          <b>注意</b>：奖励码自动转大写；同码重复生成会覆盖称号/积分（不影响已兑换记录）。<br>
+          签到按北京时间（Asia/Shanghai）计算自然日。已发码/用户数据实时从数据库读取。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
+
+  const sdk = document.createElement('script');
+  sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sdk.onload = function() {
+    if (!window.supabase) return;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const $ = id => document.getElementById(id);
+    let KEY = '';
+    let dash = null;   // admin_dashboard 数据
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmt(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleString('zh-CN', { hour12: false });
+    }
+
+    // ---- 解锁 + 加载总览 ----
+    async function loadDashboard(showErr) {
+      const { data, error } = await supabase.rpc('admin_dashboard', { p_key: KEY });
+      if (error) throw error;
+      if (!data || !data.ok) {
+        if (showErr) { $('keyMsg').className = 'msg err'; $('keyMsg').textContent = '密钥错误'; }
+        return false;
+      }
+      dash = data;
+      renderCodes(); renderUsers(); renderReds();
+      const cp = (data.config && data.config.checkin_points) || '10';
+      $('cfgPts').value = cp;
+      return true;
+    }
+
+    $('unlock').addEventListener('click', async () => {
+      KEY = $('k').value.trim();
+      $('keyMsg').textContent = '';
+      if (!KEY) { $('keyMsg').className = 'msg err'; $('keyMsg').textContent = '请输入密钥'; return; }
+      $('unlock').disabled = true;
+      try {
+        const ok = await loadDashboard(true);
+        if (ok) {
+          $('console').style.display = 'block';
+          $('keyMsg').className = 'msg ok';
+          $('keyMsg').textContent = '已解锁，数据加载成功';
+        }
+      } catch (e) {
+        $('keyMsg').className = 'msg err';
+        $('keyMsg').textContent = '加载失败：' + e.message;
+      } finally {
+        $('unlock').disabled = false;
+      }
+    });
+
+    // ---- 选项卡切换 ----
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+        $('pg-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ---- 渲染 ----
+    function renderCodes() {
+      const list = (dash && dash.codes) || [];
+      const body = $('codesBody');
+      $('codesEmpty').style.display = list.length ? 'none' : 'block';
+      body.innerHTML = list.map(c =>
+        '<tr><td class="tcode">' + esc(c.code) + '</td><td class="ttitle">' + (c.title ? esc(c.title) : '—') + '</td><td>' + (c.points || 0) + '</td><td>' + (c.used || 0) + '</td><td>' + fmt(c.created_at) + '</td></tr>'
+      ).join('');
+    }
+    function renderUsers() {
+      const list = (dash && dash.profiles) || [];
+      const body = $('usersBody');
+      $('usersEmpty').style.display = list.length ? 'none' : 'block';
+      body.innerHTML = list.map(u =>
+        '<tr><td>' + esc(u.email || '—') + '</td><td class="ttitle">' + (u.title ? esc(u.title) : '—') + '</td><td>' + (u.points || 0) + '</td><td>' +
+        (u.checked_today ? '<span class="tbadge yes">已签</span>' : '<span class="tbadge no">未签</span>') +
+        '</td><td>' + fmt(u.created_at) + '</td></tr>'
+      ).join('');
+    }
+    function renderReds() {
+      const list = (dash && dash.redemptions) || [];
+      const body = $('redsBody');
+      $('redsEmpty').style.display = list.length ? 'none' : 'block';
+      body.innerHTML = list.map(r =>
+        '<tr><td class="tcode">' + esc(r.code || '?') + '</td><td>' + esc(r.email || '?') + '</td><td>' + fmt(r.created_at) + '</td></tr>'
+      ).join('');
+    }
+
+    // ---- 发码 ----
+    $('gen').addEventListener('click', async () => {
+      const msg = $('genMsg');
+      const code = $('c').value.trim();
+      const title = $('t').value.trim();
+      const points = parseInt($('p').value, 10) || 0;
+      msg.className = 'msg';
+      if (!code) { msg.className = 'msg err'; msg.textContent = '请输入奖励码'; return; }
+      $('gen').disabled = true;
+      msg.textContent = '生成中…';
+      try {
+        const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_title: title, p_points: points, p_key: KEY });
+        if (error) { msg.className = 'msg err'; msg.textContent = '失败：' + error.message; return; }
+        if (data && data.ok) {
+          msg.className = 'msg ok';
+          msg.textContent = '已生成：' + code.toUpperCase() + (title ? ' · 称号「' + title + '」' : '') + ' · ' + points + ' 积分';
+          $('c').value = ''; $('t').value = '';
+          await loadDashboard(false);
+          renderCodes();
+        } else {
+          msg.className = 'msg err';
+          msg.textContent = (data && data.msg === 'BAD_KEY') ? '密钥错误' : '生成失败';
+        }
+      } catch (e) {
+        msg.className = 'msg err'; msg.textContent = '失败：' + e.message;
+      } finally {
+        $('gen').disabled = false;
+      }
+    });
+
+    // ---- 保存设置 ----
+    $('cfgSave').addEventListener('click', async () => {
+      const msg = $('cfgMsg');
+      const val = parseInt($('cfgPts').value, 10);
+      msg.className = 'msg';
+      if (isNaN(val) || val < 0) { msg.className = 'msg err'; msg.textContent = '请输入有效积分值'; return; }
+      $('cfgSave').disabled = true;
+      try {
+        const { data, error } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: 'checkin_points', p_value: String(val) });
+        if (error) { msg.className = 'msg err'; msg.textContent = '失败：' + error.message; return; }
+        if (data && data.ok) {
+          msg.className = 'msg ok';
+          msg.textContent = '已保存：每日签到 +' + val + ' 积分';
+        } else {
+          msg.className = 'msg err'; msg.textContent = '密钥错误';
+        }
+      } catch (e) {
+        msg.className = 'msg err'; msg.textContent = '失败：' + e.message;
+      } finally {
+        $('cfgSave').disabled = false;
+      }
+    });
+  };
+  document.body.appendChild(sdk);
+</script>
+</body>
+</html>
