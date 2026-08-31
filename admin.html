@@ -335,6 +335,11 @@
           <div class="field"><label>连签奖励（天数:积分,逗号分隔）</label><input id="cfgStreak" class="mono" type="text" placeholder="3:20,7:50,14:150"></div>
           <div class="field"><label>活动倍率（翻倍数）</label><input id="cfgMul" type="number" min="1" step="1"></div>
         </div>
+        <div class="row3">
+          <div class="field"><label>抽奖消耗（积分/次）</label><input id="cfgLot" type="number" min="1" step="1"></div>
+          <div class="field"><label>邀请奖励 · 邀请人</label><input id="cfgInvI" type="number" min="0" step="1"></div>
+          <div class="field"><label>邀请奖励 · 受邀人</label><input id="cfgInvE" type="number" min="0" step="1"></div>
+        </div>
         <label class="check"><input id="cfgEvent" type="checkbox"> 开启活动模式（签到积分 × 倍率）</label>
         <button class="btn" id="cfgSave1">保存签到设置</button>
         <div class="msg" id="cfgMsg1"></div>
@@ -528,6 +533,9 @@
       $('cfgPts').value = (data.config && data.config.checkin_points) || '10';
       $('cfgStreak').value = (data.config && data.config.streak_bonus) || '';
       $('cfgMul').value = (data.config && data.config.event_multiplier) || '2';
+      $('cfgLot').value = (data.config && data.config.lottery_cost) || '50';
+      $('cfgInvI').value = (data.config && data.config.invite_reward_inviter) || '100';
+      $('cfgInvE').value = (data.config && data.config.invite_reward_invitee) || '50';
       $('cfgEvent').checked = ((data.config && data.config.event_mode) || '0') === '1';
       $('cfgAnn').value = (data.config && data.config.announcement) || '';
       $('cfgAnnOn').checked = ((data.config && data.config.announcement_active) || '0') === '1';
@@ -952,7 +960,10 @@
           ['checkin_points', String(v)],
           ['streak_bonus', $('cfgStreak').value.trim()],
           ['event_multiplier', $('cfgMul').value.trim() || '2'],
-          ['event_mode', $('cfgEvent').checked ? '1' : '0']
+          ['event_mode', $('cfgEvent').checked ? '1' : '0'],
+          ['lottery_cost', String(parseInt($('cfgLot').value, 10) || 50)],
+          ['invite_reward_inviter', String(parseInt($('cfgInvI').value, 10) || 100)],
+          ['invite_reward_invitee', String(parseInt($('cfgInvE').value, 10) || 50)]
         ];
         for (const kv of vals) {
           const { data } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: kv[0], p_value: kv[1] });

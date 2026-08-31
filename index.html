@@ -1646,6 +1646,15 @@
   }
   .inv-msg { min-height: 16px; font-size: 11.5px; margin-top: 4px; }
   .inv-msg.ok { color: var(--green); }
+  .tr-row { display: flex; gap: 8px; }
+  .tr-row input {
+    flex: 1; min-width: 0; padding: 9px 12px;
+    background: rgba(5,7,15,.6); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12.5px; outline: none; font-family: inherit;
+  }
+  .tr-row input:focus { border-color: var(--cyan); }
+  .tr-row input[type="number"] { flex: 0 0 80px; }
   .pc-avatar.frame-gold {
     border: 3px solid #e8b84b;
     box-shadow: 0 0 22px rgba(232,184,75,.5);
@@ -1662,6 +1671,22 @@
     -webkit-text-fill-color: transparent;
   }
   @media (max-width: 480px) { .shop-list { grid-template-columns: 1fr; } }
+
+  /* ============ 移动端细节优化 ============ */
+  @media (max-width: 520px) {
+    .redeem-row { flex-direction: column; }
+    .redeem-row .btn { width: 100%; }
+    .gb-input { flex-direction: column; }
+    .gb-input .btn { width: 100%; }
+    .tr-row { flex-direction: column; align-items: stretch; }
+    .tr-row input[type="number"] { flex: 1; }
+    .pc-stats { grid-template-columns: repeat(2, 1fr); }
+    .pts-tab { padding: 9px 16px; font-size: 13px; }
+    .lb-item { padding: 7px 10px; font-size: 12.5px; }
+    .ann-banner { margin-top: 16px; }
+    .ann-text { font-size: 12.5px; }
+    .auth-box { padding: 28px 18px 20px; }
+  }
 
   /* ============ 更新日志 ============ */
   .cl-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 22px; }
@@ -2254,6 +2279,16 @@
         <div class="inv-msg" id="invMsg"></div>
       </div>
 
+      <div class="pc-shop">
+        <div class="pc-history-title" data-i18n="tr_title">积分赠送</div>
+        <div class="tr-row">
+          <input id="trEmail" type="text" autocomplete="off" placeholder="接收人邮箱">
+          <input id="trAmt" type="number" min="1" placeholder="数量">
+          <button class="btn btn-ghost game-btn" id="trBtn" data-i18n="tr_btn">赠送</button>
+        </div>
+        <div class="inv-msg" id="trMsg"></div>
+      </div>
+
       <div class="pc-edit">
         <input id="pcNameInput" type="text" maxlength="20" autocomplete="off">
         <button class="btn btn-ghost game-btn" id="pcNameSave" data-i18n="pc_save">保存</button>
@@ -2307,6 +2342,9 @@ const I18N = {
     msg_lv1: '潜水新人', msg_lv2: '偶尔冒泡', msg_lv3: '话痨本痨', msg_lv4: '留言板主',
     sign_lv1: '躺平咸鱼', sign_lv2: '早八战士', sign_lv3: '全勤小标兵', sign_lv4: '时间管理大师',
     ach_pioneer: '拓荒者', ach_pioneer_d: '前 10 名注册用户', ach_lucky: '欧皇', ach_lucky_d: '兑换过隐藏彩蛋码', ach_replied: '被翻牌', ach_replied_d: '留言被站长回复过', ach_full_attendance: '全勤之王', ach_full_attendance_d: '累计签到 30 天', ach_social: '社交达人', ach_social_d: '累计留言 50 条', ach_seven_days: '七日之约', ach_seven_days_d: '连续签到 7 天', ach_collector: '收藏家', ach_collector_d: '累计兑换 3 个奖励码', ach_month_old: '站龄满月', ach_month_old_d: '注册满 30 天',
+    ach_weekly: '周冠军', ach_weekly_d: '本周积分榜第一名',
+    tr_title: '积分赠送', tr_sub: '每日可转出 {n} 积分', tr_to: '接收人邮箱', tr_amt: '数量', tr_btn: '赠送', tr_ok: '已转出', tr_sent: '今日已转出', tr_left: '今日剩余', tr_err_self: '不能转给自己', tr_err_limit: '超出今日转出上限', tr_err_nopts: '积分不足', tr_err_user: '用户不存在', tr_err_amt: '请输入正确的数量',
+    gb_pin_btn: '置顶',
     pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复',
     adm_btn: '站长控制台', adm_login: '请先登录', adm_deny: '仅站长可用',
     ann_tag: '公告', lb_title: '积分榜 · Top 10', lb_empty: '还没有人有积分，快来抢占榜首', gb_pin: '置顶', gb_banned: '你已被禁言，无法留言', rd_sign_bonus: '连签奖励',
@@ -2351,6 +2389,9 @@ const I18N = {
     msg_lv1: 'Lurker', msg_lv2: 'Bubble Blower', msg_lv3: 'Chatterbox', msg_lv4: 'Board Master',
     sign_lv1: 'Lazy Fish', sign_lv2: 'Early Bird', sign_lv3: 'Perfect Attendance', sign_lv4: 'Time Master',
     ach_pioneer: 'Pioneer', ach_pioneer_d: 'Among the first 10 to register', ach_lucky: 'Lucky One', ach_lucky_d: 'Redeemed a hidden lottery code', ach_replied: 'Noticed', ach_replied_d: 'Your message got a reply from the owner', ach_full_attendance: 'Attendance King', ach_full_attendance_d: '30 total check-ins', ach_social: 'Social Butterfly', ach_social_d: 'Post 50 messages', ach_seven_days: '7-Day Vow', ach_seven_days_d: 'Check in 7 days in a row', ach_collector: 'Collector', ach_collector_d: 'Redeem 3 reward codes', ach_month_old: 'One Month Old', ach_month_old_d: 'Registered for 30+ days',
+    ach_weekly: 'Weekly Champ', ach_weekly_d: "Top of this week's leaderboard",
+    tr_title: 'Gift Points', tr_sub: 'Daily transfer limit {n} pts', tr_to: 'Recipient email', tr_amt: 'Amount', tr_btn: 'Send', tr_ok: 'Sent', tr_sent: 'Sent today', tr_left: 'Left today', tr_err_self: 'Cannot send to yourself', tr_err_limit: 'Daily limit reached', tr_err_nopts: 'Not enough points', tr_err_user: 'User not found', tr_err_amt: 'Enter a valid amount',
+    gb_pin_btn: 'Pin',
     pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply',
     adm_btn: 'Admin', adm_login: 'Please log in first', adm_deny: 'Owner only',
     ann_tag: 'Notice', lb_title: 'Leaderboard · Top 10', lb_empty: 'No points yet - be the first!', gb_pin: 'Pinned', gb_banned: 'You are muted and cannot post', rd_sign_bonus: 'streak bonus',
@@ -3556,19 +3597,26 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   window.__refreshAuth = refreshAuth;   // 供个人中心改名后刷新左上角按钮
 
   let likedSet = new Set();
+  let meUid = null, hasPinTicket = false;
 
   async function loadLiked() {
     try {
       const user = await supabase.auth.getUser();
       const u = user.data && user.data.user;
-      if (!u) return;
-      const { data, error } = await supabase.from('message_likes').select('message_id').eq('user_id', u.id);
-      if (!error && data) likedSet = new Set(data.map(d => d.message_id));
+      meUid = u ? u.id : null;
+      hasPinTicket = false;
+      if (u) {
+        const { data, error } = await supabase.from('message_likes').select('message_id').eq('user_id', u.id);
+        if (!error && data) likedSet = new Set(data.map(d => d.message_id));
+        const sp = await supabase.rpc('my_shop');
+        hasPinTicket = !!(sp.data && sp.data.ok && (sp.data.items || []).find(i => i.key === 'ticket_pin' && i.owned));
+      }
     } catch (e) {}
   }
 
   async function loadMessages() {
     try {
+      try { supabase.rpc('cleanup_pins').then(() => {}); } catch (e) {}
       await loadLiked();
       const { data, error } = await supabase
         .from('messages')
@@ -3600,11 +3648,27 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         : '';
       const liked = likedSet.has(m.id);
       const likeBtn = '<button class="gb-like' + (liked ? ' on' : '') + '" data-id="' + m.id + '">' + likeSvg + ' ' + (m.likes || 0) + '</button>';
-      return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name' + nc + '">' + pin + name + hot + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + likeBtn + '</div>';
+      const pinOwn = (meUid && m.user_id === meUid && !m.pinned && hasPinTicket)
+        ? '<button class="gb-like" data-pinown="' + m.id + '">' + likeSvg + ' ' + ((window.__t && __t('gb_pin_btn')) || '置顶') + '</button>'
+        : '';
+      return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name' + nc + '">' + pin + name + hot + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + likeBtn + pinOwn + '</div>';
     }).join('');
     el.querySelectorAll('.gb-like').forEach(b => {
-      b.addEventListener('click', () => toggleLike(b));
+      b.addEventListener('click', () => {
+        if (b.hasAttribute('data-pinown')) pinOwnMsg(b.getAttribute('data-pinown'));
+        else toggleLike(b);
+      });
     });
+  }
+
+  async function pinOwnMsg(id) {
+    try {
+      const { data, error } = await supabase.rpc('pin_own_message', { p_msg_id: id });
+      if (error) { alert(error.message); return; }
+      if (data && data.ok) { loadMessages(); return; }
+      const map = { NO_TICKET: '没有置顶券', NOT_YOURS: '只能置顶自己的留言', NOT_FOUND: '留言不存在' };
+      alert(map[data && data.msg] || '操作失败');
+    } catch (e) { alert(e.message); }
   }
 
   async function toggleLike(btn) {
@@ -3910,7 +3974,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     { key: 'social', rarity: 3, nameKey: 'ach_social', descKey: 'ach_social_d' },
     { key: 'seven_days', rarity: 4, nameKey: 'ach_seven_days', descKey: 'ach_seven_days_d' },
     { key: 'collector', rarity: 4, nameKey: 'ach_collector', descKey: 'ach_collector_d' },
-    { key: 'month_old', rarity: 5, nameKey: 'ach_month_old', descKey: 'ach_month_old_d' }
+    { key: 'month_old', rarity: 5, nameKey: 'ach_month_old', descKey: 'ach_month_old_d' },
+    { key: 'weekly_champ', rarity: 1, nameKey: 'ach_weekly', descKey: 'ach_weekly_d' }
   ];
   window.__ACH = ACH;
 
@@ -4082,6 +4147,15 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const link = window.location.origin + window.location.pathname + '?ref=' + u.id;
       const invInput = $('invLink');
       if (invInput) invInput.value = link;
+
+      // ---- 转赠提示 ----
+      const trMsg = $('trMsg');
+      if (trMsg) {
+        const lim = (shop && shop.transfer_limit) || 0;
+        const sent = (shop && shop.transfer_sent) || 0;
+        trMsg.textContent = t('tr_sub').replace('{n}', lim) + ' · ' + t('tr_sent') + ' ' + sent + ' · ' + t('tr_left') + ' ' + Math.max(0, lim - sent);
+        trMsg.className = 'inv-msg';
+      }
     });
   }
 
@@ -4123,6 +4197,37 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         msg.className = 'inv-msg ok';
         setTimeout(() => { msg.textContent = ''; }, 2500);
       }, 150);
+    });
+  })();
+
+  // 积分赠送
+  (function() {
+    const trBtn = document.getElementById('trBtn');
+    if (!trBtn) return;
+    trBtn.addEventListener('click', () => {
+      waitSupabase(async supabase => {
+        const t2 = k => (window.__t ? __t(k) : k);
+        const email = document.getElementById('trEmail').value.trim();
+        const amt = parseInt(document.getElementById('trAmt').value, 10);
+        const msgEl = document.getElementById('trMsg');
+        if (!email || !amt || amt < 1) { msgEl.textContent = t2('tr_err_amt'); msgEl.className = 'inv-msg'; return; }
+        try {
+          const { data, error } = await supabase.rpc('transfer_points', { p_to_email: email, p_amount: amt });
+          if (error) { msgEl.textContent = error.message; msgEl.className = 'inv-msg'; return; }
+          if (data && data.ok) {
+            msgEl.textContent = t2('tr_ok') + ' ' + amt + ' ✓（' + t2('tr_left') + ' ' + data.remaining + '）';
+            msgEl.className = 'inv-msg ok';
+            document.getElementById('trEmail').value = '';
+            document.getElementById('trAmt').value = '';
+            renderPc();
+            try { if (window.__onAuthChange) window.__onAuthChange(); } catch (e) {}
+          } else {
+            const map = { SELF: t2('tr_err_self'), LIMIT: t2('tr_err_limit'), NO_POINTS: t2('tr_err_nopts'), USER_NOT_FOUND: t2('tr_err_user'), BAD_AMOUNT: t2('tr_err_amt') };
+            msgEl.textContent = map[data && data.msg] || '失败';
+            msgEl.className = 'inv-msg';
+          }
+        } catch (e) { msgEl.textContent = e.message; msgEl.className = 'inv-msg'; }
+      });
     });
   })();
   window.__onPcShow = renderPc;
@@ -4264,6 +4369,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v2.3', zh: ['新增积分赠送（好友互转，每日限额）', '新增周榜冠军：本周积分第一自动获称号', '商店新增留言置顶券（置顶自己的留言 24 小时）', '抽奖消耗 / 邀请奖励可在控制台设置', '移动端细节优化'], en: ['Added points gifting (daily limit)', 'Weekly champion: top of the week auto-wins title', 'Shop: message pin ticket (pin your message 24h)', 'Lottery cost / invite rewards configurable in console', 'Mobile polish'] },
     { date: '2026-08-31', ver: 'v2.2', zh: ['积分板块重构为「积分中心」标签页（兑换/签到/抽奖/排行榜）', '个人中心弹窗支持滚动'], en: ['Points section reorganized into "Points Center" tabs (Redeem/Check-in/Lottery/Leaderboard)', 'Personal center modal now scrollable'] },
     { date: '2026-08-31', ver: 'v2.1', zh: ['新增积分商店（头像框 / 彩色昵称）', '新增积分抽奖（50 积分/次）', '留言点赞与热评', '邀请注册奖励', '奖励码支持有效期与限用次数'], en: ['Added points shop (avatar frames / colored nicknames)', 'Added points lottery (50 pts per spin)', 'Message likes & hot comments', 'Invite registration rewards', 'Reward codes now support expiry & usage limits'] },
     { date: '2026-08-31', ver: 'v2.0', zh: ['新增广告位：广告位招租（长期有效，价格面议）'], en: ['Added ad slot: "Ad Space For Rent" (open to offers)'] },
