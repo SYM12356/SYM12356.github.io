@@ -3772,29 +3772,35 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   if (!btn) return;
   const t = k => (window.__t ? __t(k) : k);
 
-  function waitSupabase(cb) {
+  function waitSupabase(cb, onTimeout) {
     if (window.__supabase) { cb(window.__supabase); return; }
     let n = 0;
     const timer = setInterval(() => {
       if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
-      else if (++n > 80) clearInterval(timer);
+      else if (++n > 80) { clearInterval(timer); if (onTimeout) onTimeout(); }
     }, 250);
   }
 
   btn.addEventListener('click', () => {
     waitSupabase(async supabase => {
-      const user = await supabase.auth.getUser();
-      const u = user.data && user.data.user;
-      if (!u) {
-        alert(t('adm_login'));
-        try { window.__openAuth && window.__openAuth(); } catch (e) {}
-        return;
+      try {
+        const user = await supabase.auth.getUser();
+        const u = user.data && user.data.user;
+        if (!u) {
+          alert(t('adm_login'));
+          try { window.__openAuth && window.__openAuth(); } catch (e) {}
+          return;
+        }
+        const name = ((u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || '').trim();
+        const email = (u.email || '').toLowerCase();
+        const isOwner = (name === 'SYM12356') || (email === 'sym12356_1@qq.com');
+        if (!isOwner) { alert(t('adm_deny')); return; }
+        window.location.href = 'admin.html';
+      } catch (e) {
+        alert(t('adm_deny') + '（' + e.message + '）');
       }
-      const name = ((u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || '').trim();
-      const email = (u.email || '').toLowerCase();
-      const isOwner = (name === 'SYM12356') || (email === '3829343053@qq.com');
-      if (!isOwner) { alert(t('adm_deny')); return; }
-      window.location.href = 'admin.html';
+    }, function() {
+      alert(t('adm_login') + '：服务未就绪，请刷新页面重试');
     });
   });
 })();

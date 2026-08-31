@@ -533,7 +533,7 @@
         const u = user.data && user.data.user;
         const name = ((u && u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || '').trim();
         const email = (u && u.email || '').toLowerCase();
-        const isOwner = (name === 'SYM12356') || (email === '3829343053@qq.com');
+        const isOwner = (name === 'SYM12356') || (email === 'sym12356_1@qq.com');
         if (!isOwner) { showDenied(u ? '仅站长可用' : '请先登录'); return; }
         document.querySelector('.app').style.display = 'grid';
         const ok = await loadDashboard(true);
