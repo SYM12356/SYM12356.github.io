@@ -1227,6 +1227,45 @@
     gap: 22px;
     flex-wrap: wrap;
   }
+  .board-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .board-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: .25s;
+  }
+  .board-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .board-card-head { display: flex; align-items: center; gap: 12px; }
+  .board-card-name { font-size: 17px; font-weight: 600; letter-spacing: 1px; color: var(--text); }
+  .board-icon.text-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 700;
+    padding: 0;
+  }
+  .board-icon.ji-icon {
+    color: #e9edf9;
+    background: linear-gradient(135deg, #e11d48, #7f1d1d);
+    font-family: "Zhi Mang Xing", "Kaiti SC", serif;
+    box-shadow: 0 0 16px rgba(225,29,72,.35);
+  }
+  .board-icon.blast-icon {
+    color: #04060e;
+    background: linear-gradient(135deg, #22d3ee, #a78bfa);
+    font-family: var(--mono);
+    box-shadow: 0 0 16px rgba(34,211,238,.35);
+  }
+  @media (max-width: 720px) { .board-cards { grid-template-columns: 1fr; } }
   .board-desc {
     color: var(--muted);
     font-size: 14px;
@@ -2055,12 +2094,30 @@
   </g></svg></div>
         <h2 class="sec-title" style="margin-bottom:0">SYM<span data-i18n="b_title">桌游</span></h2>
       </div>
-      <p class="sec-sub reveal" data-i18n="b_sub">自研武侠对战游戏，热座双人对决</p>
-      <div class="board-launch reveal">
-        <p class="board-desc" data-i18n="b_desc">《剑影江湖》双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
-        <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn" id="boardEnterBtn">
-          <span data-i18n="b_enter">进入剑影江湖</span>
-        </a>
+      <p class="sec-sub reveal" data-i18n="b_sub">自研桌游 · 武侠对战 + 战术卡牌</p>
+      <div class="board-cards reveal">
+        <!-- 剑影江湖 -->
+        <div class="board-card">
+          <div class="board-card-head">
+            <div class="board-icon text-icon ji-icon">剑</div>
+            <h3 class="board-card-name">SYM<span data-i18n="b_title">桌游</span> · 剑影江湖</h3>
+          </div>
+          <p class="board-desc" data-i18n="b_desc">双人热座武侠对战 · 五侠客，真气破绽内伤，机关算尽</p>
+          <a href="https://sym12356.github.io/jianying/" target="_blank" rel="noopener" class="btn btn-primary board-btn" id="boardEnterBtn">
+            <span data-i18n="b_enter">进入剑影江湖</span>
+          </a>
+        </div>
+        <!-- 爆震空间 -->
+        <div class="board-card">
+          <div class="board-card-head">
+            <div class="board-icon blast-icon">爆</div>
+            <h3 class="board-card-name">爆震空间 · 混沌弹道</h3>
+          </div>
+          <p class="board-desc" data-i18n="b_desc2">双人热座卡牌战术 · 六种角色，掩体气力，走位射击</p>
+          <a href="https://sym12356.github.io/blast/" target="_blank" rel="noopener" class="btn btn-primary board-btn">
+            <span data-i18n="b_enter2">进入爆震空间</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -2350,7 +2407,7 @@ const I18N = {
     r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
-    g_sub: '四个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决', b_sub: '自研武侠对战游戏，热座双人对决',
+    g_sub: '四个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决', b_sub: '自研桌游 · 武侠对战 + 战术卡牌', b_desc2: '双人热座卡牌战术 · 六种角色，掩体气力，走位射击', b_enter2: '进入爆震空间',
     gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
     gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
     rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
@@ -2397,7 +2454,7 @@ const I18N = {
     r5: 'Highlight: the glowing border marks the mini-board you must play in.',
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
-    g_sub: 'Four mini games - sense time, master the board, race to the center, ride the dragon', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
+    g_sub: 'Four mini games - sense time, master the board, race to the center, ride the dragon', b_sub: 'Our tabletop games - wuxia duel + tactical cards', b_desc2: 'Hot-seat card tactics - 6 classes, cover & focus, move & shoot', b_enter2: 'Enter Blast Space',
     gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
     gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
     rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
@@ -4386,6 +4443,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v2.5', zh: ['桌游板块新增《爆震空间》：卡牌战术对战（修 3 个 BUG / 去表情 / 霓虹风格 / 手机可玩）'], en: ['Board section: added Blast Space - card tactics (3 bugs fixed / emoji-free / neon style / mobile-ready)'] },
     { date: '2026-08-31', ver: 'v2.4', zh: ['新游戏：火柴人龙之战（故事/对战/养成，已移除局域网联机）'], en: ['New game: Matchstick Dragon War (story/versus/upgrades, LAN removed)'] },
     { date: '2026-08-31', ver: 'v2.3', zh: ['新增积分赠送（好友互转，每日限额）', '新增周榜冠军：本周积分第一自动获称号', '商店新增留言置顶券（置顶自己的留言 24 小时）', '抽奖消耗 / 邀请奖励可在控制台设置', '移动端细节优化'], en: ['Added points gifting (daily limit)', 'Weekly champion: top of the week auto-wins title', 'Shop: message pin ticket (pin your message 24h)', 'Lottery cost / invite rewards configurable in console', 'Mobile polish'] },
     { date: '2026-08-31', ver: 'v2.2', zh: ['积分板块重构为「积分中心」标签页（兑换/签到/抽奖/排行榜）', '个人中心弹窗支持滚动'], en: ['Points section reorganized into "Points Center" tabs (Redeem/Check-in/Lottery/Leaderboard)', 'Personal center modal now scrollable'] },

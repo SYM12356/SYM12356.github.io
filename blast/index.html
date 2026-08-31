@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>爆震空间 · 混沌弹道</title>
+    <style>
+                :root {
+            --bg:#05070f; --panel:rgba(255,255,255,.03); --panel2:rgba(255,255,255,.05); --border:rgba(255,255,255,.12); --border2:rgba(255,255,255,.22);
+            --text:#e9edf9; --muted:#8b93ab;
+            --cyan:#22d3ee; --violet:#a78bfa; --gold:#e8b84b; --pink:#f472b6; --green:#34d399; --red:#f87171;
+            --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+            --btn-size:44px;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            background:var(--bg); color:var(--text);
+            font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+            height:100vh; height:100dvh; overflow:hidden; user-select:none; -webkit-user-select:none; touch-action:manipulation;
+            background-image:
+              radial-gradient(45% 40% at 15% 0%, rgba(34,120,210,.16), transparent 70%),
+              radial-gradient(40% 40% at 90% 10%, rgba(120,80,220,.12), transparent 70%),
+              radial-gradient(50% 45% at 60% 100%, rgba(10,60,130,.12), transparent 70%);
+            background-attachment:fixed;
+        }
+        #game-container { display:flex; flex-direction:column; height:100vh; height:100dvh; width:100%; padding:6px; gap:4px; }
+        #map-wrapper {
+            flex:1 1 auto; min-height:0; overflow:auto;
+            background:rgba(255,255,255,.02); border:1px solid var(--border);
+            border-radius:14px; padding:6px;
+            box-shadow:0 0 40px rgba(34,211,238,.06);
+            display:flex; justify-content:flex-start; align-items:flex-start;
+            position:relative;
+        }
+        canvas { display:block; border-radius:10px; background:#070b18; flex-shrink:0; touch-action:none; }
+        #ui-strip { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0; flex-shrink:0; }
+        .ui-card {
+            background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; padding:7px 9px;
+            color:var(--text); font-size:11px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+            display:flex; flex-direction:column; gap:2px; flex:1 1 130px; min-width:110px;
+        }
+        .ui-card.wide { flex:2 1 200px; min-width:160px; } .ui-card.narrow { flex:0 1 100px; min-width:90px; }
+        .ui-card h3 { color:var(--gold); font-size:.75em; margin-bottom:1px; letter-spacing:1px; white-space:nowrap; }
+        .info-row { display:flex; justify-content:space-between; padding:1px 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:10px; }
+        .info-label { color:var(--muted); } .info-value { font-weight:bold; color:var(--text); font-size:10px; font-family:var(--mono); }
+        .info-value.focus { color:var(--gold); } .info-value.hp { color:var(--green); } .info-value.stress { color:var(--red); } .info-value.armor { color:var(--cyan); }
+        .card-btn {
+            width:100%; padding:5px 7px; margin:1px 0; border:1px solid var(--border); border-radius:8px;
+            background:rgba(255,255,255,.04); color:var(--text); cursor:pointer;
+            text-align:left; font-size:10px; transition:.2s; font-family:inherit;
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .card-btn:hover { background:rgba(34,211,238,.12); border-color:var(--cyan); color:var(--cyan); }
+        .card-btn:disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
+        .card-btn.reaction { border-color:rgba(167,139,250,.5); background:rgba(167,139,250,.08); color:var(--violet); }
+        #end-turn-btn { width:100%; padding:8px; background:linear-gradient(120deg,#22d3ee,#38bdf8); color:#04060e; border:none; border-radius:10px; font-weight:600; font-size:12px; cursor:pointer; letter-spacing:1px; transition:.2s; font-family:inherit; white-space:nowrap; }
+        #end-turn-btn:hover { filter:brightness(1.12); box-shadow:0 0 20px rgba(34,211,238,.4); }
+        #end-turn-btn:disabled { background:rgba(255,255,255,.08); color:var(--muted); cursor:not-allowed; box-shadow:none; }
+        #phase-indicator { text-align:center; font-weight:bold; padding:4px; border-radius:8px; font-size:11px; letter-spacing:1px; }
+        .phase-p1 { background:rgba(34,211,238,.12); color:var(--cyan); border:1px solid rgba(34,211,238,.4); }
+        .phase-p2 { background:rgba(244,114,182,.12); color:var(--pink); border:1px solid rgba(244,114,182,.4); }
+        #log-content { max-height:70px; overflow-y:auto; font-size:9px; color:var(--muted); line-height:1.4; flex:1 1 auto; min-height:0; }
+        .log-hit { color:var(--red); font-weight:bold; } .log-miss { color:var(--muted); } .log-info { color:var(--gold); } .log-event { color:var(--violet); font-weight:bold; }
+        .tooltip { position:fixed; background:rgba(8,12,24,.95); border:1px solid var(--gold); color:var(--text); padding:5px 10px; border-radius:8px; font-size:11px; pointer-events:none; z-index:100; white-space:nowrap; font-family:var(--mono); }
+        #selection-overlay { position:fixed; inset:0; background:rgba(2,4,10,.8); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:200; display:flex; justify-content:center; align-items:center; flex-direction:column; padding:16px; }
+        #selection-panel { background:rgba(8,12,24,.92); border:1px solid var(--border2); border-radius:20px; padding:22px; max-width:620px; width:94%; text-align:center; box-shadow:0 30px 90px rgba(0,0,0,.6), 0 0 60px rgba(34,211,238,.07); }
+        #selection-panel h2 { color:var(--cyan); font-size:1.5em; letter-spacing:3px; text-shadow:0 0 22px rgba(34,211,238,.4); }
+        .select-prompt { color:var(--gold); font-size:1em; margin:6px 0 12px; letter-spacing:1px; }
+        .char-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0; }
+        .spawn-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:10px 0; }
+        .char-card, .spawn-card { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:12px; padding:8px 5px; cursor:pointer; color:var(--text); transition:.2s; display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12px; }
+        .char-card:hover, .spawn-card:hover { border-color:var(--cyan); background:rgba(34,211,238,.08); transform:translateY(-2px); }
+        .char-card.selected, .spawn-card.selected { border-color:var(--gold); background:rgba(232,184,75,.1); box-shadow:0 0 20px rgba(232,184,75,.2); }
+        .spawn-card.taken { border-color:var(--border); background:rgba(255,255,255,.02); opacity:.35; cursor:not-allowed; pointer-events:none; text-decoration:line-through; }
+        #start-game-btn { background:linear-gradient(120deg,#22d3ee,#38bdf8); color:#04060e; border:none; padding:11px 32px; font-size:1em; border-radius:999px; cursor:pointer; font-weight:600; letter-spacing:2px; margin-top:10px; transition:.2s; font-family:inherit; }
+        #start-game-btn:hover { filter:brightness(1.12); box-shadow:0 0 26px rgba(34,211,238,.45); }
+        #start-game-btn:disabled { background:rgba(255,255,255,.08); color:var(--muted); cursor:not-allowed; box-shadow:none; }
+        .shortcut-hint { color:var(--muted); font-size:9px; margin-top:2px; text-align:center; }
+        #virtual-controls { display:none; flex-shrink:0; gap:8px; align-items:center; justify-content:center; padding:6px 4px; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; flex-wrap:wrap; }
+        #virtual-controls.visible { display:flex; }
+        .v-btn { width:var(--btn-size); height:var(--btn-size); border-radius:10px; border:1px solid var(--border2); background:rgba(255,255,255,.05); color:var(--text); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; font-family:inherit; touch-action:manipulation; }
+        .v-btn:active { background:rgba(34,211,238,.25); border-color:var(--cyan); transform:scale(.92); }
+        .v-btn.action-btn { width:52px; height:40px; font-size:13px; font-weight:bold; border-radius:20px; letter-spacing:1px; }
+        .v-btn.move-btn { background:rgba(34,211,238,.12); border-color:rgba(34,211,238,.45); color:var(--cyan); }
+        .v-btn.attack-btn { background:rgba(248,113,113,.12); border-color:rgba(248,113,113,.45); color:var(--red); }
+        .v-btn.reload-btn { background:rgba(232,184,75,.12); border-color:rgba(232,184,75,.45); color:var(--gold); }
+        .dpad { display:grid; grid-template-areas:". up ." "left . right" ". down ."; grid-template-columns:var(--btn-size) var(--btn-size) var(--btn-size); grid-template-rows:var(--btn-size) var(--btn-size) var(--btn-size); gap:3px; }
+        .dpad-up { grid-area:up; } .dpad-down { grid-area:down; } .dpad-left { grid-area:left; } .dpad-right { grid-area:right; }
+        .action-group { display:flex; flex-direction:column; gap:4px; }
+        #toggle-mobile-btn { font-size:11px; padding:5px 10px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04); color:var(--muted); cursor:pointer; font-family:inherit; white-space:nowrap; transition:.2s; }
+        #toggle-mobile-btn:hover { color:var(--text); border-color:var(--border2); }
+        #toggle-mobile-btn.active { border-color:var(--cyan); color:var(--cyan); background:rgba(34,211,238,.1); }
+
+        /* 开发者控制台 */
+        #dev-console { position:absolute; top:6px; right:6px; z-index:50; display:flex; flex-direction:column; gap:4px; width:250px; }
+        #dev-toggle { align-self:flex-end; width:28px; height:28px; border-radius:50%; background:rgba(0,0,0,.5); border:1px solid var(--border); color:var(--muted); font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; }
+        #dev-toggle:hover { background:rgba(34,211,238,.15); border-color:var(--cyan); color:var(--cyan); }
+        #dev-panel { display:none; background:rgba(8,12,24,.95); border:1px solid var(--border2); border-radius:10px; padding:8px; flex-direction:column; gap:4px; max-height:380px; overflow-y:auto; }
+        #dev-panel.visible { display:flex; }
+        #dev-panel input { background:rgba(5,7,15,.7); border:1px solid var(--border); color:var(--text); padding:4px 6px; border-radius:6px; font-size:11px; font-family:inherit; width:100%; }
+        #dev-panel input:focus { outline:none; border-color:var(--cyan); }
+        #dev-msg { font-size:10px; color:var(--gold); min-height:14px; word-break:break-all; }
+        .dev-btn { background:rgba(255,255,255,.06); border:1px solid var(--border); color:var(--text); padding:3px 6px; border-radius:6px; cursor:pointer; font-size:10px; font-family:inherit; }
+        .dev-btn:hover { background:rgba(34,211,238,.15); color:var(--cyan); }
+        .dev-ref { font-size:9px; color:var(--muted); line-height:1.5; background:rgba(0,0,0,.3); border-radius:6px; padding:5px 6px; margin-top:2px; }
+        .dev-ref b { color:var(--gold); }
+        .dev-ref .cmd { color:var(--cyan); }
+        .dev-ref .id { color:var(--violet); }
+        .dev-ref-toggle { font-size:9px; color:var(--gold); cursor:pointer; text-align:center; padding:2px; }
+        .dev-ref-toggle:hover { text-decoration:underline; }
+
+        @media (max-width:900px),(max-height:700px) {
+            #game-container { padding:3px; gap:3px; }
+            #map-wrapper { flex:0 1 48vh; min-height:280px; padding:3px; }
+            canvas { max-width:100%; height:auto; }
+            #ui-strip { gap:4px; }
+            .ui-card { flex:1 1 100px; min-width:90px; padding:5px 6px; font-size:10px; }
+            .ui-card.wide { flex:2 1 150px; min-width:130px; }
+            .ui-card.narrow { flex:0 1 80px; min-width:70px; }
+            .card-btn { font-size:9px; padding:4px 6px; }
+            #end-turn-btn { font-size:11px; padding:7px; }
+            #phase-indicator { font-size:10px; padding:3px; }
+            #log-content { max-height:50px; font-size:8px; }
+            .char-grid { grid-template-columns:repeat(2,1fr); gap:5px; }
+            .spawn-grid { grid-template-columns:repeat(2,1fr); gap:6px; }
+            .char-card,.spawn-card { padding:6px 4px; font-size:10px; }
+            #selection-panel h2 { font-size:1.2em; }
+            #dev-console { width:210px; }
+        }
+        @media (pointer:coarse) { #virtual-controls { display:flex; } .shortcut-hint { display:none; } }
+        @media (pointer:fine) { #virtual-controls { display:none; } #virtual-controls.visible { display:flex; } }</style>
+</head>
+<body>
+<div id="selection-overlay">
+    <div id="selection-panel">
+        <h2>爆震空间 · 混沌弹道</h2>
+        <div class="select-prompt" id="select-prompt"> 玩家1 选择角色</div>
+        <div id="selection-cards"></div>
+        <button id="start-game-btn" disabled>开始战斗</button>
+    </div>
+</div>
+<div id="game-container" style="display:none;">
+    <div id="map-wrapper">
+        <canvas id="game-map"></canvas>
+        <div id="dev-console">
+            <button id="dev-toggle" title="开发者控制台">≡</button>
+            <div id="dev-panel">
+                <div id="dev-msg">输入密码解锁</div>
+                <input type="password" id="dev-pass" placeholder="请输入">
+                <input type="text" id="dev-cmd" placeholder="指令, 如 /h" style="display:none;">
+                <button class="dev-btn" id="dev-submit">执行</button>
+                <div id="dev-ref-container" style="display:none;">
+                    <div class="dev-ref-toggle" id="dev-ref-toggle"> 指令速查 (点击展开)</div>
+                    <div class="dev-ref" id="dev-ref-content" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="virtual-controls">
+        <div class="dpad">
+            <button class="v-btn dpad-up" id="btn-up">▲</button>
+            <button class="v-btn dpad-left" id="btn-left">◀</button>
+            <button class="v-btn dpad-right" id="btn-right">▶</button>
+            <button class="v-btn dpad-down" id="btn-down">▼</button>
+        </div>
+        <div class="action-group">
+            <button class="v-btn action-btn move-btn" id="btn-move">移动</button>
+            <button class="v-btn action-btn attack-btn" id="btn-attack">攻击</button>
+            <button class="v-btn action-btn reload-btn" id="btn-reload">换弹</button>
+        </div>
+        <button id="toggle-mobile-btn">触控</button>
+    </div>
+    <div id="ui-strip">
+        <div class="ui-card narrow"><div id="phase-indicator" class="phase-p1"> 玩家1 回合</div><div class="info-row"><span class="info-label">角色</span><span class="info-value" id="char-name">-</span></div><div class="info-row"><span class="info-label">专注</span><span class="info-value focus" id="char-focus">-</span></div><div class="shortcut-hint">WASD/方向键=旋转</div></div>
+        <div class="ui-card"><h3> 状态</h3><div class="info-row"><span class="info-label">HP</span><span class="info-value hp" id="char-hp">-</span></div><div class="info-row"><span class="info-label">护甲</span><span class="info-value armor" id="char-armor">-</span></div><div class="info-row"><span class="info-label">压力</span><span class="info-value stress" id="char-stress">-</span></div><div class="info-row"><span class="info-label">过热</span><span class="info-value" id="char-heat">-</span></div></div>
+        <div class="ui-card"><h3> 武器</h3><div class="info-row"><span class="info-label">名称</span><span class="info-value" id="char-weapon">-</span></div><div class="info-row"><span class="info-label">弹药</span><span class="info-value" id="char-ammo">-</span></div><div class="info-row"><span class="info-label">骰子池</span><span class="info-value" id="char-dice">-</span></div></div>
+        <div class="ui-card wide"><h3> 手牌</h3><div id="hand-cards">等待抽牌...</div></div>
+        <div class="ui-card narrow"><h3>⏭ 行动</h3><button id="end-turn-btn">结束回合</button></div>
+        <div class="ui-card wide"><h3> 战报</h3><div id="log-content">等待开始...</div></div>
+    </div>
+</div>
+<div class="tooltip" id="tooltip" style="display:none;"></div>
+<script>
+(function() {
+    const MAP_COLS=21,MAP_ROWS=10,CELL_SIZE=46;
+    const DIRS=['up','right','down','left'];
+    const DIR_DELTAS={up:[-1,0],right:[0,1],down:[1,0],left:[0,-1]};
+    const DIR_ARROWS={up:'▲',right:'▶',down:'▼',left:'◀'};
+    const asciiMap=["     00000         ","    0000000        ","   000000000       "," 00000000000000    "," 000000   000000   ","  0000     00000   ","  0000      0000   "," 0000000000000000  ","    0000000000     ","     00000000      "];
+    const mapShape=Array(MAP_ROWS).fill().map(()=>Array(MAP_COLS).fill(false));
+    for(let r=0;r<MAP_ROWS;r++){const rowStr=asciiMap[r]||'';for(let c=0;c<MAP_COLS;c++){if(c<rowStr.length&&rowStr[c]==='0')mapShape[r][c]=true;}}
+    const TILE_EMPTY=0,TILE_WALL=1,TILE_HALF_COVER=2,TILE_FULL_COVER=3,TILE_SUPPLY=4;
+    const tileData=Array(MAP_ROWS).fill().map(()=>Array(MAP_COLS).fill(null));
+    for(let r=0;r<MAP_ROWS;r++)for(let c=0;c<MAP_COLS;c++)if(mapShape[r][c])tileData[r][c]=TILE_EMPTY;
+    function setTile(r,c,type){if(r>=0&&r<MAP_ROWS&&c>=0&&c<MAP_COLS&&tileData[r][c]!==null)tileData[r][c]=type;}
+    const walls=[[2,7],[2,12],[3,5],[3,14],[4,9],[5,7],[5,12],[6,9],[7,6],[7,13]];
+    const halfCovers=[[2,5],[2,10],[3,8],[3,11],[4,6],[4,13],[5,9],[6,7],[6,12],[7,9]];
+    const fullCovers=[[3,6],[3,13],[4,8],[5,8],[6,8],[6,11]];
+    const supplies=[[1,7],[1,11],[8,8],[8,12],[4,4],[4,15]];
+    walls.forEach(([r,c])=>setTile(r,c,TILE_WALL));halfCovers.forEach(([r,c])=>setTile(r,c,TILE_HALF_COVER));fullCovers.forEach(([r,c])=>setTile(r,c,TILE_FULL_COVER));supplies.forEach(([r,c])=>setTile(r,c,TILE_SUPPLY));
+    const spawnOptions=[{r:0,c:9,label:'顶部 (0,9)',defaultDir:'down',icon:'▲'},{r:3,c:2,label:'左侧 (3,2)',defaultDir:'right',icon:'◀'},{r:4,c:14,label:'右侧 (4,14)',defaultDir:'left',icon:'▶'},{r:9,c:10,label:'底部 (9,10)',defaultDir:'up',icon:'▼'}];
+    const spawnOptionCoords=new Set(spawnOptions.map(s=>`${s.r},${s.c}`));
+    const characterDefs={
+        '突击兵':{name:'突击兵',hp:8,armor:1,mov:4,acc:3,eva:3,focusMax:5,stressMax:6,weapon:'突击步枪',skills:['战斗冲锋','突击训练']},
+        '重装兵':{name:'重装兵',hp:10,armor:2,mov:2,acc:2,eva:2,focusMax:4,stressMax:8,weapon:'轻机枪',skills:['火力压制','坚韧']},
+        '侦察兵':{name:'侦察兵',hp:6,armor:0,mov:5,acc:3,eva:4,focusMax:6,stressMax:5,weapon:'冲锋枪',skills:['潜行','疾跑']},
+        '狙击手':{name:'狙击手',hp:6,armor:0,mov:3,acc:4,eva:3,focusMax:5,stressMax:5,weapon:'狙击步枪',skills:['致命瞄准','稳手']},
+        '医疗兵':{name:'医疗兵',hp:7,armor:1,mov:3,acc:3,eva:3,focusMax:5,stressMax:5,weapon:'手枪',skills:['战地治疗','肾上腺素']},
+        '工程师':{name:'工程师',hp:7,armor:1,mov:3,acc:3,eva:2,focusMax:5,stressMax:6,weapon:'手枪',skills:['部署哨戒炮','修复']},
+    };
+    const weaponDefs={
+        '手枪':{name:'手枪',dice:[6,6],critFace:6,damage:2,ammo:12,ranges:[3,6,9],heatPerShot:1,heatMax:6},
+        '冲锋枪':{name:'冲锋枪',dice:[4,4,4],critFace:4,damage:1,ammo:25,ranges:[4,8,12],heatPerShot:1,heatMax:8},
+        '突击步枪':{name:'突击步枪',dice:[8,8],critFace:8,damage:2,ammo:30,ranges:[6,12,18],heatPerShot:1,heatMax:7},
+        '轻机枪':{name:'轻机枪',dice:[4,4,4,4],critFace:4,damage:1,ammo:60,ranges:[8,16,24],heatPerShot:2,heatMax:10},
+        '狙击步枪':{name:'狙击步枪',dice:[10,6],critFace:10,damage:3,ammo:5,ranges:[10,20,30],heatPerShot:2,heatMax:4},
+        '霰弹枪':{name:'霰弹枪',dice:[6,6,6],critFace:6,damage:1,ammo:6,ranges:[2,4,8],heatPerShot:2,heatMax:5},
+    };
+    function generateDeck(player){
+        const cName=player.charDef.name;
+        const base=[
+            {id:'move1',name:'战术跃进',type:'移动',focusCost:1,desc:'移动2格',effect:'move',params:{steps:2}},
+            {id:'move2',name:'翻滚躲避',type:'移动',focusCost:2,desc:'移动1格+回避+2',effect:'move_dodge',params:{steps:1,dodgeBonus:2}},
+            {id:'shoot1',name:'瞄准射击',type:'射击',focusCost:2,desc:'+1骰子',effect:'shoot',params:{extraDice:1}},
+            {id:'shoot2',name:'火力压制',type:'射击',focusCost:3,desc:'3×3区域',effect:'shoot_aoe',params:{aoe:3}},
+            {id:'reload',name:'快速装填',type:'通用',focusCost:1,desc:'装填+冷却',effect:'reload',params:{}},
+            {id:'item',name:'使用道具',type:'通用',focusCost:1,desc:'使用道具',effect:'use_item',params:{}},
+            {id:'react1',name:'回避反应',type:'反应',focusCost:1,desc:'对手回合回避+2',effect:'react_dodge',params:{dodgeBonus:2}},
+            {id:'react2',name:'拦截火力',type:'反应',focusCost:2,desc:'对手回合减1命中骰',effect:'react_block',params:{blockDice:1}},
+        ];
+        if(cName==='突击兵')base.push({id:'skill1',name:'战斗冲锋',type:'技能',focusCost:2,desc:'冲锋+射击',effect:'charge',params:{}});
+        else if(cName==='重装兵')base.push({id:'skill1',name:'火力压制强化',type:'技能',focusCost:3,desc:'大范围压制',effect:'suppress',params:{}});
+        else if(cName==='侦察兵')base.push({id:'skill1',name:'潜行',type:'技能',focusCost:2,desc:'潜行2回合',effect:'stealth',params:{}});
+        else if(cName==='狙击手')base.push({id:'skill1',name:'致命瞄准',type:'技能',focusCost:3,desc:'+2骰子无视掩体',effect:'deadly_aim',params:{}});
+        else if(cName==='医疗兵')base.push({id:'skill1',name:'战地治疗',type:'技能',focusCost:2,desc:'恢复3HP',effect:'heal',params:{}});
+        else if(cName==='工程师')base.push({id:'skill1',name:'部署哨戒炮',type:'技能',focusCost:3,desc:'放置炮塔',effect:'turret',params:{}});
+        return base;
+    }
+
+    const gameState={players:[],currentPlayerIdx:0,phase:'selection',selectedP1Char:null,selectedP2Char:null,selectedP1Spawn:null,selectedP2Spawn:null,moveRangeCells:[],attackRangeCells:[],hoveredCell:null,turrets:[],smokeZones:[],supplyUsed:new Set(),log:[],turnNumber:0,gameOver:false,winner:null,transitionTimer:null,eventDie:null,showMoveRange:false,showAttackRange:false,mobileMode:false,devAuthenticated:false};
+    const canvas=document.getElementById('game-map'),ctx=canvas.getContext('2d');
+    const tooltip=document.getElementById('tooltip');
+    const virtualControls=document.getElementById('virtual-controls');
+    const toggleMobileBtn=document.getElementById('toggle-mobile-btn');
+    const devToggle=document.getElementById('dev-toggle'),devPanel=document.getElementById('dev-panel');
+    const devPass=document.getElementById('dev-pass'),devCmd=document.getElementById('dev-cmd');
+    const devSubmit=document.getElementById('dev-submit'),devMsg=document.getElementById('dev-msg');
+    const devRefToggle=document.getElementById('dev-ref-toggle'),devRefContent=document.getElementById('dev-ref-content');
+    const devRefContainer=document.getElementById('dev-ref-container');
+    const overlay=document.getElementById('selection-overlay');
+    const selectPrompt=document.getElementById('select-prompt');
+    const selectionCards=document.getElementById('selection-cards');
+    const startBtn=document.getElementById('start-game-btn');
+
+    const isTouchDevice=('ontouchstart' in window)||navigator.maxTouchPoints>0||matchMedia('(pointer:coarse)').matches;
+    if(isTouchDevice){gameState.mobileMode=true;virtualControls.classList.add('visible');toggleMobileBtn.classList.add('active');}
+    toggleMobileBtn.addEventListener('click',()=>{gameState.mobileMode=!gameState.mobileMode;virtualControls.classList.toggle('visible',gameState.mobileMode);toggleMobileBtn.classList.toggle('active',gameState.mobileMode);});
+    document.getElementById('btn-up').addEventListener('click',()=>handleRotate('up'));
+    document.getElementById('btn-down').addEventListener('click',()=>handleRotate('down'));
+    document.getElementById('btn-left').addEventListener('click',()=>handleRotate('left'));
+    document.getElementById('btn-right').addEventListener('click',()=>handleRotate('right'));
+    document.getElementById('btn-move').addEventListener('click',()=>{if(gameState.phase!=='playing')return;const p=getCurrentPlayer();if(!p)return;gameState.showMoveRange=true;gameState.showAttackRange=false;gameState.moveRangeCells=calcMoveRangeSteps(p,p.charDef.mov);gameState.attackRangeCells=[];p.pendingShoot=null;p.pendingMove=null;addLog('显示移动范围','info');updatePanel();draw();});
+    document.getElementById('btn-attack').addEventListener('click',()=>{if(gameState.phase!=='playing')return;const p=getCurrentPlayer();if(!p)return;gameState.showAttackRange=true;gameState.showMoveRange=false;gameState.attackRangeCells=calcAttackTargets(p).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));gameState.moveRangeCells=[];p.pendingShoot=null;addLog('显示攻击范围','info');updatePanel();draw();});
+    document.getElementById('btn-reload').addEventListener('click',()=>{if(gameState.phase!=='playing')return;const p=getCurrentPlayer();if(!p)return;if(p.focus>=1&&p.ammo<p.weapon.ammo){p.focus-=1;p.ammo=p.weapon.ammo;p.heat=Math.max(0,p.heat-2);addLog('基础装填','info');updatePanel();draw();}});
+
+    // 开发者控制台
+    devToggle.addEventListener('click',()=>{devPanel.classList.toggle('visible');});
+    devSubmit.addEventListener('click',processDevCommand);
+    devPass.addEventListener('keydown',(e)=>{if(e.key==='Enter')processDevCommand();});
+    devCmd.addEventListener('keydown',(e)=>{if(e.key==='Enter')processDevCommand();});
+    devRefToggle.addEventListener('click',()=>{devRefContent.style.display=devRefContent.style.display==='none'?'block':'none';devRefToggle.textContent=devRefContent.style.display==='none'?' 指令速查 (点击展开)':' 指令速查 (点击收起)';});
+
+    function buildDevRef(){
+        const allCards=generateDeck({charDef:{name:'突击兵'}});
+        let html=`<b> 指令格式:</b> /指令 玩家编号 参数<br>`;
+        html+=`<b>玩家编号:</b> 1=玩家1, 2=玩家2<br><br>`;
+        html+=`<b>━━ 指令列表 ━━</b><br>`;
+        html+=`<span class="cmd">/h</span> 帮助<br>`;
+        html+=`<span class="cmd">/gc 玩家 卡牌ID</span> 给予卡牌<br>`;
+        html+=`<span class="cmd">/tp 玩家 行 列</span> 传送<br>`;
+        html+=`<span class="cmd">/heal 玩家 数值</span> 恢复HP<br>`;
+        html+=`<span class="cmd">/focus 玩家 数值</span> 设专注<br>`;
+        html+=`<span class="cmd">/stress 玩家 数值</span> 设压力<br>`;
+        html+=`<span class="cmd">/item 玩家 道具</span> 给道具<br>`;
+        html+=`<span class="cmd">/kill 玩家</span> 淘汰玩家<br>`;
+        html+=`<span class="cmd">/cards</span> 卡牌列表<br>`;
+        html+=`<span class="cmd">/items</span> 道具列表<br><br>`;
+        html+=`<b>━━ 卡牌ID ━━</b><br>`;
+        html+=allCards.map(c=>`<span class="id">${c.id}</span> ${c.name}(${c.type},专注${c.focusCost})`).join('<br>');
+        html+=`<br><br><b>━━ 道具名 ━━</b><br>`;
+        html+=`医疗包 破片手雷 烟雾弹 护甲板`;
+        devRefContent.innerHTML=html;
+    }
+
+    function processDevCommand(){
+        const passVal=devPass.value.trim(),cmdVal=devCmd.value.trim();
+        if(!gameState.devAuthenticated){
+            if(passVal==='sym12356'){
+                gameState.devAuthenticated=true;
+                devMsg.textContent=' 已解锁';
+                devPass.style.display='none';
+                devCmd.style.display='block';
+                devRefContainer.style.display='block';
+                devCmd.placeholder='/h 查看指令';
+                buildDevRef();
+                devCmd.focus();
+            }else{devMsg.textContent=' 密码错误';devPass.value='';devPass.focus();}
+            return;
+        }
+        if(!cmdVal.startsWith('/')){devMsg.textContent='指令需以 / 开头, 输入 /h 查看帮助';return;}
+        const parts=cmdVal.slice(1).split(/\s+/),cmd=parts[0].toLowerCase(),args=parts.slice(1);
+        let result=executeDevCommand(cmd,args);
+        devMsg.textContent=result;devCmd.value='';
+        if(result.startsWith('')){updatePanel();draw();}
+    }
+
+    function executeDevCommand(cmd,args){
+        const alias={
+            h:'help',cards:'listcards',items:'listitems',c:'listcards',i:'listitems',
+            gc:'givecard',tp:'teleport',item:'spawnitem',
+        };
+        const resolved=alias[cmd]||cmd;
+        if(resolved==='help'){
+            return ` /h 帮助 | /gc 玩家 卡牌ID | /tp 玩家 行 列 | /heal 玩家 值 | /focus 玩家 值 | /stress 玩家 值 | /item 玩家 道具 | /kill 玩家 | /cards 卡牌列表 | /items 道具列表`;
+        }
+        if(resolved==='listcards'){
+            const allCards=generateDeck({charDef:{name:'突击兵'}});
+            return ` 卡牌ID: ${allCards.map(c=>c.id+'='+c.name).join(', ')}`;
+        }
+        if(resolved==='listitems')return ' 道具: 医疗包, 破片手雷, 烟雾弹, 护甲板';
+        if(resolved==='givecard'){
+            const pIdx=parseInt(args[0]),cardId=args[1];
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            if(!cardId)return ' 需要卡牌ID, 输入 /cards 查看';
+            const player=gameState.players[pIdx-1],deck=generateDeck(player),card=deck.find(c=>c.id===cardId);
+            if(!card)return ' 无效卡牌ID: '+cardId;
+            player.hand.push({...card});
+            return ` 给玩家${pIdx} [${card.name}]`;
+        }
+        if(resolved==='teleport'){
+            const pIdx=parseInt(args[0]),r=parseInt(args[1]),c=parseInt(args[2]);
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            if(isNaN(r)||isNaN(c))return ' 坐标如: /tp 1 4 10';
+            if(r<0||r>=MAP_ROWS||c<0||c>=MAP_COLS||!mapShape[r][c])return ' 坐标不可用';
+            gameState.players[pIdx-1].gridR=r;gameState.players[pIdx-1].gridC=c;
+            return ` 玩家${pIdx}  (${r},${c})`;
+        }
+        if(resolved==='heal'){
+            const pIdx=parseInt(args[0]),amount=parseInt(args[1])||99;
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            const player=gameState.players[pIdx-1];
+            player.hp=Math.min(player.charDef.hp,player.hp+amount);
+            return ` 玩家${pIdx} HP+${amount} (${player.hp})`;
+        }
+        if(resolved==='focus'){
+            const pIdx=parseInt(args[0]),val=parseInt(args[1]);
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            if(isNaN(val))return ' 需要数值';
+            const player=gameState.players[pIdx-1];
+            player.focus=Math.min(player.charDef.focusMax,Math.max(0,val));
+            return ` 玩家${pIdx} 专注=${player.focus}`;
+        }
+        if(resolved==='stress'){
+            const pIdx=parseInt(args[0]),val=parseInt(args[1]);
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            if(isNaN(val))return ' 需要数值';
+            const player=gameState.players[pIdx-1];
+            player.stress=Math.min(player.charDef.stressMax,Math.max(0,val));
+            return ` 玩家${pIdx} 压力=${player.stress}`;
+        }
+        if(resolved==='spawnitem'){
+            const pIdx=parseInt(args[0]),itemName=args.slice(1).join(' ');
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            const validItems=['医疗包','破片手雷','烟雾弹','护甲板'];
+            if(!validItems.includes(itemName))return ' 道具: 医疗包 破片手雷 烟雾弹 护甲板';
+            const player=gameState.players[pIdx-1];
+            if(player.items.length>=3)return ' 道具已满(3)';
+            player.items.push(itemName);
+            return ` 给玩家${pIdx} [${itemName}]`;
+        }
+        if(resolved==='kill'){
+            const pIdx=parseInt(args[0]);
+            if(isNaN(pIdx)||pIdx<1||pIdx>gameState.players.length)return ' 玩家编号:1或2';
+            gameState.players[pIdx-1].hp=0;checkEnd();
+            return ` 玩家${pIdx} 已淘汰`;
+        }
+        return ' 未知指令, 输入 /h 查看';
+    }
+
+    function resizeCanvas(){const pad=18;canvas.width=MAP_COLS*CELL_SIZE+pad*2;canvas.height=MAP_ROWS*CELL_SIZE+pad*2;canvas.style.display='block';}resizeCanvas();
+    function gridToPixel(r,c){return{x:18+c*CELL_SIZE+CELL_SIZE/2,y:18+r*CELL_SIZE+CELL_SIZE/2};}
+    function pixelToGrid(px,py){const c=Math.floor((px-18)/CELL_SIZE),r=Math.floor((py-18)/CELL_SIZE);if(r>=0&&r<MAP_ROWS&&c>=0&&c<MAP_COLS&&mapShape[r][c])return{r,c};return null;}
+    const getDist=(r1,c1,r2,c2)=>Math.max(Math.abs(r1-r2),Math.abs(c1-c2));
+    const isAdj=(r1,c1,r2,c2)=>Math.abs(r1-r2)+Math.abs(c1-c2)===1;
+    function inCone(or,oc,od,tr,tc){const dr=tr-or,dc=tc-oc;if(dr===0&&dc===0)return true;const[ddr,ddc]=DIR_DELTAS[od];const dot=dr*ddr+dc*ddc;if(dot<=0)return false;return Math.abs(dr*ddc-dc*ddr)<=dot;}
+    function isBehind(or,oc,od,tr,tc){return!inCone(or,oc,od,tr,tc)&&inCone(or,oc,DIRS[(DIRS.indexOf(od)+2)%4],tr,tc)===false;}
+    function hasLoS(r1,c1,r2,c2){const dr=r2-r1,dc=c2-c1,steps=Math.max(Math.abs(dr),Math.abs(dc));if(steps===0)return true;for(let i=1;i<steps;i++){const t=i/steps,r=Math.round(r1+dr*t),c=Math.round(c1+dc*t);if(r===r1&&c===c1)continue;if(r===r2&&c===c2)continue;if(tileData[r]&&tileData[r][c]===TILE_WALL)return false;}return!(tileData[r2]&&tileData[r2][c2]===TILE_WALL);}
+    function getCurrentPlayer(){return gameState.players[gameState.currentPlayerIdx]||null;}
+    function getOtherPlayer(){return gameState.players[1-gameState.currentPlayerIdx]||null;}
+    function isSupplyUsed(r,c){return gameState.supplyUsed.has(`${r},${c}`);}
+    function markSupplyUsed(r,c){gameState.supplyUsed.add(`${r},${c}`);}
+    function getCover(r,c){const t=tileData[r]&&tileData[r][c];return t===TILE_HALF_COVER?1:t===TILE_FULL_COVER?2:0;}
+    function getPlayerAt(r,c){return gameState.players.find(p=>p.gridR===r&&p.gridC===c&&p.hp>0);}
+    function getTurretAt(r,c){return gameState.turrets.find(t=>t.gridR===r&&t.gridC===c);}
+    function isSmoke(r,c){return gameState.smokeZones.some(s=>s.gridR===r&&s.gridC===c&&s.rem>0);}
+    function isWalkable(r,c){if(r<0||r>=MAP_ROWS||c<0||c>=MAP_COLS||!mapShape[r][c])return false;if(tileData[r][c]===TILE_WALL)return false;if(getPlayerAt(r,c)||getTurretAt(r,c))return false;return true;}
+    function addLog(msg,type='info'){gameState.log.push({msg,cls:type==='hit'?'log-hit':type==='miss'?'log-miss':type==='event'?'log-event':'log-info'});if(gameState.log.length>50)gameState.log.shift();document.getElementById('log-content').innerHTML=gameState.log.slice(-15).map(l=>`<div class="${l.cls}">${l.msg}</div>`).join('');}
+    function updatePanel(){
+        const p=getCurrentPlayer();if(!p)return;
+        document.getElementById('char-name').textContent=p.charDef.name;
+        document.getElementById('char-focus').textContent=`${p.focus}/${p.charDef.focusMax}`;
+        document.getElementById('char-hp').textContent=`${p.hp}/${p.charDef.hp}`;
+        document.getElementById('char-armor').textContent=p.charDef.armor;
+        document.getElementById('char-stress').textContent=`${p.stress}/${p.charDef.stressMax}`;
+        document.getElementById('char-heat').textContent=`${p.heat}/${p.weapon.heatMax}`;
+        document.getElementById('char-weapon').textContent=p.weapon.name;
+        document.getElementById('char-ammo').textContent=`${p.ammo}/${p.weapon.ammo}`;
+        document.getElementById('char-dice').textContent=p.weapon.dice.map(d=>'D'+d).join('+');
+        const handDiv=document.getElementById('hand-cards');
+        if(p.hand.length===0){handDiv.innerHTML='<span style="color:#888;font-size:11px;">无手牌</span>';}
+        else{handDiv.innerHTML=p.hand.map((card,i)=>{const cls=card.type==='反应'?'card-btn reaction':'card-btn';return`<button class="${cls}" onclick="window._playCard(${i})" title="${card.desc}"> ${card.name} (${card.focusCost})</button>`;}).join('');}
+        window._playCard=(i)=>playCard(i);
+        const ind=document.getElementById('phase-indicator');ind.textContent=gameState.currentPlayerIdx===0?'玩家1 回合':'玩家2 回合';ind.className=gameState.currentPlayerIdx===0?'phase-p1':'phase-p2';
+        if(gameState.gameOver)ind.textContent=gameState.winner?` ${gameState.winner} 获胜！`:'平局';
+        if(gameState.eventDie!==null)ind.textContent+=` [事件:${gameState.eventDie}]`;
+    }
+    function drawHand(player){const deck=generateDeck(player);const shuffled=deck.sort(()=>Math.random()-0.5);player.hand=shuffled.slice(0,3);player.deckRemaining=shuffled.slice(3);addLog(`${player.charDef.name} 抽取3张行动牌`,'info');}
+    function rollWeaponDice(player,extraDice=0,targetPlayer=null,ignoreCover=false,blockDice=0){
+        const w=player.weapon;let diceSides=[...w.dice];if(blockDice>0)diceSides=diceSides.slice(0,Math.max(1,diceSides.length-blockDice));if(extraDice>0)diceSides.push(6);if(extraDice>1)diceSides.push(6);
+        let successes=0,crits=0;const targetEva=targetPlayer?targetPlayer.charDef.eva:4;let evaThreshold=targetEva;
+        if(targetPlayer){
+            const dist=getDist(player.gridR,player.gridC,targetPlayer.gridR,targetPlayer.gridC);
+            if(dist>w.ranges[0])evaThreshold+=1;if(dist>w.ranges[1])evaThreshold+=2;
+            if(isBehind(player.gridR,player.gridC,player.dir,targetPlayer.gridR,targetPlayer.gridC))evaThreshold+=2;
+            if(!inCone(player.gridR,player.gridC,player.dir,targetPlayer.gridR,targetPlayer.gridC)&&!isBehind(player.gridR,player.gridC,player.dir,targetPlayer.gridR,targetPlayer.gridC))evaThreshold+=1;
+            if(!ignoreCover)evaThreshold+=getCover(targetPlayer.gridR,targetPlayer.gridC);
+            if(targetPlayer.dodgeBonus>0){evaThreshold+=targetPlayer.dodgeBonus;targetPlayer.dodgeBonus=0;}
+        }
+        evaThreshold=Math.max(2,Math.min(10,evaThreshold));const results=[];
+        for(const sides of diceSides){const roll=Math.floor(Math.random()*sides)+1;results.push(roll);if(roll>=evaThreshold)successes++;if(roll===sides&&sides>=8)crits++;if(roll===sides&&sides<=6&&roll>=5)crits++;}
+        return{successes,crits,results,evaThreshold,diceSides};
+    }
+    function playCard(cardIndex){const player=getCurrentPlayer();if(!player||gameState.phase!=='playing')return;if(cardIndex>=player.hand.length)return;const card=player.hand[cardIndex];if(player.focus<card.focusCost){addLog('专注不足！','miss');return;}if(card.type==='反应'){addLog('反应牌需在对手回合使用','miss');return;}player.focus-=card.focusCost;player.hand.splice(cardIndex,1);executeCardEffect(player,card);updatePanel();draw();if(player.hp<=0)checkEnd();}
+    function executeCardEffect(player,card){
+        const eff=card.effect,params=card.params;
+        if(eff==='move'){player.pendingMove={type:'card',steps:params.steps,effect:eff};gameState.showMoveRange=true;gameState.moveRangeCells=calcMoveRangeSteps(player,params.steps);addLog(`${player.charDef.name} 使用【${card.name}】移动${params.steps}格`,'info');}
+        else if(eff==='move_dodge'){player.pendingMove={type:'card',steps:params.steps,effect:eff,dodgeBonus:params.dodgeBonus||0};gameState.showMoveRange=true;gameState.moveRangeCells=calcMoveRangeSteps(player,params.steps);addLog(`${player.charDef.name} 使用【${card.name}】翻滚+${params.dodgeBonus}回避`,'info');}
+        else if(eff==='shoot'||eff==='shoot_move'){if(eff==='shoot_move'){player.pendingMove={type:'card',steps:params.steps||1,effect:eff};gameState.showMoveRange=true;gameState.moveRangeCells=calcMoveRangeSteps(player,params.steps||1);player.pendingShoot={extraDice:params.extraDice||0};}else{gameState.showAttackRange=true;gameState.attackRangeCells=calcAttackTargets(player).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));player.pendingShoot={extraDice:params.extraDice||0};}addLog(`${player.charDef.name} 使用【${card.name}】准备射击`,'info');}
+        else if(eff==='shoot_aoe'){gameState.showAttackRange=true;gameState.attackRangeCells=calcAttackTargets(player).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));player.pendingShoot={aoe:params.aoe||3,extraDice:0};addLog(`${player.charDef.name} 使用【${card.name}】区域压制`,'info');}
+        else if(eff==='reload'){player.ammo=player.weapon.ammo;player.heat=Math.max(0,player.heat-2);addLog(`${player.charDef.name} 快速装填完成`,'info');}
+        else if(eff==='use_item'){if(player.items.length>0){const item=player.items.pop();if(item==='医疗包'){player.hp=Math.min(player.charDef.hp,player.hp+4);player.stress=Math.max(0,player.stress-1);addLog('使用医疗包 +4HP','info');}else if(item==='破片手雷'){const o=getOtherPlayer();if(o){const dmg=Math.max(1,4-o.charDef.armor);o.hp-=dmg;o.stress+=1;addLog(`手雷命中 -${dmg}HP`,'hit');if(o.hp<=0)checkEnd();}}else if(item==='护甲板'){player.tempArmor=(player.tempArmor||0)+3;addLog('获得3点临时护甲','info');}else if(item==='烟雾弹'){for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){const nr=player.gridR+dr,nc=player.gridC+dc;if(nr>=0&&nr<MAP_ROWS&&nc>=0&&nc<MAP_COLS&&mapShape[nr][nc])gameState.smokeZones.push({gridR:nr,gridC:nc,rem:2,_isMine:false});}addLog('烟雾弹释放','info');}}else{player.focus+=1;addLog('无道具可用，返还专注','info');}}
+        else if(eff==='charge'){player.pendingMove={type:'card',steps:player.charDef.mov+1,effect:eff};gameState.showMoveRange=true;gameState.moveRangeCells=calcMoveRangeSteps(player,player.charDef.mov+1);player.pendingShoot={extraDice:1};addLog('战斗冲锋！移动后射击','info');}
+        else if(eff==='suppress'){gameState.showAttackRange=true;gameState.attackRangeCells=calcAttackTargets(player).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));player.pendingShoot={aoe:4,extraDice:0};addLog('火力压制强化！','info');}
+        else if(eff==='stealth'){player.isStealthed=true;player.stealthTurns=2;addLog('进入潜行状态','info');}
+        else if(eff==='deadly_aim'){player.pendingShoot={extraDice:2,ignoreCover:true};gameState.showAttackRange=true;gameState.attackRangeCells=calcAttackTargets(player).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));addLog('致命瞄准就绪','info');}
+        else if(eff==='heal'){player.hp=Math.min(player.charDef.hp,player.hp+3);player.stress=Math.max(0,player.stress-2);addLog('战地治疗 +3HP','info');}
+        else if(eff==='turret'){const adj=[];for(const[dr,dc]of[[0,-1],[0,1],[-1,0],[1,0]]){const nr=player.gridR+dr,nc=player.gridC+dc;if(isWalkable(nr,nc))adj.push({r:nr,c:nc});}if(adj.length&&gameState.turrets.length<3){const pos=adj[0];gameState.turrets.push({gridR:pos.r,gridC:pos.c,dir:player.dir,hp:3,owner:player});addLog('哨戒炮部署','info');}else{player.focus+=2;addLog('无法部署哨戒炮','info');}}
+        else if(eff==='repair'){const t=gameState.turrets.find(t=>isAdj(player.gridR,player.gridC,t.gridR,t.gridC));if(t){t.hp=Math.min(5,t.hp+3);addLog('修复炮塔+3HP','info');}else{player.stress=Math.max(0,player.stress-1);addLog('移除压力+1','info');}}
+    }
+    function calcMoveRangeSteps(player,steps){const cells=[],visited=new Set();const queue=[{r:player.gridR,c:player.gridC,dist:0}];visited.add(`${player.gridR},${player.gridC}`);while(queue.length){const{r,c,dist}=queue.shift();if(dist>0)cells.push({r,c,dist});if(dist>=steps)continue;for(const[dr,dc]of[[0,-1],[0,1],[-1,0],[1,0]]){const nr=r+dr,nc=c+dc,key=`${nr},${nc}`;if(!visited.has(key)&&isWalkable(nr,nc)){visited.add(key);queue.push({r:nr,c:nc,dist:dist+1});}}}return cells;}
+    function calcAttackTargets(player){const targets=[],maxR=player.weapon.ranges[2]||player.weapon.ranges[1]||player.weapon.ranges[0];for(const other of gameState.players){if(other===player||other.hp<=0)continue;const d=getDist(player.gridR,player.gridC,other.gridR,other.gridC);if(d>maxR)continue;if(!inCone(player.gridR,player.gridC,player.dir,other.gridR,other.gridC))continue;if(!hasLoS(player.gridR,player.gridC,other.gridR,other.gridC))continue;if(isSmoke(other.gridR,other.gridC))continue;if(other.isStealthed&&d>1)continue;targets.push({player:other,dist:d});}for(const t of gameState.turrets){const d=getDist(player.gridR,player.gridC,t.gridR,t.gridC);if(d>maxR)continue;if(!inCone(player.gridR,player.gridC,player.dir,t.gridR,t.gridC)||!hasLoS(player.gridR,player.gridC,t.gridR,t.gridC))continue;targets.push({turret:t,dist:d});}return targets;}
+    function applyMove(player,r,c,dist){const oldR=player.gridR,oldC=player.gridC;player.gridR=r;player.gridC=c;if(r<oldR)player.dir='up';else if(r>oldR)player.dir='down';else if(c<oldC)player.dir='left';else if(c>oldC)player.dir='right';if(tileData[r][c]===TILE_SUPPLY&&!isSupplyUsed(r,c)){markSupplyUsed(r,c);const it=['医疗包','护甲板','烟雾弹','破片手雷'][Math.floor(Math.random()*4)];if(player.items.length<3)player.items.push(it);addLog(`拾取${it}`);}for(let i=gameState.smokeZones.length-1;i>=0;i--){const m=gameState.smokeZones[i];if(m._mine&&m.gridR===r&&m.gridC===c){let dmg=Math.max(1,(m.dmg||3)-player.charDef.armor-(player.tempArmor||0));player.hp-=dmg;if(player.hp<0)player.hp=0;addLog(` 触发地雷 -${dmg}`,'hit');player.statusEffects.push({type:'slow',rem:1});gameState.smokeZones.splice(i,1);if(player.hp<=0)checkEnd();}}}
+    function handleMoveClick(g){const player=getCurrentPlayer();if(!player)return;const moveCell=gameState.moveRangeCells.find(m=>m.r===g.r&&m.c===g.c);if(!moveCell)return;if(player.pendingMove){if(player.pendingMove.type==='card'){applyMove(player,g.r,g.c,moveCell.dist);if(player.pendingMove.effect==='move_dodge')player.dodgeBonus=(player.dodgeBonus||0)+(player.pendingMove.dodgeBonus||0);player.pendingMove=null;}}else{if(player.focus<moveCell.dist){addLog('专注不足！','miss');return;}player.focus-=moveCell.dist;applyMove(player,g.r,g.c,moveCell.dist);}gameState.showMoveRange=false;gameState.moveRangeCells=[];if(player.pendingShoot){gameState.showAttackRange=true;gameState.attackRangeCells=calcAttackTargets(player).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));addLog('选择射击目标','info');}updatePanel();draw();}
+    function maybeReaction(defender,attacker){
+        if(!defender||defender.hp<=0)return{};
+        const idx=defender.hand.findIndex(c=>c.type==='反应');
+        if(idx<0||defender.focus<defender.hand[idx].focusCost)return{};
+        const react=defender.hand[idx];
+        defender.focus-=react.focusCost;
+        defender.hand.splice(idx,1);
+        addLog(defender.charDef.name+' 触发【'+react.name+'】','event');
+        if(react.effect==='react_dodge'){defender.dodgeBonus=(defender.dodgeBonus||0)+(react.params.dodgeBonus||2);return{};}
+        if(react.effect==='react_block')return{blockDice:react.params.blockDice||1};
+        return{};
+    }
+    function executeShoot(attacker,targetPlayer,targetTurret,extraDice=0,isAoe=false,aoeSize=0,ignoreCover=false){if(attacker.ammo<=0){addLog('弹药不足！','miss');return;}if(attacker.heat>=attacker.weapon.heatMax){addLog('武器过热！必须冷却','miss');return;}attacker.ammo--;attacker.heat+=attacker.weapon.heatPerShot;if(isAoe&&targetPlayer){const tr=targetPlayer.gridR,tc=targetPlayer.gridC,hs=Math.floor(aoeSize/2);const affected=[];for(let dr=-hs;dr<=hs;dr++)for(let dc=-hs;dc<=hs;dc++){const nr=tr+dr,nc=tc+dc;if(nr>=0&&nr<MAP_ROWS&&nc>=0&&nc<MAP_COLS&&mapShape[nr][nc]){const p=getPlayerAt(nr,nc);if(p&&p!==attacker)affected.push(p);}}affected.forEach(p=>{const result=rollWeaponDice(attacker,extraDice,p,ignoreCover);const dmg=result.successes*attacker.weapon.damage+result.crits;const finalDmg=Math.max(1,dmg-p.charDef.armor-(p.tempArmor||0));p.hp-=finalDmg;if(p.hp<0)p.hp=0;p.stress=Math.min(p.charDef.stressMax,p.stress+result.successes);addLog(`区域攻击 ${p.charDef.name}：${result.successes}命中${result.crits}暴击  -${finalDmg}HP`,'hit');if(p.hp<=0)checkEnd();});}else{const reactRes=targetPlayer?maybeReaction(targetPlayer,attacker):{};const result=rollWeaponDice(attacker,extraDice,targetPlayer,ignoreCover,reactRes.blockDice||0);const dmg=result.successes*attacker.weapon.damage+result.crits*2;let finalDmg=Math.max(1,dmg-(targetPlayer?targetPlayer.charDef.armor:2)-(targetPlayer?targetPlayer.tempArmor||0:0));if(targetPlayer&&targetPlayer.tempArmor>0)targetPlayer.tempArmor=Math.max(0,targetPlayer.tempArmor-dmg);if(targetPlayer){targetPlayer.hp-=finalDmg;if(targetPlayer.hp<0)targetPlayer.hp=0;targetPlayer.stress=Math.min(targetPlayer.charDef.stressMax,targetPlayer.stress+result.successes);addLog(`射击 ${targetPlayer.charDef.name}：${result.successes}命中(D${result.diceSides.join(',D')})  -${finalDmg}HP`,'hit');if(targetPlayer.hp<=0)checkEnd();}else if(targetTurret){targetTurret.hp-=finalDmg;addLog(`射击炮塔 -${finalDmg}HP`,'hit');if(targetTurret.hp<=0)gameState.turrets=gameState.turrets.filter(t=>t!==targetTurret);}}attacker.pendingShoot=null;gameState.showAttackRange=false;gameState.attackRangeCells=[];}
+    function handleAttackClick(g){const player=getCurrentPlayer();if(!player)return;const tp=getPlayerAt(g.r,g.c),tt=getTurretAt(g.r,g.c);if(player.pendingShoot){const ps=player.pendingShoot;if(tp)executeShoot(player,tp,null,ps.extraDice||0,!!ps.aoe,ps.aoe||0,ps.ignoreCover||false);else if(tt)executeShoot(player,null,tt,ps.extraDice||0,false,0,false);}else{if(player.focus<2){addLog('专注不足！','miss');return;}player.focus-=2;if(tp)executeShoot(player,tp,null,0,false,0,false);else if(tt)executeShoot(player,null,tt,0,false,0,false);}updatePanel();draw();}
+    function checkEnd(){const alive=gameState.players.filter(p=>p.hp>0);if(alive.length<=1){gameState.gameOver=true;gameState.phase='gameover';gameState.winner=alive.length===1?`玩家${gameState.players.indexOf(alive[0])+1} (${alive[0].charDef.name})`:'平局';addLog(` ${gameState.winner}`,'info');updatePanel();draw();}}
+    function rollEventDie(){const roll=Math.floor(Math.random()*6)+1;gameState.eventDie=roll;switch(roll){case 1:addLog(' 空投补给！随机位置出现道具','event');break;case 2:addLog(' 电磁干扰！电子设备失效','event');break;case 3:addLog(' 烟雾弥漫！随机区域生成烟雾','event');gameState.smokeZones.push({gridR:4,gridC:9,rem:2,_isMine:false});break;case 4:addLog(' 增援警报！双方专注+1','event');gameState.players.forEach(p=>p.focus=Math.min(p.charDef.focusMax,p.focus+1));break;case 5:addLog(' 地震！角色随机位移','event');gameState.players.forEach(p=>{const dirs=[[0,-1],[0,1],[-1,0],[1,0]];const[dr,dc]=dirs[Math.floor(Math.random()*4)];const nr=p.gridR+dr,nc=p.gridC+dc;if(isWalkable(nr,nc)){p.gridR=nr;p.gridC=nc;}});break;case 6:addLog(' 幸运星！当前玩家专注+2','event');getCurrentPlayer().focus=Math.min(getCurrentPlayer().charDef.focusMax,getCurrentPlayer().focus+2);break;}}
+    function endTurn(){if(gameState.phase!=='playing')return;const p=getCurrentPlayer();if(!p)return;p.dodgeBonus=0;p.pendingShoot=null;p.pendingMove=null;p.tempArmor=0;if(p.isStealthed){p.stealthTurns--;if(p.stealthTurns<=0)p.isStealthed=false;}gameState.smokeZones=gameState.smokeZones.filter(s=>{if(!s._mine)s.rem--;return s.rem>0;});gameState.turrets.forEach(t=>{const enemies=gameState.players.filter(e=>e!==t.owner&&e.hp>0);const vis=enemies.filter(e=>inCone(t.gridR,t.gridC,t.dir,e.gridR,e.gridC)&&hasLoS(t.gridR,t.gridC,e.gridR,e.gridC)&&getDist(t.gridR,t.gridC,e.gridR,e.gridC)<=8);if(vis.length){const target=vis[0];target.hp-=Math.max(1,2-target.charDef.armor);addLog(`炮塔攻击 ${target.charDef.name}`,'hit');if(target.hp<=0)checkEnd();}});gameState.showMoveRange=false;gameState.showAttackRange=false;gameState.moveRangeCells=[];gameState.attackRangeCells=[];gameState.eventDie=null;gameState.phase='transition';updatePanel();draw();if(gameState.transitionTimer)clearTimeout(gameState.transitionTimer);gameState.transitionTimer=setTimeout(()=>{gameState.currentPlayerIdx=1-gameState.currentPlayerIdx;const next=getCurrentPlayer();if(next){next.focus=Math.min(next.charDef.focusMax,next.focus+2);next.heat=Math.max(0,next.heat-1);next.stress=Math.max(0,next.stress-1);rollEventDie();drawHand(next);}gameState.phase='playing';gameState.turnNumber++;updatePanel();draw();gameState.transitionTimer=null;},1200);}
+    canvas.addEventListener('click',e=>{if(gameState.phase!=='playing'||gameState.gameOver)return;const rect=canvas.getBoundingClientRect();const sx=canvas.width/rect.width,sy=canvas.height/rect.height;const g=pixelToGrid((e.clientX-rect.left)*sx,(e.clientY-rect.top)*sy);if(!g)return;if(gameState.showMoveRange&&gameState.moveRangeCells.some(m=>m.r===g.r&&m.c===g.c)){handleMoveClick(g);return;}if(gameState.showAttackRange&&gameState.attackRangeCells.some(a=>a.r===g.r&&a.c===g.c)){handleAttackClick(g);return;}gameState.showMoveRange=false;gameState.showAttackRange=false;gameState.moveRangeCells=[];gameState.attackRangeCells=[];if(getCurrentPlayer())getCurrentPlayer().pendingShoot=null;updatePanel();draw();});
+    canvas.addEventListener('mousemove',e=>{const rect=canvas.getBoundingClientRect();const sx=canvas.width/rect.width,sy=canvas.height/rect.height;const g=pixelToGrid((e.clientX-rect.left)*sx,(e.clientY-rect.top)*sy);gameState.hoveredCell=g;tooltip.style.display=g?'block':'none';if(g){tooltip.style.left=e.clientX+18+'px';tooltip.style.top=e.clientY-30+'px';tooltip.textContent=`(${g.r},${g.c})`;}draw();});
+    function handleMapTap(touch){
+        if(gameState.phase!=='playing'||gameState.gameOver)return;
+        const rect=canvas.getBoundingClientRect();const sx=canvas.width/rect.width,sy=canvas.height/rect.height;
+        const g=pixelToGrid((touch.clientX-rect.left)*sx,(touch.clientY-rect.top)*sy);if(!g)return;
+        if(gameState.showMoveRange&&gameState.moveRangeCells.some(m=>m.r===g.r&&m.c===g.c)){handleMoveClick(g);return;}
+        if(gameState.showAttackRange&&gameState.attackRangeCells.some(a=>a.r===g.r&&a.c===g.c)){handleAttackClick(g);return;}
+        gameState.showMoveRange=false;gameState.showAttackRange=false;gameState.moveRangeCells=[];gameState.attackRangeCells=[];
+        if(getCurrentPlayer())getCurrentPlayer().pendingShoot=null;updatePanel();draw();
+    }
+    canvas.addEventListener('touchstart',e=>{gameState._pan={x:e.touches[0].clientX,y:e.touches[0].clientY,moved:false,t:Date.now()};},{passive:true});
+    canvas.addEventListener('touchmove',e=>{const st=gameState._pan;if(!st)return;const t=e.touches[0];const dx=t.clientX-st.x,dy=t.clientY-st.y;if(Math.abs(dx)+Math.abs(dy)>7){st.moved=true;const w=document.getElementById('map-wrapper');w.scrollLeft-=dx;w.scrollTop-=dy;st.x=t.clientX;st.y=t.clientY;}e.preventDefault();},{passive:false});
+    canvas.addEventListener('touchend',e=>{e.preventDefault();const st=gameState._pan;gameState._pan=null;if(st&&!st.moved&&Date.now()-st.t<400)handleMapTap(e.changedTouches[0]);},{passive:false});
+    document.addEventListener('keydown',e=>{if(gameState.phase!=='playing')return;const p=getCurrentPlayer();if(!p)return;const k=e.key.toLowerCase();if(k==='w'||k==='arrowup')handleRotate('up');if(k==='s'||k==='arrowdown')handleRotate('down');if(k==='a'||k==='arrowleft')handleRotate('left');if(k==='d'||k==='arrowright')handleRotate('right');if(k==='e'){gameState.showMoveRange=true;gameState.showAttackRange=false;gameState.moveRangeCells=calcMoveRangeSteps(p,p.charDef.mov);gameState.attackRangeCells=[];p.pendingShoot=null;p.pendingMove=null;addLog('显示移动范围 (E)','info');updatePanel();draw();}if(k==='f'){gameState.showAttackRange=true;gameState.showMoveRange=false;gameState.attackRangeCells=calcAttackTargets(p).map(t=>({r:t.player?t.player.gridR:t.turret.gridR,c:t.player?t.player.gridC:t.turret.gridC,isAttack:true}));gameState.moveRangeCells=[];p.pendingShoot=null;addLog('显示攻击范围 (F)','info');updatePanel();draw();}if(k==='r'){if(p.focus>=1&&p.ammo<p.weapon.ammo){p.focus-=1;p.ammo=p.weapon.ammo;p.heat=Math.max(0,p.heat-2);addLog('基础装填 (R)','info');updatePanel();draw();}}if(k==='escape'){gameState.showMoveRange=false;gameState.showAttackRange=false;gameState.moveRangeCells=[];gameState.attackRangeCells=[];p.pendingShoot=null;p.pendingMove=null;updatePanel();draw();}});
+    function handleRotate(dir){const p=getCurrentPlayer();if(!p||p.focus<1)return;if(p.dir===dir)return;const diff=Math.min(Math.abs(DIRS.indexOf(dir)-DIRS.indexOf(p.dir)),2);if(p.focus<diff)return;p.focus-=diff;p.dir=dir;updatePanel();draw();}
+    function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let r=0;r<MAP_ROWS;r++)for(let c=0;c<MAP_COLS;c++){if(!mapShape[r][c])continue;const{x,y}=gridToPixel(r,c),hs=CELL_SIZE/2;let fill='#1e1e35';const tile=tileData[r][c];if(tile===TILE_WALL)fill='#3a3a5a';else if(tile===TILE_HALF_COVER)fill='#2a2a40';else if(tile===TILE_FULL_COVER)fill='#252538';else if(tile===TILE_SUPPLY&&!isSupplyUsed(r,c))fill='#1e3520';if(spawnOptionCoords.has(`${r},${c}`))fill='#2a3a4a';if(gameState.moveRangeCells.some(m=>m.r===r&&m.c===c))fill='#1a4a3a';if(gameState.attackRangeCells.some(a=>a.r===r&&a.c===c))fill='#4a1a1a';if(gameState.hoveredCell&&gameState.hoveredCell.r===r&&gameState.hoveredCell.c===c)fill='#3a3a50';ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x-hs+2,y-hs+2,CELL_SIZE-4,CELL_SIZE-4,4);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.stroke();ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';if(tile===TILE_WALL){ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillRect(x-7,y-6,14,5);ctx.fillRect(x-7,y+1,14,5);ctx.fillStyle='#fff';}else if(tile===TILE_HALF_COVER){ctx.fillStyle='#8a7a5a';ctx.fillRect(x-hs+10,y-hs+5,CELL_SIZE-20,5);ctx.fillStyle='#fff';}else if(tile===TILE_FULL_COVER){ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,2*Math.PI);ctx.stroke();ctx.fillStyle='#fff';}else if(tile===TILE_SUPPLY&&!isSupplyUsed(r,c)){ctx.fillStyle='#4a8a4a';ctx.beginPath();ctx.arc(x,y,6,0,2*Math.PI);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.5;ctx.strokeRect(x-6,y-6,12,12);ctx.beginPath();ctx.moveTo(x-6,y-6);ctx.lineTo(x+6,y+6);ctx.moveTo(x+6,y-6);ctx.lineTo(x-6,y+6);ctx.stroke();ctx.fillStyle='#fff';}if(spawnOptionCoords.has(`${r},${c}`)){ctx.fillStyle='#e8b84b';ctx.fillRect(x-1,y-8,2,8);ctx.beginPath();ctx.moveTo(x+1,y-8);ctx.lineTo(x+8,y-5);ctx.lineTo(x+1,y-2);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';}if(isSmoke(r,c)){ctx.fillStyle='rgba(180,180,200,0.45)';ctx.fillRect(x-hs+3,y-hs+3,CELL_SIZE-6,CELL_SIZE-6);}}gameState.turrets.forEach(t=>{const{x,y}=gridToPixel(t.gridR,t.gridC);ctx.fillStyle='#555';ctx.beginPath();ctx.arc(x,y,10,0,2*Math.PI);ctx.fill();ctx.fillStyle='#22d3ee';ctx.beginPath();const[tdr,tdc]=DIR_DELTAS[t.dir];ctx.moveTo(x+tdc*12,y+tdr*12);ctx.lineTo(x-tdc*6-tdr*5,y-tdr*6-tdc*5);ctx.lineTo(x-tdc*6+tdr*5,y-tdr*6+tdc*5);ctx.closePath();ctx.fill();});const colors={突击兵:'#4d96ff',重装兵:'#ff8c42',侦察兵:'#4ecdc4',狙击手:'#95e1d3',医疗兵:'#f9ed69',工程师:'#d4a574'};gameState.players.forEach(p=>{if(p.hp<=0)return;const{x,y}=gridToPixel(p.gridR,p.gridC);ctx.globalAlpha=p.isStealthed?0.45:1;ctx.fillStyle=colors[p.charDef.name]||'#ccc';ctx.beginPath();ctx.arc(x,y,12,0,2*Math.PI);ctx.fill();ctx.strokeStyle=getCurrentPlayer()===p?'#fff':'#aaa';ctx.lineWidth=2;ctx.stroke();const[ddr,ddc]=DIR_DELTAS[p.dir];ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(x+ddc*15,y+ddr*15);ctx.lineTo(x-ddc*5-ddr*4,y-ddr*5-ddc*4);ctx.lineTo(x-ddc*5+ddr*4,y-ddr*5+ddc*4);ctx.fill();const barW=32;ctx.fillStyle='#000';ctx.fillRect(x-barW/2,y-22,barW,4);ctx.fillStyle=p.hp/p.charDef.hp>0.5?'#6bcb77':'#ff6b6b';ctx.fillRect(x-barW/2,y-22,barW*(p.hp/p.charDef.hp),4);ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText(p.charDef.name,x,y-26);ctx.globalAlpha=1;});}
+    function buildCharCards(){selectionCards.innerHTML='';selectionCards.className='char-grid';Object.keys(characterDefs).forEach(name=>{const def=characterDefs[name];const card=document.createElement('div');card.className='char-card';const iconColor={突击兵:'#4d96ff',重装兵:'#ff8c42',侦察兵:'#4ecdc4',狙击手:'#95e1d3',医疗兵:'#f9ed69',工程师:'#d4a574'}[name]||'#ccc';card.innerHTML=`<div style="font-size:1.8em;line-height:1.2;color:${iconColor}">●</div><div><b>${name}</b></div><div style="font-size:0.75em;color:#aaa;">HP${def.hp} 专注${def.focusMax} 压力${def.stressMax}</div>`;card.onclick=()=>{if(gameState.phase==='selection_p1'){gameState.selectedP1Char=name;document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');selectPrompt.textContent='玩家2 选择角色';gameState.phase='selection_p2';startBtn.disabled=true;}else if(gameState.phase==='selection_p2'){gameState.selectedP2Char=name;document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');startBtn.disabled=false;startBtn.textContent='确定角色  选择出生点';selectPrompt.textContent=' 双方角色已选定';}};selectionCards.appendChild(card);});}
+    function buildSpawnCards(){selectionCards.innerHTML='';selectionCards.className='spawn-grid';const taken=new Set();if(gameState.selectedP1Spawn)taken.add(`${gameState.selectedP1Spawn.r},${gameState.selectedP1Spawn.c}`);if(gameState.selectedP2Spawn)taken.add(`${gameState.selectedP2Spawn.r},${gameState.selectedP2Spawn.c}`);spawnOptions.forEach(sp=>{const card=document.createElement('div');const isTaken=taken.has(`${sp.r},${sp.c}`);card.className='spawn-card'+(isTaken?' taken':'');card.innerHTML=`<div style="font-size:2em">${sp.icon}</div><div><b>${sp.label}</b></div><div style="font-size:0.75em;color:#aaa;">朝向:${DIR_ARROWS[sp.defaultDir]}</div>`;if(!isTaken){card.onclick=()=>{if(gameState.phase==='spawn_p1'){gameState.selectedP1Spawn=sp;document.querySelectorAll('.spawn-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');selectPrompt.textContent='玩家2 选择出生点';gameState.phase='spawn_p2';startBtn.disabled=true;buildSpawnCards();}else if(gameState.phase==='spawn_p2'){gameState.selectedP2Spawn=sp;document.querySelectorAll('.spawn-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');selectPrompt.textContent=' 双方就位！';startBtn.disabled=false;startBtn.textContent=' 开始战斗';}};}selectionCards.appendChild(card);});}
+    function goSpawnPhase(){gameState.phase='spawn_p1';selectPrompt.textContent='玩家1 选择出生点';startBtn.disabled=true;startBtn.textContent='等待选择出生点...';buildSpawnCards();}
+    startBtn.onclick=()=>{if(gameState.phase==='selection_p2'&&gameState.selectedP1Char&&gameState.selectedP2Char)goSpawnPhase();else if(gameState.phase==='spawn_p2'&&gameState.selectedP1Spawn&&gameState.selectedP2Spawn){overlay.style.display='none';document.getElementById('game-container').style.display='flex';initGame();}};
+    function initGame(){const p1c=characterDefs[gameState.selectedP1Char],p2c=characterDefs[gameState.selectedP2Char];const p1sp=gameState.selectedP1Spawn,p2sp=gameState.selectedP2Spawn;gameState.players=[{charDef:p1c,gridR:p1sp.r,gridC:p1sp.c,dir:p1sp.defaultDir,hp:p1c.hp,maxHp:p1c.hp,armor:p1c.armor,tempArmor:0,focus:p1c.focusMax,stress:0,heat:0,weapon:{...weaponDefs[p1c.weapon]},ammo:weaponDefs[p1c.weapon].ammo,hand:[],deckRemaining:[],items:['医疗包','护甲板'],statusEffects:[],isStealthed:false,stealthTurns:0,dodgeBonus:0,pendingShoot:null,pendingMove:null},{charDef:p2c,gridR:p2sp.r,gridC:p2sp.c,dir:p2sp.defaultDir,hp:p2c.hp,maxHp:p2c.hp,armor:p2c.armor,tempArmor:0,focus:p2c.focusMax,stress:0,heat:0,weapon:{...weaponDefs[p2c.weapon]},ammo:weaponDefs[p2c.weapon].ammo,hand:[],deckRemaining:[],items:['烟雾弹','破片手雷'],statusEffects:[],isStealthed:false,stealthTurns:0,dodgeBonus:0,pendingShoot:null,pendingMove:null}];gameState.currentPlayerIdx=0;gameState.phase='playing';gameState.turnNumber=1;gameState.gameOver=false;gameState.winner=null;gameState.turrets=[];gameState.smokeZones=[];gameState.supplyUsed.clear();gameState.log=[];gameState.showMoveRange=false;gameState.showAttackRange=false;gameState.moveRangeCells=[];gameState.attackRangeCells=[];gameState.eventDie=null;rollEventDie();drawHand(gameState.players[0]);addLog(`玩家1:${p1c.name} 玩家2:${p2c.name}`,'info');updatePanel();draw();}
+    gameState.phase='selection_p1';selectPrompt.textContent='玩家1 选择角色';startBtn.disabled=true;startBtn.textContent='开始战斗';buildCharCards();overlay.style.display='flex';
+    document.getElementById('end-turn-btn').addEventListener('click',endTurn);
+    window.addEventListener('resize',()=>{resizeCanvas();draw();});
+})();
+</script>
+</body>
+</html>
