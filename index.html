@@ -264,6 +264,8 @@
   .auth-box {
     position: relative;
     width: min(460px, 100%);
+    max-height: 88vh;
+    overflow-y: auto;
     background: rgba(8,12,24,.92);
     border: 1px solid rgba(255,255,255,.1);
     border-radius: 20px;
@@ -1449,6 +1451,37 @@
   .rd-checkin-sub { font-size: 12.5px; color: var(--muted); }
   #rdSignBtn:disabled { opacity: .45; cursor: not-allowed; }
 
+  /* 积分中心子标签 */
+  .pts-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .pts-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    color: var(--muted);
+    font-size: 13.5px;
+    padding: 9px 22px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: .3s;
+    font-family: inherit;
+  }
+  .pts-tab:hover { color: var(--text); }
+  .pts-tab.is-active {
+    color: var(--cyan);
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: 0 -2px 20px rgba(34,211,238,.08);
+  }
+  .pts-panel { display: none; }
+  .pts-panel.is-active { display: block; animation: fadeUp .4s both; }
+
   /* 积分榜 */
   .lb-title { font-size: 14.5px; letter-spacing: 1px; margin-bottom: 12px; color: var(--text); }
   .lb-list { display: flex; flex-direction: column; gap: 6px; }
@@ -1502,6 +1535,133 @@
     background: linear-gradient(135deg, #f5d78a, #e8b84b);
   }
   .ann-text { font-size: 13.5px; color: var(--text); line-height: 1.6; word-break: break-all; }
+
+  /* 广告位招租 */
+  .ad-slot { padding: 20px 0 0; }
+  .ad-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 24px;
+    border: 1px dashed rgba(34,211,238,.4);
+    border-radius: 14px;
+    background:
+      linear-gradient(90deg, rgba(34,211,238,.05), rgba(167,139,250,.05), rgba(232,184,75,.05));
+    position: relative;
+    overflow: hidden;
+  }
+  .ad-wrap::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.06), transparent);
+    animation: adSweep 4.5s ease-in-out infinite;
+  }
+  @keyframes adSweep {
+    0% { left: -60%; }
+    60%, 100% { left: 120%; }
+  }
+  .ad-tag {
+    flex-shrink: 0;
+    padding: 3px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #fff;
+    background: rgba(248,113,113,.85);
+    font-family: var(--mono);
+  }
+  .ad-body { flex: 1; min-width: 0; }
+  .ad-title {
+    font-size: clamp(16px, 3vw, 22px);
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--text);
+    text-shadow: 0 0 18px rgba(34,211,238,.35);
+  }
+  .ad-sub {
+    margin-top: 5px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .ad-price {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    border: 1px solid rgba(232,184,75,.4);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-family: var(--mono);
+    animation: adPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes adPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,184,75,.25); }
+    50% { box-shadow: 0 0 14px 2px rgba(232,184,75,.35); }
+  }
+
+  /* ============ 留言点赞 ============ */
+  .gb-like {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 8px; padding: 4px 12px;
+    background: transparent; border: 1px solid var(--border); border-radius: 999px;
+    color: var(--muted); font-size: 12px; cursor: pointer; transition: .2s;
+    font-family: var(--mono);
+  }
+  .gb-like svg { width: 13px; height: 13px; }
+  .gb-like:hover { border-color: var(--cyan); color: var(--cyan); }
+  .gb-like.on { border-color: rgba(232,184,75,.5); color: var(--gold); background: rgba(232,184,75,.07); }
+  .gb-hot {
+    display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px;
+    font-size: 10.5px; letter-spacing: 1px;
+    color: var(--red); border: 1px solid rgba(248,113,113,.45); background: rgba(248,113,113,.08);
+  }
+  .gb-name.nick-gold { color: #e8b84b !important; }
+  .gb-name.nick-rainbow {
+    background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6, #e8b84b);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .gb-reply-btn { margin-left: 10px; }
+
+  /* ============ 个人中心：商店 + 邀请 ============ */
+  .pc-shop { border-top: 1px dashed var(--border); padding-top: 12px; }
+  .shop-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .shop-item { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.02); display: flex; flex-direction: column; gap: 6px; }
+  .shop-name { font-size: 13px; color: var(--text); letter-spacing: 1px; }
+  .shop-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .shop-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .shop-price { font-family: var(--mono); font-size: 12.5px; color: var(--gold); }
+  .shop-buy { padding: 4px 14px; font-size: 12px; letter-spacing: 1px; border-radius: 8px; }
+  .shop-buy:disabled { opacity: .45; cursor: not-allowed; }
+  .shop-buy.owned { border-color: rgba(52,211,153,.4); color: var(--green); background: rgba(52,211,153,.07); }
+  .inv-row { display: flex; gap: 8px; }
+  .inv-row input {
+    flex: 1; min-width: 0; padding: 9px 12px;
+    background: rgba(5,7,15,.6); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12px; font-family: var(--mono); outline: none;
+  }
+  .inv-msg { min-height: 16px; font-size: 11.5px; margin-top: 4px; }
+  .inv-msg.ok { color: var(--green); }
+  .pc-avatar.frame-gold {
+    border: 3px solid #e8b84b;
+    box-shadow: 0 0 22px rgba(232,184,75,.5);
+  }
+  .pc-avatar.frame-neon {
+    outline: 3px solid rgba(34,211,238,.7);
+    outline-offset: 2px;
+    box-shadow: 0 0 24px rgba(34,211,238,.55);
+  }
+  .pc-name.nick-gold { color: #e8b84b; }
+  .pc-name.nick-rainbow {
+    background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6, #e8b84b);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @media (max-width: 480px) { .shop-list { grid-template-columns: 1fr; } }
 
   /* ============ 更新日志 ============ */
   .cl-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 22px; }
@@ -1863,6 +2023,18 @@
     </div>
   </section>
 
+  <!-- ============ 广告位 ============ -->
+  <div class="ad-slot reveal">
+    <div class="wrap ad-wrap">
+      <span class="ad-tag" data-i18n="ad_tag">广告</span>
+      <div class="ad-body">
+        <div class="ad-title" data-i18n="ad_title">广告位招租</div>
+        <div class="ad-sub" data-i18n="ad_sub">长期有效 · 投放请联系站长（3829343053@qq.com）</div>
+      </div>
+      <span class="ad-price" data-i18n="ad_price">价格面议</span>
+    </div>
+  </div>
+
   <!-- ============ 备用入口 ============ -->
   <section id="backup">
     <div class="wrap">
@@ -1927,38 +2099,63 @@
     </div>
   </section>
 
-  <!-- ============ 兑换 ============ -->
+  <!-- ============ 积分中心 ============ -->
   <section id="redeem">
     <div class="wrap">
-      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / REDEEM</span></div>
-      <h2 class="sec-title reveal"><span data-i18n="rd_title">兑换</span></h2>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / POINTS</span></div>
+      <h2 class="sec-title reveal"><span data-i18n="pts_title">积分中心</span></h2>
       <p class="sec-sub reveal" data-i18n="rd_sub">奖励码解锁称号积分 · 每日签到也能攒积分</p>
 
       <div class="redeem-card reveal">
-        <div class="redeem-row">
-          <input id="rdCode" type="text" autocomplete="off" spellcheck="false">
-          <button class="btn btn-primary game-btn" id="rdBtn" data-i18n="rd_btn">兑换</button>
-        </div>
-        <div class="rd-msg" id="rdMsg"></div>
-
-        <div class="rd-divider"></div>
-
-        <div class="rd-checkin">
-          <div class="rd-checkin-info">
-            <span class="rd-checkin-title" data-i18n="rd_sign_title">每日签到</span>
-            <span class="rd-checkin-sub" id="rdSignSub"></span>
-          </div>
-          <button class="btn btn-ghost game-btn" id="rdSignBtn" data-i18n="rd_sign_btn">签到</button>
-        </div>
-        <div class="rd-msg" id="rdSignMsg"></div>
-
+        <!-- 顶部状态条（常显） -->
         <div class="rd-status" id="rdStatus"></div>
-      </div>
 
-      <!-- 积分榜 -->
-      <div class="redeem-card reveal" style="margin-top:16px">
-        <div class="lb-title" data-i18n="lb_title">积分榜 · Top 10</div>
-        <div class="lb-list" id="lbList"></div>
+        <!-- 子标签 -->
+        <div class="pts-tabs">
+          <button class="pts-tab is-active" data-ptab="redeem" data-i18n="pts_tab_redeem">兑换</button>
+          <button class="pts-tab" data-ptab="checkin" data-i18n="pts_tab_sign">签到</button>
+          <button class="pts-tab" data-ptab="lottery" data-i18n="pts_tab_lot">抽奖</button>
+          <button class="pts-tab" data-ptab="board" data-i18n="pts_tab_board">排行榜</button>
+        </div>
+
+        <!-- 兑换 -->
+        <div class="pts-panel is-active" data-ppanel="redeem">
+          <div class="redeem-row">
+            <input id="rdCode" type="text" autocomplete="off" spellcheck="false">
+            <button class="btn btn-primary game-btn" id="rdBtn" data-i18n="rd_btn">兑换</button>
+          </div>
+          <div class="rd-msg" id="rdMsg"></div>
+        </div>
+
+        <!-- 签到 -->
+        <div class="pts-panel" data-ppanel="checkin">
+          <div class="rd-checkin">
+            <div class="rd-checkin-info">
+              <span class="rd-checkin-title" data-i18n="rd_sign_title">每日签到</span>
+              <span class="rd-checkin-sub" id="rdSignSub"></span>
+            </div>
+            <button class="btn btn-ghost game-btn" id="rdSignBtn" data-i18n="rd_sign_btn">签到</button>
+          </div>
+          <div class="rd-msg" id="rdSignMsg"></div>
+        </div>
+
+        <!-- 抽奖 -->
+        <div class="pts-panel" data-ppanel="lottery">
+          <div class="rd-checkin">
+            <div class="rd-checkin-info">
+              <span class="rd-checkin-title" data-i18n="lt_title">积分抽奖</span>
+              <span class="rd-checkin-sub" id="ltSub"></span>
+            </div>
+            <button class="btn btn-primary game-btn" id="ltBtn" data-i18n="lt_btn">抽一发</button>
+          </div>
+          <div class="rd-msg" id="ltMsg"></div>
+        </div>
+
+        <!-- 排行榜 -->
+        <div class="pts-panel" data-ppanel="board">
+          <div class="lb-title" data-i18n="lb_title">积分榜 · Top 10</div>
+          <div class="lb-list" id="lbList"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -2043,6 +2240,20 @@
         <div class="pc-ach-list" id="pcAchList"></div>
       </div>
 
+      <div class="pc-shop">
+        <div class="pc-history-title" data-i18n="shop_title">积分商店</div>
+        <div class="shop-list" id="pcShopList"></div>
+      </div>
+
+      <div class="pc-shop">
+        <div class="pc-history-title" data-i18n="inv_title">邀请好友</div>
+        <div class="inv-row">
+          <input id="invLink" type="text" readonly>
+          <button class="btn btn-ghost game-btn" id="invCopy" data-i18n="inv_copy">复制链接</button>
+        </div>
+        <div class="inv-msg" id="invMsg"></div>
+      </div>
+
       <div class="pc-edit">
         <input id="pcNameInput" type="text" maxlength="20" autocomplete="off">
         <button class="btn btn-ghost game-btn" id="pcNameSave" data-i18n="pc_save">保存</button>
@@ -2091,6 +2302,7 @@ const I18N = {
     gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
     gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
     rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
+    pts_title: '积分中心', pts_tab_redeem: '兑换', pts_tab_sign: '签到', pts_tab_lot: '抽奖', pts_tab_board: '排行榜',
     pc_title: '个人中心', pc_pts: '积分', pc_lv: '等级', pc_streak: '连签', pc_days: '累计签到', pc_to_next: '距下一级还差 {n} 积分', pc_max_lv: '已达最高等级', pc_save: '保存', pc_saved: '用户名已更新', pc_name_ph: '输入新用户名', pc_name_empty: '用户名不能为空', pc_history: '最近动态', pc_no_history: '暂无记录', pc_checked: '签到', pc_redeemed: '兑换了码', pc_go: '个人中心',
     msg_lv1: '潜水新人', msg_lv2: '偶尔冒泡', msg_lv3: '话痨本痨', msg_lv4: '留言板主',
     sign_lv1: '躺平咸鱼', sign_lv2: '早八战士', sign_lv3: '全勤小标兵', sign_lv4: '时间管理大师',
@@ -2098,6 +2310,11 @@ const I18N = {
     pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复',
     adm_btn: '站长控制台', adm_login: '请先登录', adm_deny: '仅站长可用',
     ann_tag: '公告', lb_title: '积分榜 · Top 10', lb_empty: '还没有人有积分，快来抢占榜首', gb_pin: '置顶', gb_banned: '你已被禁言，无法留言', rd_sign_bonus: '连签奖励',
+    ad_tag: '广告', ad_title: '广告位招租', ad_sub: '长期有效 · 投放请联系站长（3829343053@qq.com）', ad_price: '价格面议',
+    lt_title: '积分抽奖', lt_btn: '抽一发', lt_sub: '50 积分/次 · 最高赢 +500', lt_win: '恭喜抽中', lt_none: '谢谢参与，下次好运', lt_cost: '消耗', lt_nopts: '积分不足，先去签到攒分吧',
+    shop_title: '积分商店', shop_buy: '购买', shop_owned: '已拥有', shop_bought: '购买成功', shop_nopts: '积分不足', shop_baditem: '商品不存在', shop_empty: '商店暂无商品',
+    inv_title: '邀请好友', inv_copy: '复制链接', inv_copied: '已复制', inv_claimed: '邀请奖励已发放：你 +{a}，邀请人 +{b} 积分',
+    gb_hot: '热评',
     cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_more: '展开更多历史', cl_less: '收起'
   },
   'en': {
@@ -2129,6 +2346,7 @@ const I18N = {
     gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
     gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
     rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
+    pts_title: 'Points Center', pts_tab_redeem: 'Redeem', pts_tab_sign: 'Check-in', pts_tab_lot: 'Lottery', pts_tab_board: 'Leaderboard',
     pc_title: 'My Profile', pc_pts: 'Points', pc_lv: 'Level', pc_streak: 'Streak', pc_days: 'Total', pc_to_next: '{n} pts to next level', pc_max_lv: 'Max level', pc_save: 'Save', pc_saved: 'Username updated', pc_name_ph: 'Enter new username', pc_name_empty: 'Username cannot be empty', pc_history: 'Recent activity', pc_no_history: 'No activity yet', pc_checked: 'Check-in', pc_redeemed: 'Redeemed code', pc_go: 'My Profile',
     msg_lv1: 'Lurker', msg_lv2: 'Bubble Blower', msg_lv3: 'Chatterbox', msg_lv4: 'Board Master',
     sign_lv1: 'Lazy Fish', sign_lv2: 'Early Bird', sign_lv3: 'Perfect Attendance', sign_lv4: 'Time Master',
@@ -2136,6 +2354,11 @@ const I18N = {
     pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply',
     adm_btn: 'Admin', adm_login: 'Please log in first', adm_deny: 'Owner only',
     ann_tag: 'Notice', lb_title: 'Leaderboard · Top 10', lb_empty: 'No points yet - be the first!', gb_pin: 'Pinned', gb_banned: 'You are muted and cannot post', rd_sign_bonus: 'streak bonus',
+    ad_tag: 'AD', ad_title: 'Ad Space For Rent', ad_sub: 'Open to offers · Contact the owner (3829343053@qq.com)', ad_price: 'Negotiable',
+    lt_title: 'Lottery', lt_btn: 'Spin', lt_sub: '50 pts per spin · win up to +500', lt_win: 'You won', lt_none: 'Try again, good luck', lt_cost: 'cost', lt_nopts: 'Not enough points - check in first',
+    shop_title: 'Points Shop', shop_buy: 'Buy', shop_owned: 'Owned', shop_bought: 'Purchased', shop_nopts: 'Not enough points', shop_baditem: 'Item not found', shop_empty: 'Shop is empty',
+    inv_title: 'Invite Friends', inv_copy: 'Copy link', inv_copied: 'Copied', inv_claimed: 'Invite reward: you +{a}, inviter +{b} pts',
+    gb_hot: 'Hot',
     cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_more: 'Show all history', cl_less: 'Collapse'
   }
 };
@@ -3332,8 +3555,21 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   }
   window.__refreshAuth = refreshAuth;   // 供个人中心改名后刷新左上角按钮
 
+  let likedSet = new Set();
+
+  async function loadLiked() {
+    try {
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) return;
+      const { data, error } = await supabase.from('message_likes').select('message_id').eq('user_id', u.id);
+      if (!error && data) likedSet = new Set(data.map(d => d.message_id));
+    } catch (e) {}
+  }
+
   async function loadMessages() {
     try {
+      await loadLiked();
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -3350,17 +3586,43 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   function renderMessages(list) {
     const el = $('gbList');
     if (!list.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
+    const likeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11M3 10v9a1 1 0 001 1h3V10H3zM7 10l4-7a2 2 0 012 2v4h5.5a1.5 1.5 0 011.4 2l-1.6 6a1.5 1.5 0 01-1.4 1H7"/></svg>';
     el.innerHTML = list.map(m => {
       const name = escapeHtml(m.user_email || '匿名');
+      const nc = m.user_nick_color === 'rainbow' ? ' nick-rainbow' : (m.user_nick_color === 'gold' ? ' nick-gold' : '');
       const pin = m.pinned ? '<span class="gb-pin">' + ((window.__t && __t('gb_pin')) || '置顶') + '</span>' : '';
+      const hot = (m.likes || 0) >= 5 ? '<span class="gb-hot">' + ((window.__t && __t('gb_hot')) || '热评') + '</span>' : '';
       const badge = m.user_title ? '<span class="gb-badge">' + escapeHtml(m.user_title) + '</span>' : '';
       const pts = m.user_points ? '<span class="gb-pts">' + m.user_points + '</span>' : '';
       const time = m.created_at ? new Date(m.created_at).toLocaleString('zh-CN') : '';
       const reply = (m.replied && m.reply)
         ? '<div class="gb-reply"><b>' + ((window.__t && __t('gb_reply_label')) || '站长回复') + '：</b>' + escapeHtml(m.reply) + '</div>'
         : '';
-      return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name">' + pin + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + '</div>';
+      const liked = likedSet.has(m.id);
+      const likeBtn = '<button class="gb-like' + (liked ? ' on' : '') + '" data-id="' + m.id + '">' + likeSvg + ' ' + (m.likes || 0) + '</button>';
+      return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name' + nc + '">' + pin + name + hot + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + likeBtn + '</div>';
     }).join('');
+    el.querySelectorAll('.gb-like').forEach(b => {
+      b.addEventListener('click', () => toggleLike(b));
+    });
+  }
+
+  async function toggleLike(btn) {
+    const id = btn.getAttribute('data-id');
+    const on = btn.classList.contains('on');
+    const user = await supabase.auth.getUser();
+    const u = user.data && user.data.user;
+    if (!u) { alert(((window.__t && __t('gb_login')) || '登录 / 注册')); openAuthModal(); return; }
+    const rpc = on ? 'unlike_message' : 'like_message';
+    try {
+      const { data, error } = await supabase.rpc(rpc, { p_msg_id: id });
+      if (error) { alert(error.message); return; }
+      if (data && data.ok) {
+        if (on) likedSet.delete(id); else likedSet.add(id);
+        btn.classList.toggle('on', !on);
+        btn.innerHTML = btn.querySelector('svg').outerHTML + ' ' + (data.likes || 0);
+      }
+    } catch (e) { alert(e.message); }
   }
 
   async function sendMessage() {
@@ -3369,8 +3631,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     const user = await supabase.auth.getUser();
     const u = user.data && user.data.user;
     if (!u) { alert('请先登录'); openAuthModal(); return; }
-    // 带当前积分 + 最终称号快照
-    let title = '', points = 0;
+    // 带当前积分 + 最终称号快照 + 昵称色快照
+    let title = '', points = 0, nickColor = '';
     try {
       const r = await supabase.rpc('my_status');
       if (r.data && r.data.ok) points = r.data.points || 0;
@@ -3379,13 +3641,19 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         const ft = window.__finalTitleOf(tt.data);
         if (ft && ft.name) title = ft.name;
       }
+      const sp = await supabase.rpc('my_shop');
+      if (sp.data && sp.data.ok) {
+        const nick = (sp.data.items || []).find(i => i.owned && i.type === 'nick');
+        if (nick) nickColor = nick.value;
+      }
     } catch (e) {}
     const { error } = await supabase.from('messages').insert({
       content: text,
       user_email: userName(u),
       user_id: u.id,
       user_title: title,
-      user_points: points
+      user_points: points,
+      user_nick_color: nickColor
     });
     if (error) {
       if (/row-level security/i.test(error.message)) {
@@ -3577,6 +3845,48 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     });
   });
 
+  // 积分抽奖
+  const ltSub = $('ltSub');
+  if (ltSub) ltSub.textContent = t('lt_sub');
+  $('ltBtn').addEventListener('click', () => {
+    waitSupabase(async supabase => {
+      const btn = $('ltBtn');
+      btn.disabled = true;
+      try {
+        const user = await supabase.auth.getUser();
+        const u = user.data && user.data.user;
+        if (!u) { setMsg(t('rd_need_login_short'), false); updateStatus(); return; }
+        const { data, error } = await supabase.rpc('lottery_spin');
+        if (error) { setMsg(error.message, false); return; }
+        if (data && data.ok) {
+          let m;
+          if (data.result === 'none') m = t('lt_none');
+          else m = t('lt_win') + ' +' + data.gain + ' ' + t('rd_pts_unit') + '！';
+          setMsg(m + '（' + t('lt_cost') + ' ' + data.cost + ' ' + t('rd_pts_unit') + '）', data.result !== 'none');
+          updateStatus();
+        } else {
+          const map = { NO_POINTS: t('lt_nopts'), NOT_LOGGED_IN: t('rd_need_login_short') };
+          setMsg(map[data && data.msg] || t('rd_fail'), false);
+        }
+      } catch (e) {
+        setMsg(t('rd_fail'), false);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // 积分中心子标签切换
+  document.querySelectorAll('.pts-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.pts-tab').forEach(x => x.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      document.querySelectorAll('.pts-panel').forEach(p => p.classList.remove('is-active'));
+      const panel = document.querySelector('.pts-panel[data-ppanel="' + tab.dataset.ptab + '"]');
+      if (panel) panel.classList.add('is-active');
+    });
+  });
+
   // 打开登录弹窗（复用左上角按钮的点击）
   window.__openAuth = function() {
     try { document.getElementById('authFab').click(); } catch (e) {}
@@ -3677,10 +3987,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       $('pcEmail').textContent = u.email || '';
 
       let d = null, streak = 0, totalChecks = 0, totalReds = 0, reds = [], checks = [];
+      let shop = null;
       try {
-        const [tt, h] = await Promise.all([
+        const [tt, h, sp] = await Promise.all([
           supabase.rpc('my_titles'),
-          supabase.rpc('my_history')
+          supabase.rpc('my_history'),
+          supabase.rpc('my_shop')
         ]);
         if (tt.data && tt.data.ok) d = tt.data;
         if (h.data && h.data.ok) {
@@ -3690,6 +4002,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
           reds = h.data.redemptions || [];
           checks = h.data.checkins || [];
         }
+        if (sp.data && sp.data.ok) shop = sp.data;
       } catch (e) {}
 
       // 最终称号
@@ -3736,8 +4049,82 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const editMsg = $('pcEditMsg');
       editMsg.textContent = '';
       editMsg.className = 'pc-edit-msg';
+
+      // ---- 商店：头像框 + 昵称色 + 购买 ----
+      const avatarEl = $('pcAvatar');
+      const nameEl = $('pcName');
+      avatarEl.classList.remove('frame-gold', 'frame-neon');
+      nameEl.classList.remove('nick-gold', 'nick-rainbow');
+      const shopPts = (shop && shop.points) || 0;
+      const items = (shop && shop.items) || [];
+      const frame = items.filter(i => i.owned && i.type === 'frame').sort((a, b) => a.sort - b.sort).pop();
+      const nick = items.find(i => i.owned && i.type === 'nick');
+      if (frame) avatarEl.classList.add('frame-' + frame.value);
+      if (nick) nameEl.classList.add('nick-' + nick.value);
+      $('pcShopList').innerHTML = items.length
+        ? items.map(it => {
+            const owned = !!it.owned;
+            const afford = shopPts >= it.price;
+            return '<div class="shop-item">'
+              + '<div class="shop-name">' + esc(it.name) + '</div>'
+              + '<div class="shop-desc">' + esc(it.descr) + '</div>'
+              + '<div class="shop-foot"><span class="shop-price">' + it.price + ' ' + t('rd_pts_unit') + '</span>'
+              + '<button class="btn shop-buy' + (owned ? ' owned' : '') + '" data-key="' + esc(it.key) + '"' + (owned || !afford ? ' disabled' : '') + '>'
+              + (owned ? t('shop_owned') : t('shop_buy')) + '</button></div>'
+              + '</div>';
+          }).join('')
+        : '<div class="pc-h-empty">' + t('shop_empty') + '</div>';
+      $('pcShopList').querySelectorAll('.shop-buy:not(.owned):not(:disabled)').forEach(b => {
+        b.addEventListener('click', () => buyItem(b.getAttribute('data-key')));
+      });
+
+      // ---- 邀请链接 ----
+      const link = window.location.origin + window.location.pathname + '?ref=' + u.id;
+      const invInput = $('invLink');
+      if (invInput) invInput.value = link;
     });
   }
+
+  // 购买商品
+  function buyItem(key) {
+    waitSupabase(async supabase => {
+      try {
+        const { data, error } = await supabase.rpc('buy_item', { p_key: key });
+        if (error) { alert(error.message); return; }
+        if (data && data.ok) {
+          alert(((window.__t && __t('shop_bought')) || '购买成功') + ' ✓');
+          renderPc();
+          try { if (window.__onAuthChange) window.__onAuthChange(); } catch (e) {}
+        } else {
+          const map = { NO_POINTS: t('shop_nopts'), OWNED: t('shop_owned'), BAD_ITEM: t('shop_baditem') };
+          alert(map[data && data.msg] || '购买失败');
+        }
+      } catch (e) { alert(e.message); }
+    });
+  }
+
+  // 复制邀请链接
+  (function() {
+    const copyBtn = document.getElementById('invCopy');
+    if (!copyBtn) return;
+    copyBtn.addEventListener('click', () => {
+      const input = document.getElementById('invLink');
+      const msg = document.getElementById('invMsg');
+      if (!input || !input.value) return;
+      input.select();
+      input.setSelectionRange(0, 99999);
+      let done = false;
+      try { done = document.execCommand('copy'); } catch (e) {}
+      if (!done && navigator.clipboard) {
+        navigator.clipboard.writeText(input.value).then(() => { done = true; }).catch(() => {});
+      }
+      setTimeout(() => {
+        msg.textContent = ((window.__t && __t('inv_copied')) || '已复制') + ' ✓';
+        msg.className = 'inv-msg ok';
+        setTimeout(() => { msg.textContent = ''; }, 2500);
+      }, 150);
+    });
+  })();
   window.__onPcShow = renderPc;
 
   // 修改用户名
@@ -3851,6 +4238,25 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       }).catch(() => { lb.innerHTML = '<div class="lb-empty">' + t('lb_empty') + '</div>'; });
     });
   }
+
+  // 邀请奖励：带 ?ref= 链接访问并登录后，自动领取一次
+  (function() {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (!ref) return;
+    waitSupabase(supabase => {
+      supabase.auth.getUser().then(({ data }) => {
+        const u = data && data.user;
+        if (!u) return;
+        supabase.rpc('claim_invite', { p_ref: ref }).then(({ data: d }) => {
+          if (d && d.ok) {
+            const msg = t('inv_claimed').replace('{a}', d.my).replace('{b}', d.inviter);
+            setTimeout(() => alert(msg), 600);
+          }
+          try { history.replaceState(null, '', window.location.pathname); } catch (e) {}
+        }).catch(() => {});
+      }).catch(() => {});
+    });
+  })();
 })();
 
 /* ============ 更新日志 ============ */
@@ -3858,6 +4264,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v2.2', zh: ['积分板块重构为「积分中心」标签页（兑换/签到/抽奖/排行榜）', '个人中心弹窗支持滚动'], en: ['Points section reorganized into "Points Center" tabs (Redeem/Check-in/Lottery/Leaderboard)', 'Personal center modal now scrollable'] },
+    { date: '2026-08-31', ver: 'v2.1', zh: ['新增积分商店（头像框 / 彩色昵称）', '新增积分抽奖（50 积分/次）', '留言点赞与热评', '邀请注册奖励', '奖励码支持有效期与限用次数'], en: ['Added points shop (avatar frames / colored nicknames)', 'Added points lottery (50 pts per spin)', 'Message likes & hot comments', 'Invite registration rewards', 'Reward codes now support expiry & usage limits'] },
+    { date: '2026-08-31', ver: 'v2.0', zh: ['新增广告位：广告位招租（长期有效，价格面议）'], en: ['Added ad slot: "Ad Space For Rent" (open to offers)'] },
     { date: '2026-08-31', ver: 'v1.9', zh: ['管理员控制台：批量发码 / 加减分 / 禁言 / 置顶 / 删除留言 / 用户详情 / 趋势 / 导出 / 操作日志 / 自定义称号 / 连签奖励 / 活动模式', '首页新增公告横幅与积分榜'], en: ['Admin console v2: batch codes / adjust points / ban / pin / delete / user detail / trends / export / logs / custom titles / streak bonus / event mode', 'Added announcement banner and leaderboard to home page'] },
     { date: '2026-08-31', ver: 'v1.8', zh: ['新增站长控制台入口按钮（站长身份校验，免密钥进入）'], en: ['Added admin console button on home page (owner check, no key needed)'] },
     { date: '2026-08-31', ver: 'v1.7', zh: ['称号体系大升级：积分/留言/签到三体系 + 8 个条件成就 + 站长授予称号', '个人中心成就墙', '奖励码改为纯积分 + 隐藏彩蛋码', '站长可授予/收回称号、回复留言'], en: ['Title system v2: points/messages/check-ins tiers + 8 achievement titles + owner-granted titles', 'Achievement wall in personal center', 'Reward codes now grant points only + hidden lottery codes', 'Owner can grant/revoke titles and reply to messages'] },

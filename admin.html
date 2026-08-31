@@ -269,6 +269,10 @@
           <div class="field"><label>积分 / PTS</label><input id="p" type="number" min="0" step="1" value="100"></div>
           <div class="field"><label>&nbsp;</label><label class="check" style="margin:0;padding-top:12px"><input id="lot" type="checkbox"> 彩蛋码</label></div>
         </div>
+        <div class="row2">
+          <div class="field"><label>有效期（天，留空永久）</label><input id="cDays" type="number" min="0" step="1" placeholder="留空 = 永久有效"></div>
+          <div class="field"><label>限用次数（留空不限）</label><input id="cMax" type="number" min="0" step="1" placeholder="留空 = 不限次数"></div>
+        </div>
         <button class="btn" id="gen">生 成</button>
         <div class="msg" id="genMsg"></div>
       </div>
@@ -278,6 +282,10 @@
           <div class="field"><label>数量（1-50）</label><input id="bCount" type="number" min="1" max="50" value="10"></div>
           <div class="field"><label>积分 / PTS</label><input id="bPts" type="number" min="0" value="100"></div>
           <div class="field"><label>前缀（默认 SYM）</label><input id="bPrefix" class="mono" type="text" value="SYM" maxlength="12"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>有效期（天，留空永久）</label><input id="bDays" type="number" min="0" step="1" placeholder="留空 = 永久有效"></div>
+          <div class="field"><label>限用次数（留空不限）</label><input id="bMax" type="number" min="0" step="1" placeholder="留空 = 不限次数"></div>
         </div>
         <label class="check"><input id="bLot" type="checkbox"> 全部为彩蛋码</label>
         <button class="btn" id="genBatch">批量生成</button>
@@ -345,7 +353,7 @@
       <div class="page-card">
         <div class="tbl">
           <table>
-            <thead><tr><th>码</th><th>积分</th><th>彩蛋</th><th>已兑换</th><th>创建时间</th></tr></thead>
+            <thead><tr><th>码</th><th>积分</th><th>彩蛋</th><th>已兑换</th><th>有效期</th><th>创建时间</th></tr></thead>
             <tbody id="codesBody"></tbody>
           </table>
         </div>
@@ -631,7 +639,9 @@
       $('codesBody').innerHTML = list.map(c =>
         '<tr><td class="tcode">' + esc(c.code) + '</td><td>' + (c.points || 0) + '</td><td>' +
         (c.lottery ? '<span class="tbadge lot">彩蛋</span>' : '—') +
-        '</td><td>' + (c.used || 0) + '</td><td>' + fmt(c.created_at) + '</td></tr>'
+        '</td><td>' + (c.used || 0) + (c.max_uses ? '/' + c.max_uses : '') + '</td><td>' +
+        (c.expires_at ? (new Date(c.expires_at) < new Date() ? '<span class="tbadge ban">已过期</span>' : fmt(c.expires_at).slice(0, 10)) : '永久') +
+        '</td><td>' + fmt(c.created_at) + '</td></tr>'
       ).join('');
     }
     function renderUsers() {
@@ -812,14 +822,19 @@
       const code = $('c').value.trim();
       const points = parseInt($('p').value, 10) || 0;
       const lottery = $('lot').checked;
+      const days = parseInt($('cDays').value, 10) || null;
+      const maxUses = parseInt($('cMax').value, 10) || null;
       if (!code) { setMsg('genMsg', '请输入奖励码', false); return; }
       $('gen').disabled = true;
       try {
-        const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_points: points, p_key: KEY, p_lottery: lottery });
+        const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_points: points, p_key: KEY, p_lottery: lottery, p_days: days, p_max_uses: maxUses });
         if (error) { setMsg('genMsg', '失败：' + error.message, false); return; }
         if (data && data.ok) {
-          setMsg('genMsg', '已生成：' + code.toUpperCase() + ' · ' + points + ' 积分' + (lottery ? ' · 彩蛋码' : ''), true);
-          $('c').value = ''; $('lot').checked = false;
+          let m = '已生成：' + code.toUpperCase() + ' · ' + points + ' 积分' + (lottery ? ' · 彩蛋码' : '');
+          if (days) m += ' · ' + days + ' 天有效';
+          if (maxUses) m += ' · 限 ' + maxUses + ' 次';
+          setMsg('genMsg', m, true);
+          $('c').value = ''; $('lot').checked = false; $('cDays').value = ''; $('cMax').value = '';
           await loadDashboard(false);
         } else setMsg('genMsg', fmsg(data && data.msg), false);
       } catch (e) { setMsg('genMsg', '失败：' + e.message, false); }
@@ -831,10 +846,12 @@
       const points = parseInt($('bPts').value, 10) || 0;
       const prefix = $('bPrefix').value.trim() || 'SYM';
       const lottery = $('bLot').checked;
+      const days = parseInt($('bDays').value, 10) || null;
+      const maxUses = parseInt($('bMax').value, 10) || null;
       $('genBatch').disabled = true;
       setMsg('batchMsg', '生成中…', false);
       try {
-        const { data, error } = await supabase.rpc('admin_batch_codes', { p_key: KEY, p_points: points, p_count: count, p_prefix: prefix, p_lottery: lottery });
+        const { data, error } = await supabase.rpc('admin_batch_codes', { p_key: KEY, p_points: points, p_count: count, p_prefix: prefix, p_lottery: lottery, p_days: days, p_max_uses: maxUses });
         if (error) { setMsg('batchMsg', '失败：' + error.message, false); return; }
         if (data && data.ok) {
           const codes = data.codes || [];
