@@ -833,6 +833,28 @@
   }
   .sec-sub { color: var(--muted); margin-bottom: 48px; font-size: 15px; }
 
+  /* 更新日志折叠 */
+  .cl-fold { margin-top: 6px; }
+  .cl-fold summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .cl-fold summary::-webkit-details-marker { display: none; }
+  .cl-fold summary .sec-title { margin-bottom: 0; }
+  .cl-fold .sec-sub { margin-bottom: 32px; }
+  .cl-fold-hint {
+    font-size: 13px;
+    color: var(--muted);
+    opacity: .55;
+    letter-spacing: 1px;
+    transition: opacity .3s;
+  }
+  .cl-fold[open] .cl-fold-hint { opacity: 0; }
+
   /* 区块小标号 */
   .sec-no {
     margin-bottom: 10px;
@@ -1204,7 +1226,7 @@
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">02 / GAME</span></div>
       <h2 class="sec-title reveal" data-i18n="g_title_full">游戏</h2>
-      <p class="sec-sub reveal" data-i18n="g_sub">两个小游戏，一个感知时间，一个谋略棋盘</p>
+      <p class="sec-sub reveal" data-i18n="g_sub">三个小游戏，一个感知时间，一个谋略对弈，一个极限竞速</p>
 
       <!-- 游戏选项卡 -->
       <div class="game-tabs reveal">
@@ -1435,9 +1457,14 @@
   <section id="changelog">
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">07 / CHANGELOG</span></div>
-      <h2 class="sec-title reveal">更新<span data-i18n="cl_title">日志</span></h2>
-      <p class="sec-sub reveal" data-i18n="cl_sub">记录每一次成长</p>
-      <div class="cl-list reveal" id="clList"></div>
+      <details class="cl-fold reveal">
+        <summary>
+          <h2 class="sec-title"><span data-i18n="cl_p1">更新</span><span data-i18n="cl_title">日志</span></h2>
+          <span class="cl-fold-hint" data-i18n="cl_fold">点击展开</span>
+        </summary>
+        <p class="sec-sub" data-i18n="cl_sub">记录每一次成长</p>
+        <div class="cl-list" id="clList"></div>
+      </details>
     </div>
   </section>
 
@@ -1491,9 +1518,9 @@ const I18N = {
     r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
-    g_sub: '两个小游戏，一个感知时间，一个谋略棋盘', b_sub: '自研武侠对战游戏，热座双人对决',
+    g_sub: '三个小游戏，一个感知时间，一个谋略对弈，一个极限竞速', b_sub: '自研武侠对战游戏，热座双人对决',
     gb_title: '言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
-    cl_title: '日志', cl_sub: '记录每一次成长'
+    cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_fold: '点击展开'
   },
   'en': {
     nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_gb: 'Guestbook', nav_contact: 'Contact',
@@ -1520,9 +1547,9 @@ const I18N = {
     r5: 'Highlight: the glowing border marks the mini-board you must play in.',
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
-    g_sub: 'Two mini games - sense time, master the board', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
+    g_sub: 'Three mini games - sense time, master the board, race to the center', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
     gb_title: 'uestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
-    cl_title: 'og', cl_sub: 'Every step recorded'
+    cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_fold: 'Click to expand'
   }
 };
 (function() {
