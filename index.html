@@ -1332,6 +1332,19 @@
     margin-bottom: 6px; font-family: var(--mono);
   }
   .gb-item .gb-name { color: var(--violet); }
+  .gb-item .gb-name .gb-pin {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    color: var(--cyan);
+    border: 1px solid rgba(34,211,238,.4);
+    background: rgba(34,211,238,.08);
+    vertical-align: middle;
+  }
+  .gb-item.gb-pinned { border-color: rgba(34,211,238,.35); background: rgba(34,211,238,.03); }
   .gb-item .gb-name .gb-badge {
     display: inline-block;
     margin-left: 8px;
@@ -1436,6 +1449,60 @@
   .rd-checkin-sub { font-size: 12.5px; color: var(--muted); }
   #rdSignBtn:disabled { opacity: .45; cursor: not-allowed; }
 
+  /* 积分榜 */
+  .lb-title { font-size: 14.5px; letter-spacing: 1px; margin-bottom: 12px; color: var(--text); }
+  .lb-list { display: flex; flex-direction: column; gap: 6px; }
+  .lb-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255,255,255,.02);
+    font-size: 13px;
+  }
+  .lb-rank {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 12.5px;
+    color: var(--muted);
+    background: rgba(255,255,255,.04);
+  }
+  .lb-item:nth-child(1) .lb-rank { color: #1a1204; background: linear-gradient(135deg, #f5d78a, #e8b84b); }
+  .lb-item:nth-child(2) .lb-rank { color: #e9edf9; background: linear-gradient(135deg, #cbd5e1, #94a3b8); }
+  .lb-item:nth-child(3) .lb-rank { color: #1a1204; background: linear-gradient(135deg, #f0b27a, #d68910); }
+  .lb-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-title-tag { font-size: 11px; color: var(--gold); letter-spacing: 1px; }
+  .lb-pts { font-family: var(--mono); font-size: 13px; color: var(--cyan); }
+  .lb-empty { color: var(--muted); text-align: center; padding: 14px; font-size: 12.5px; }
+
+  /* 公告横幅 */
+  .ann-banner {
+    max-width: 900px;
+    margin: 24px auto 0;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(232,184,75,.35);
+    border-radius: 12px;
+    background: rgba(232,184,75,.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 1;
+  }
+  .ann-tag {
+    flex-shrink: 0;
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #1a1204;
+    background: linear-gradient(135deg, #f5d78a, #e8b84b);
+  }
+  .ann-text { font-size: 13.5px; color: var(--text); line-height: 1.6; word-break: break-all; }
+
   /* ============ 更新日志 ============ */
   .cl-list { display: flex; flex-direction: column; gap: 0; border-left: 1px solid var(--border); margin-left: 8px; padding-left: 22px; }
   .cl-item { position: relative; padding: 4px 0 22px; }
@@ -1473,6 +1540,25 @@
     font-size: 12px;
     color: var(--muted);
     font-family: var(--mono);
+  }
+  .footer-admin { margin-top: 16px; }
+  .admin-btn {
+    background: transparent;
+    border: 1px dashed var(--border2);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 7px 22px;
+    cursor: pointer;
+    transition: .25s;
+    font-family: var(--mono);
+  }
+  .admin-btn:hover {
+    color: var(--cyan);
+    border-color: rgba(34,211,238,.5);
+    background: rgba(34,211,238,.05);
+    box-shadow: 0 0 16px rgba(34,211,238,.12);
   }
 
   /* ============ 动画 ============ */
@@ -1599,6 +1685,12 @@
 
     <div class="scroll-hint" data-i18n="scroll_hint">向下滑动</div>
   </header>
+
+  <!-- 公告横幅 -->
+  <div class="ann-banner" id="annBanner" style="display:none">
+    <span class="ann-tag" data-i18n="ann_tag">公告</span>
+    <span class="ann-text" id="annText"></span>
+  </div>
 
   <!-- ============ 标签 ============ -->
   <section id="skills">
@@ -1862,6 +1954,12 @@
 
         <div class="rd-status" id="rdStatus"></div>
       </div>
+
+      <!-- 积分榜 -->
+      <div class="redeem-card reveal" style="margin-top:16px">
+        <div class="lb-title" data-i18n="lb_title">积分榜 · Top 10</div>
+        <div class="lb-list" id="lbList"></div>
+      </div>
     </div>
   </section>
 
@@ -1891,6 +1989,7 @@
     <p class="site-stats">
       <span data-i18n="f_stats">访问量</span> <span id="busuanzi_value_site_pv">--</span> · <span data-i18n="f_uv">访客</span> <span id="busuanzi_value_site_uv">--</span>
     </p>
+    <p class="footer-admin"><button id="adminBtn" class="admin-btn" data-i18n="adm_btn">站长控制台</button></p>
   </footer>
 </main>
 
@@ -1918,8 +2017,8 @@
       </div>
       <div class="auth-msg" id="authMsg"></div>
       <div class="auth-actions">
-        <button class="btn btn-primary game-btn" id="authLoginBtn" data-i18n="gb_login_btn">登 录</button>
-        <button class="btn btn-ghost game-btn" id="authSignupBtn" data-i18n="gb_signup_btn">注 册</button>
+        <button class="btn btn-primary game-btn" id="authSignupBtn" data-i18n="gb_signup_btn">注 册</button>
+        <button class="btn btn-ghost game-btn" id="authLoginBtn" data-i18n="gb_login_btn">登 录</button>
       </div>
       <p class="auth-note" data-i18n="gb_note">注册需验证邮箱 · 登录后可留言</p>
     </div>
@@ -1997,6 +2096,8 @@ const I18N = {
     sign_lv1: '躺平咸鱼', sign_lv2: '早八战士', sign_lv3: '全勤小标兵', sign_lv4: '时间管理大师',
     ach_pioneer: '拓荒者', ach_pioneer_d: '前 10 名注册用户', ach_lucky: '欧皇', ach_lucky_d: '兑换过隐藏彩蛋码', ach_replied: '被翻牌', ach_replied_d: '留言被站长回复过', ach_full_attendance: '全勤之王', ach_full_attendance_d: '累计签到 30 天', ach_social: '社交达人', ach_social_d: '累计留言 50 条', ach_seven_days: '七日之约', ach_seven_days_d: '连续签到 7 天', ach_collector: '收藏家', ach_collector_d: '累计兑换 3 个奖励码', ach_month_old: '站龄满月', ach_month_old_d: '注册满 30 天',
     pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复',
+    adm_btn: '站长控制台', adm_login: '请先登录', adm_deny: '仅站长可用',
+    ann_tag: '公告', lb_title: '积分榜 · Top 10', lb_empty: '还没有人有积分，快来抢占榜首', gb_pin: '置顶', gb_banned: '你已被禁言，无法留言', rd_sign_bonus: '连签奖励',
     cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_more: '展开更多历史', cl_less: '收起'
   },
   'en': {
@@ -2033,6 +2134,8 @@ const I18N = {
     sign_lv1: 'Lazy Fish', sign_lv2: 'Early Bird', sign_lv3: 'Perfect Attendance', sign_lv4: 'Time Master',
     ach_pioneer: 'Pioneer', ach_pioneer_d: 'Among the first 10 to register', ach_lucky: 'Lucky One', ach_lucky_d: 'Redeemed a hidden lottery code', ach_replied: 'Noticed', ach_replied_d: 'Your message got a reply from the owner', ach_full_attendance: 'Attendance King', ach_full_attendance_d: '30 total check-ins', ach_social: 'Social Butterfly', ach_social_d: 'Post 50 messages', ach_seven_days: '7-Day Vow', ach_seven_days_d: 'Check in 7 days in a row', ach_collector: 'Collector', ach_collector_d: 'Redeem 3 reward codes', ach_month_old: 'One Month Old', ach_month_old_d: 'Registered for 30+ days',
     pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply',
+    adm_btn: 'Admin', adm_login: 'Please log in first', adm_deny: 'Owner only',
+    ann_tag: 'Notice', lb_title: 'Leaderboard · Top 10', lb_empty: 'No points yet - be the first!', gb_pin: 'Pinned', gb_banned: 'You are muted and cannot post', rd_sign_bonus: 'streak bonus',
     cl_p1: 'Change', cl_title: 'log', cl_sub: 'Every step recorded', cl_more: 'Show all history', cl_less: 'Collapse'
   }
 };
@@ -3234,6 +3337,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const { data, error } = await supabase
         .from('messages')
         .select('*')
+        .order('pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -3248,13 +3352,14 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     if (!list.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
     el.innerHTML = list.map(m => {
       const name = escapeHtml(m.user_email || '匿名');
+      const pin = m.pinned ? '<span class="gb-pin">' + ((window.__t && __t('gb_pin')) || '置顶') + '</span>' : '';
       const badge = m.user_title ? '<span class="gb-badge">' + escapeHtml(m.user_title) + '</span>' : '';
       const pts = m.user_points ? '<span class="gb-pts">' + m.user_points + '</span>' : '';
       const time = m.created_at ? new Date(m.created_at).toLocaleString('zh-CN') : '';
       const reply = (m.replied && m.reply)
         ? '<div class="gb-reply"><b>' + ((window.__t && __t('gb_reply_label')) || '站长回复') + '：</b>' + escapeHtml(m.reply) + '</div>'
         : '';
-      return '<div class="gb-item"><div class="gb-meta"><span class="gb-name">' + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + '</div>';
+      return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name">' + pin + name + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + '</div>';
     }).join('');
   }
 
@@ -3282,7 +3387,14 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       user_title: title,
       user_points: points
     });
-    if (error) { alert('发送失败: ' + error.message); return; }
+    if (error) {
+      if (/row-level security/i.test(error.message)) {
+        alert(((window.__t && __t('gb_banned')) || '你已被禁言，无法留言'));
+      } else {
+        alert('发送失败: ' + error.message);
+      }
+      return;
+    }
     // 触发成就判定（社交达人等）
     try { supabase.rpc('unlock_achievements').then(() => {}); } catch (e) {}
     $('gbText').value = '';
@@ -3444,6 +3556,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         if (error) { setSignMsg(error.message, false); return; }
         if (data && data.ok) {
           let m = t('rd_sign_ok') + '：+' + data.points + ' ' + t('rd_pts_unit');
+          if (data.bonus) m += '（' + t('rd_sign_bonus') + ' +' + data.bonus + '）';
           if (data.unlocked && data.unlocked.length) {
             const names = data.unlocked.map(k => {
               const a = (window.__ACH || []).find(x => x.key === k);
@@ -3653,11 +3766,94 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   });
 })();
 
+/* ============ 站长控制台入口（仅站长可用） ============ */
+(function() {
+  const btn = document.getElementById('adminBtn');
+  if (!btn) return;
+  const t = k => (window.__t ? __t(k) : k);
+
+  function waitSupabase(cb) {
+    if (window.__supabase) { cb(window.__supabase); return; }
+    let n = 0;
+    const timer = setInterval(() => {
+      if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
+      else if (++n > 80) clearInterval(timer);
+    }, 250);
+  }
+
+  btn.addEventListener('click', () => {
+    waitSupabase(async supabase => {
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) {
+        alert(t('adm_login'));
+        try { window.__openAuth && window.__openAuth(); } catch (e) {}
+        return;
+      }
+      const name = ((u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || '').trim();
+      const email = (u.email || '').toLowerCase();
+      const isOwner = (name === 'SYM12356') || (email === '3829343053@qq.com');
+      if (!isOwner) { alert(t('adm_deny')); return; }
+      window.location.href = 'admin.html';
+    });
+  });
+})();
+
+/* ============ 公告横幅 + 积分榜 ============ */
+(function() {
+  const t = k => (window.__t ? __t(k) : k);
+
+  function waitSupabase(cb) {
+    if (window.__supabase) { cb(window.__supabase); return; }
+    let n = 0;
+    const timer = setInterval(() => {
+      if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
+      else if (++n > 80) clearInterval(timer);
+    }, 250);
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // 公告
+  waitSupabase(supabase => {
+    supabase.rpc('announcement').then(({ data }) => {
+      const banner = document.getElementById('annBanner');
+      const text = document.getElementById('annText');
+      if (!banner || !text) return;
+      if (data && data.ok && data.content) {
+        text.textContent = data.content;
+        banner.style.display = 'flex';
+      }
+    }).catch(() => {});
+  });
+
+  // 积分榜
+  const lb = document.getElementById('lbList');
+  if (lb) {
+    waitSupabase(supabase => {
+      supabase.rpc('leaderboard').then(({ data }) => {
+        const list = (data && data.ok && data.list) || [];
+        if (!list.length) { lb.innerHTML = '<div class="lb-empty">' + t('lb_empty') + '</div>'; return; }
+        lb.innerHTML = list.map((r, i) =>
+          '<div class="lb-item">' +
+            '<span class="lb-rank">' + (i + 1) + '</span>' +
+            '<span class="lb-name">' + esc(r.name || '?') + (r.owner_title ? ' <span class="lb-title-tag">' + esc(r.owner_title) + '</span>' : '') + '</span>' +
+            '<span class="lb-pts">' + r.points + ' ' + t('rd_pts_unit') + '</span>' +
+          '</div>'
+        ).join('');
+      }).catch(() => { lb.innerHTML = '<div class="lb-empty">' + t('lb_empty') + '</div>'; });
+    });
+  }
+})();
+
 /* ============ 更新日志 ============ */
 (function() {
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v1.9', zh: ['管理员控制台：批量发码 / 加减分 / 禁言 / 置顶 / 删除留言 / 用户详情 / 趋势 / 导出 / 操作日志 / 自定义称号 / 连签奖励 / 活动模式', '首页新增公告横幅与积分榜'], en: ['Admin console v2: batch codes / adjust points / ban / pin / delete / user detail / trends / export / logs / custom titles / streak bonus / event mode', 'Added announcement banner and leaderboard to home page'] },
+    { date: '2026-08-31', ver: 'v1.8', zh: ['新增站长控制台入口按钮（站长身份校验，免密钥进入）'], en: ['Added admin console button on home page (owner check, no key needed)'] },
     { date: '2026-08-31', ver: 'v1.7', zh: ['称号体系大升级：积分/留言/签到三体系 + 8 个条件成就 + 站长授予称号', '个人中心成就墙', '奖励码改为纯积分 + 隐藏彩蛋码', '站长可授予/收回称号、回复留言'], en: ['Title system v2: points/messages/check-ins tiers + 8 achievement titles + owner-granted titles', 'Achievement wall in personal center', 'Reward codes now grant points only + hidden lottery codes', 'Owner can grant/revoke titles and reply to messages'] },
     { date: '2026-08-31', ver: 'v1.6', zh: ['新增个人中心（资料 / 称号 / 积分 / 等级进度 / 签到记录 / 兑换记录 / 改名）'], en: ['Added personal center (profile / title / points / level progress / check-in & redemption history / rename)'] },
     { date: '2026-08-31', ver: 'v1.5', zh: ['新增每日签到（每天领积分，可配置）', '站长管理页升级：码列表 / 用户 / 兑换记录 / 签到设置'], en: ['Added daily check-in (earn points daily, configurable)', 'Admin console upgraded: code list / users / redemptions / check-in settings'] },

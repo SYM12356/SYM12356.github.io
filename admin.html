@@ -3,237 +3,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CODE VAULT · 站长控制台</title>
+<title>CODE VAULT · 管理控制台</title>
 <style>
   :root {
-    --bg: #05070f; --card: rgba(255,255,255,.03); --border: rgba(255,255,255,.12);
-    --text: #e9edf9; --muted: #8b93ab; --cyan: #22d3ee; --gold: #e8b84b; --red: #f87171; --green: #34d399;
+    --bg: #05070f; --panel: rgba(255,255,255,.03); --border: rgba(255,255,255,.09);
+    --border2: rgba(255,255,255,.16); --text: #e9edf9; --muted: #8b93ab;
+    --cyan: #22d3ee; --violet: #a78bfa; --gold: #e8b84b; --pink: #f472b6;
+    --green: #34d399; --red: #f87171;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: var(--bg); color: var(--text);
+    background: var(--bg); color: var(--text); min-height: 100vh;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-    min-height: 100vh; padding: 24px;
     background-image:
-      radial-gradient(50% 40% at 20% 20%, rgba(34,120,210,.16), transparent 70%),
-      radial-gradient(45% 40% at 80% 70%, rgba(88,60,190,.12), transparent 70%);
+      radial-gradient(45% 35% at 15% 0%, rgba(34,120,210,.14), transparent 70%),
+      radial-gradient(40% 35% at 90% 10%, rgba(120,80,220,.10), transparent 70%),
+      radial-gradient(50% 40% at 60% 100%, rgba(10,60,130,.10), transparent 70%);
+    background-attachment: fixed;
   }
-  .wrap { max-width: 900px; margin: 0 auto; }
-  h1 {
-    font-size: 24px; letter-spacing: 3px; margin-bottom: 4px;
-    background: linear-gradient(120deg, #22d3ee, #a78bfa, #e8b84b);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .app { display: grid; grid-template-columns: 236px 1fr; min-height: 100vh; }
+
+  .side {
+    border-right: 1px solid var(--border); background: rgba(8,12,24,.6);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    display: flex; flex-direction: column; padding: 22px 14px;
+    position: sticky; top: 0; height: 100vh;
   }
-  .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; letter-spacing: 1px; }
-  .panel {
-    background: rgba(10,14,26,.9);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  .side-logo { display: flex; align-items: center; gap: 12px; padding: 0 8px 20px; border-bottom: 1px dashed var(--border); margin-bottom: 16px; }
+  .logo-mark {
+    width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 15px; font-weight: 700; color: #04060e;
+    background: linear-gradient(135deg, #22d3ee, #a78bfa 55%, #e8b84b);
+    box-shadow: 0 0 22px rgba(34,211,238,.35);
   }
-  .key-row { display: flex; gap: 10px; margin-bottom: 4px; }
-  .key-row input {
-    flex: 1; padding: 12px 14px;
-    background: rgba(5,7,15,.7); color: var(--text);
-    border: 1px solid var(--border); border-radius: 10px;
-    font-size: 14px; outline: none; transition: .2s;
+  .logo-text { font-family: var(--mono); font-size: 15px; letter-spacing: 2px; font-weight: 700; line-height: 1.25; }
+  .logo-text span { display: block; font-family: inherit; font-size: 10.5px; color: var(--muted); letter-spacing: 2px; font-weight: 400; }
+  .side-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px; padding: 11px 12px; width: 100%;
+    background: transparent; border: 1px solid transparent; border-radius: 10px;
+    color: var(--muted); font-size: 13.5px; letter-spacing: 1px; cursor: pointer;
+    transition: .22s; font-family: inherit; text-align: left;
   }
-  .key-row input:focus { border-color: var(--cyan); }
-  .key-row button, .btn {
-    padding: 12px 22px; background: #22d3ee; color: #04060e;
-    border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-    letter-spacing: 2px; cursor: pointer; transition: .2s; white-space: nowrap;
+  .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: .8; }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+  .nav-item.active {
+    color: var(--cyan);
+    background: linear-gradient(90deg, rgba(34,211,238,.12), rgba(34,211,238,.03));
+    border-color: rgba(34,211,238,.28);
   }
-  .key-row button:hover, .btn:hover { background: #67e8f9; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); letter-spacing: 1px; }
-  .btn.ghost:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(34,211,238,.06); }
+  .nav-item.owner-only { border-left: 2px solid rgba(232,184,75,.5); }
+  .nav-item .lock-tag { margin-left: auto; font-size: 10px; color: var(--gold); letter-spacing: 0; }
+  .side-foot { margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--border); border-radius: 10px; font-size: 11.5px; color: var(--muted); line-height: 1.7; font-family: var(--mono); }
+  .side-foot b { color: var(--gold); font-weight: 600; }
+
+  .main { padding: 26px 30px 48px; min-width: 0; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; }
+  .topbar h1 {
+    font-size: 26px; letter-spacing: 2px;
+    background: linear-gradient(120deg, #22d3ee, #a78bfa 60%, #e8b84b);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .page-sub { font-size: 12.5px; color: var(--muted); letter-spacing: 1px; margin-top: 5px; }
+  .role-chip {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px;
+    border: 1px solid rgba(52,211,153,.4); background: rgba(52,211,153,.08);
+    color: var(--green); font-size: 12.5px; letter-spacing: 1px;
+  }
+  .role-chip.owner { border-color: rgba(232,184,75,.45); background: rgba(232,184,75,.08); color: var(--gold); }
+  .role-chip i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+  .btn {
+    padding: 11px 22px; background: linear-gradient(120deg, #22d3ee, #38bdf8); color: #04060e;
+    border: none; border-radius: 10px; font-size: 13.5px; font-weight: 600; letter-spacing: 2px;
+    cursor: pointer; transition: .2s; white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(34,211,238,.25); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); letter-spacing: 1px; }
+  .btn.ghost:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(34,211,238,.06); box-shadow: none; }
   .btn.red { background: transparent; color: var(--red); border: 1px solid rgba(248,113,113,.4); letter-spacing: 1px; }
-  .btn.red:hover { background: rgba(248,113,113,.1); border-color: var(--red); }
-  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
-
-  .console { display: none; margin-top: 18px; }
-  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .tab {
-    background: transparent; border: 1px solid transparent; border-bottom: none;
-    color: var(--muted); font-size: 13.5px; padding: 10px 18px;
-    border-radius: 10px 10px 0 0; cursor: pointer; letter-spacing: 1px; transition: .25s;
-    font-family: inherit;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--cyan); background: var(--card); border-color: var(--border); }
-
-  .tab-page { display: none; }
-  .tab-page.active { display: block; }
+  .btn.red:hover { background: rgba(248,113,113,.1); border-color: var(--red); box-shadow: none; }
+  .btn.sm { padding: 7px 14px; font-size: 12px; letter-spacing: 1px; border-radius: 8px; }
 
   .msg { min-height: 20px; margin-top: 12px; font-size: 13px; line-height: 1.6; }
   .msg.ok { color: var(--green); }
   .msg.err { color: var(--red); }
 
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; letter-spacing: 1px; }
-  .field input, .field select {
-    width: 100%; padding: 11px 13px;
-    background: rgba(5,7,15,.7); color: var(--text);
-    border: 1px solid var(--border); border-radius: 10px;
-    font-size: 14px; outline: none; transition: .2s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--cyan); }
-  .field .mono { font-family: ui-monospace, monospace; letter-spacing: 3px; text-transform: uppercase; }
-  .row2 { display: flex; gap: 12px; }
-  .row2 .field { flex: 1; }
-  .check { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-size: 13px; color: var(--muted); cursor: pointer; }
-  .check input { width: 16px; height: 16px; accent-color: #22d3ee; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; transition: .25s; }
+  .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .stat-ico { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .stat-ico svg { width: 19px; height: 19px; }
+  .stat-ico.c1 { background: rgba(34,211,238,.12); color: var(--cyan); }
+  .stat-ico.c2 { background: rgba(167,139,250,.12); color: var(--violet); }
+  .stat-ico.c3 { background: rgba(232,184,75,.12); color: var(--gold); }
+  .stat-ico.c4 { background: rgba(244,114,182,.12); color: var(--pink); }
+  .stat-num { font-family: var(--mono); font-size: 22px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 11.5px; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
 
+  .tab-page { display: none; }
+  .tab-page.active { display: block; animation: pageIn .28s ease; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .page-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 26px; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 7px; letter-spacing: 1px; font-family: var(--mono); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 12px 14px; background: rgba(5,7,15,.7); color: var(--text);
+    border: 1px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; transition: .2s;
+    font-family: inherit;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(34,211,238,.1); }
+  .field .mono { font-family: var(--mono); letter-spacing: 3px; text-transform: uppercase; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .check { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .check input { width: 17px; height: 17px; accent-color: #22d3ee; }
+
+  .tip { margin-top: 18px; padding: 14px 16px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,.015); font-size: 12px; color: var(--muted); line-height: 1.9; }
+  .tip b { color: var(--gold); font-weight: 600; }
+
+  .tbl { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: 1px; }
-  td { color: var(--text); word-break: break-all; vertical-align: top; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-  .tcode { font-family: ui-monospace, monospace; color: var(--cyan); letter-spacing: 1px; }
+  thead th { background: rgba(255,255,255,.035); color: var(--muted); font-weight: 500; font-size: 11px; letter-spacing: 1.5px; text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); word-break: break-all; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover td { background: rgba(255,255,255,.025); }
+  .tcode { font-family: var(--mono); color: var(--cyan); letter-spacing: 1px; }
   .tgold { color: var(--gold); }
-  .tbadge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; }
-  .tbadge.yes { background: rgba(52,211,153,.12); color: var(--green); border: 1px solid rgba(52,211,153,.3); }
+  .tlink { color: var(--cyan); cursor: pointer; }
+  .tlink:hover { text-decoration: underline; }
+  .tbadge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 1px; }
+  .tbadge.yes { background: rgba(52,211,153,.1); color: var(--green); border: 1px solid rgba(52,211,153,.35); }
   .tbadge.no { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-  .tbadge.lot { background: rgba(232,184,75,.12); color: var(--gold); border: 1px solid rgba(232,184,75,.35); }
-  .empty { color: var(--muted); text-align: center; padding: 26px; font-size: 13px; }
-  .config-row { display: flex; align-items: flex-end; gap: 12px; }
-  .config-row .field { margin-bottom: 0; flex: 1; }
-  .tip { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); line-height: 1.9; }
-  .tip b { color: var(--gold); }
+  .tbadge.lot { background: rgba(232,184,75,.1); color: var(--gold); border: 1px solid rgba(232,184,75,.35); }
+  .tbadge.ban { background: rgba(248,113,113,.1); color: var(--red); border: 1px solid rgba(248,113,113,.35); }
+  .tbadge.pin { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.35); }
+  .empty { color: var(--muted); text-align: center; padding: 34px; font-size: 13px; letter-spacing: 1px; }
 
-  .reply-form { display: flex; gap: 8px; margin-top: 8px; }
-  .reply-form input {
-    flex: 1; min-width: 0; padding: 8px 10px;
-    background: rgba(5,7,15,.7); color: var(--text);
-    border: 1px solid var(--border); border-radius: 8px;
-    font-size: 12.5px; outline: none;
-  }
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-row input { flex: 1; min-width: 0; padding: 11px 14px; background: rgba(5,7,15,.7); color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; outline: none; }
+  .search-row input:focus { border-color: var(--cyan); }
+
+  .reply-form { display: flex; gap: 8px; margin-top: 10px; }
+  .reply-form input { flex: 1; min-width: 0; padding: 9px 12px; background: rgba(5,7,15,.7); color: var(--text); border: 1px solid var(--border); border-radius: 9px; font-size: 12.5px; outline: none; font-family: inherit; }
   .reply-form input:focus { border-color: var(--cyan); }
-  .reply-form button { padding: 8px 14px; font-size: 12.5px; letter-spacing: 1px; }
-  .m-reply { margin-top: 6px; padding: 6px 10px; border-left: 2px solid var(--cyan); background: rgba(34,211,238,.06); font-size: 12.5px; color: var(--muted); }
+  .m-reply { margin-top: 8px; padding: 8px 12px; border-left: 2px solid var(--cyan); background: rgba(34,211,238,.05); border-radius: 0 8px 8px 0; font-size: 12.5px; color: var(--muted); }
+  .msg-card { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; background: rgba(255,255,255,.015); }
+  .msg-meta { font-size: 11.5px; color: var(--muted); font-family: var(--mono); margin-bottom: 6px; }
+  .msg-body { font-size: 13.5px; line-height: 1.7; }
+  .msg-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
-  @media (max-width: 600px) {
-    body { padding: 14px; }
-    .panel { padding: 16px; }
-    .row2, .config-row { flex-direction: column; }
-    th, td { padding: 7px 6px; font-size: 12px; }
-    .tab { padding: 9px 12px; font-size: 13px; }
+  .tpl-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tpl { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 12.5px; cursor: pointer; transition: .2s; letter-spacing: 1px; font-family: inherit; }
+  .tpl:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .overlay { position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center; background: rgba(2,4,10,.65); backdrop-filter: blur(6px); padding: 20px; }
+  .overlay.show { display: flex; }
+  .modal { width: min(560px, 100%); max-height: 86vh; overflow-y: auto; background: rgba(10,14,26,.96); border: 1px solid var(--border2); border-radius: 18px; padding: 26px; position: relative; animation: pageIn .25s ease; }
+  .modal h3 { font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; }
+  .modal .m-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; font-family: var(--mono); }
+  .modal .close-x { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 9px; background: transparent; color: var(--muted); font-size: 15px; cursor: pointer; }
+  .modal .close-x:hover { color: var(--text); border-color: var(--border2); }
+  .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin-bottom: 16px; }
+  .m-grid .kv { font-size: 12.5px; color: var(--muted); }
+  .m-grid .kv b { color: var(--text); font-weight: 600; font-family: var(--mono); }
+  .m-sec { border-top: 1px dashed var(--border); padding-top: 12px; margin-bottom: 14px; }
+  .m-sec .sec-t { font-size: 11.5px; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; font-family: var(--mono); }
+  .m-ach { display: inline-block; margin: 0 6px 6px 0; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; border: 1px solid rgba(232,184,75,.4); color: var(--gold); background: rgba(232,184,75,.06); }
+  .m-list-item { font-size: 12.5px; color: var(--muted); padding: 3px 0; font-family: var(--mono); }
+  .m-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .m-actions input { flex: 1; min-width: 90px; padding: 8px 10px; background: rgba(5,7,15,.7); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-size: 12.5px; outline: none; }
+  .m-actions input:focus { border-color: var(--cyan); }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding: 10px 4px 0; }
+  .bar-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .bar-group { display: flex; align-items: flex-end; gap: 3px; height: 140px; }
+  .bar { width: 9px; border-radius: 3px 3px 0 0; min-height: 2px; transition: height .4s ease; }
+  .bar.u { background: linear-gradient(180deg, #22d3ee, #0e7490); }
+  .bar.c { background: linear-gradient(180deg, #a78bfa, #6d5bd0); }
+  .bar.r { background: linear-gradient(180deg, #e8b84b, #c8932e); }
+  .bar-day .lbl { font-size: 10.5px; color: var(--muted); font-family: var(--mono); }
+  .chart-legend { display: flex; gap: 18px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .chart-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; }
+
+  .log-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .log-item .lt { color: var(--muted); font-family: var(--mono); flex-shrink: 0; }
+  .log-item .la { color: var(--cyan); font-family: var(--mono); flex-shrink: 0; width: 90px; }
+  .log-item .ld { color: var(--text); word-break: break-all; }
+
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    .side { position: static; height: auto; flex-direction: row; align-items: center; padding: 12px; gap: 10px; border-right: none; border-bottom: 1px solid var(--border); }
+    .side-logo { border-bottom: none; padding: 0; margin: 0; }
+    .side-logo .logo-text span { display: none; }
+    .side-nav { flex-direction: row; overflow-x: auto; gap: 4px; }
+    .nav-item { white-space: nowrap; padding: 9px 12px; font-size: 13px; }
+    .nav-item svg, .nav-item .lock-tag { display: none; }
+    .side-foot { display: none; }
+    .main { padding: 18px 14px 40px; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row2, .row3 { grid-template-columns: 1fr; }
+    .m-grid { grid-template-columns: 1fr; }
+    .bar-chart { gap: 6px; }
+    .bar { width: 7px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>CODE VAULT</h1>
-  <div class="sub">站长控制台 · 发码 / 授予称号 / 回复留言 / 数据总览</div>
-
-  <div class="panel">
-    <div class="key-row">
-      <input id="k" type="password" autocomplete="off" placeholder="输入密钥（SQL 里的 ADMIN_KEY）">
-      <button id="unlock">解 锁</button>
+<div class="app" style="display:none">
+  <aside class="side">
+    <div class="side-logo">
+      <div class="logo-mark">CV</div>
+      <div class="logo-text">CODE VAULT<span>管理控制台</span></div>
     </div>
-    <div class="hint">此页不发到主页，入口即本页网址。</div>
-    <div class="msg" id="keyMsg"></div>
+    <nav class="side-nav" id="sideNav">
+      <button class="nav-item active" data-tab="gen" data-owner="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17.4 6.4 20l1.2-6.2L3 9.5l6.3-.8z"/></svg>发码<span class="lock-tag">站长</span></button>
+      <button class="nav-item" data-tab="grant" data-owner="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l-1.5-8 5.5 4L12 6l4 6 5.5-4L20 16z"/><path d="M5 20h14"/></svg>称号<span class="lock-tag">站长</span></button>
+      <button class="nav-item" data-tab="cfg" data-owner="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>设置<span class="lock-tag">站长</span></button>
+      <button class="nav-item" data-tab="codes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1.2"/><circle cx="3.5" cy="12" r="1.2"/><circle cx="3.5" cy="18" r="1.2"/></svg>奖励码</button>
+      <button class="nav-item" data-tab="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c1.5-3.5 4.3-5 7.5-5s6 1.5 7.5 5"/></svg>用户</button>
+      <button class="nav-item" data-tab="reds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L4 7l3 3"/><path d="M4 7h13"/><path d="M17 14l3 3-3 3"/><path d="M20 17H7"/></svg>兑换记录</button>
+      <button class="nav-item" data-tab="msgs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H10l-5 4.5z"/></svg>留言</button>
+      <button class="nav-item" data-tab="lb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V10M12 20V4M18 20v-7"/></svg>排行榜</button>
+      <button class="nav-item" data-tab="trend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16"/><path d="M5 16l4-5 3 3 6-8"/></svg>趋势</button>
+      <button class="nav-item" data-tab="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg>导出</button>
+      <button class="nav-item" data-tab="logs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>日志</button>
+    </nav>
+    <div class="side-foot" id="sideFoot">● 加载中…</div>
+  </aside>
 
-    <div class="console" id="console">
-      <div class="tabs" id="tabs">
-        <button class="tab active" data-tab="gen">发码</button>
-        <button class="tab" data-tab="grant">授予称号</button>
-        <button class="tab" data-tab="codes">奖励码</button>
-        <button class="tab" data-tab="users">用户</button>
-        <button class="tab" data-tab="reds">兑换记录</button>
-        <button class="tab" data-tab="msgs">留言</button>
-        <button class="tab" data-tab="cfg">设置</button>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">发码</h1>
+        <p class="page-sub" id="pageSub">生成奖励码，发给朋友兑换积分</p>
       </div>
+      <div class="role-chip" id="roleChip" style="display:none"><i></i> <span id="roleChipText">站长</span></div>
+    </header>
+    <div class="msg" id="keyMsg" style="display:none"></div>
 
-      <!-- 发码 -->
-      <div class="tab-page active" id="pg-gen">
-        <div class="row2">
-          <div class="field">
-            <label>奖励码 / CODE</label>
-            <input id="c" class="mono" type="text" autocomplete="off" placeholder="如 SYM-VIP1" maxlength="24">
-          </div>
-          <div class="field">
-            <label>积分 / PTS</label>
-            <input id="p" type="number" min="0" step="1" value="100">
-          </div>
+    <section class="stats" id="statsRow" style="display:none">
+      <div class="stat-card"><div class="stat-ico c1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2L12 17.4 6.4 20l1.2-6.2L3 9.5l6.3-.8z"/></svg></div><div><div class="stat-num" id="stCodes">0</div><div class="stat-label">奖励码</div></div></div>
+      <div class="stat-card"><div class="stat-ico c2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c1.5-3.5 4.3-5 7.5-5s6 1.5 7.5 5"/></svg></div><div><div class="stat-num" id="stUsers">0</div><div class="stat-label">用户</div></div></div>
+      <div class="stat-card"><div class="stat-ico c3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L4 7l3 3"/><path d="M4 7h13"/><path d="M17 14l3 3-3 3"/><path d="M20 17H7"/></svg></div><div><div class="stat-num" id="stReds">0</div><div class="stat-label">兑换次数</div></div></div>
+      <div class="stat-card"><div class="stat-ico c4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H10l-5 4.5z"/></svg></div><div><div class="stat-num" id="stMsgs">0</div><div class="stat-label">留言</div></div></div>
+    </section>
+
+    <!-- 发码 -->
+    <div class="tab-page active" id="pg-gen">
+      <div class="page-card">
+        <div class="tpl-row">
+          <span style="font-size:12.5px;color:var(--muted);align-self:center;letter-spacing:1px">快捷模板：</span>
+          <button class="tpl" data-pts="100">普通 100</button>
+          <button class="tpl" data-pts="300">稀有 300</button>
+          <button class="tpl" data-pts="500">传说 500</button>
+          <button class="tpl" data-pts="100" data-lot="1">彩蛋 100</button>
         </div>
-        <label class="check"><input id="lot" type="checkbox"> 隐藏彩蛋码（兑换者解锁「欧皇」成就）</label>
-        <button class="btn" id="gen">生 成 奖 励 码</button>
+        <div class="row3">
+          <div class="field"><label>单个码 / CODE</label><input id="c" class="mono" type="text" autocomplete="off" placeholder="如 SYM-VIP1" maxlength="24"></div>
+          <div class="field"><label>积分 / PTS</label><input id="p" type="number" min="0" step="1" value="100"></div>
+          <div class="field"><label>&nbsp;</label><label class="check" style="margin:0;padding-top:12px"><input id="lot" type="checkbox"> 彩蛋码</label></div>
+        </div>
+        <button class="btn" id="gen">生 成</button>
         <div class="msg" id="genMsg"></div>
-        <div class="tip">
-          <b>注意</b>：奖励码只发积分，称号由体系/成就/站长授予自动决定。同码重复生成会覆盖积分。
-        </div>
       </div>
+      <div class="page-card" style="margin-top:16px">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">批量发码</h3>
+        <div class="row3">
+          <div class="field"><label>数量（1-50）</label><input id="bCount" type="number" min="1" max="50" value="10"></div>
+          <div class="field"><label>积分 / PTS</label><input id="bPts" type="number" min="0" value="100"></div>
+          <div class="field"><label>前缀（默认 SYM）</label><input id="bPrefix" class="mono" type="text" value="SYM" maxlength="12"></div>
+        </div>
+        <label class="check"><input id="bLot" type="checkbox"> 全部为彩蛋码</label>
+        <button class="btn" id="genBatch">批量生成</button>
+        <div class="msg" id="batchMsg"></div>
+        <div class="batch-out" id="batchOut" style="display:none;margin-top:14px;padding:12px;border:1px dashed var(--border);border-radius:10px;font-family:var(--mono);font-size:12.5px;color:var(--cyan);line-height:2;word-break:break-all;max-height:200px;overflow-y:auto"></div>
+      </div>
+    </div>
 
-      <!-- 授予称号 -->
-      <div class="tab-page" id="pg-grant">
+    <!-- 称号 -->
+    <div class="tab-page" id="pg-grant">
+      <div class="page-card">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">授予 / 收回称号（授予「管理员」即任命管理员）</h3>
         <div class="row2">
-          <div class="field">
-            <label>用户邮箱 / EMAIL</label>
-            <input id="gEmail" type="text" autocomplete="off" placeholder="user@example.com">
-          </div>
-          <div class="field">
-            <label>站长称号 / TITLE</label>
-            <select id="gTitle"></select>
-          </div>
+          <div class="field"><label>用户邮箱 / EMAIL</label><input id="gEmail" type="text" autocomplete="off" placeholder="user@example.com"></div>
+          <div class="field"><label>称号 / TITLE</label><select id="gTitle"></select></div>
         </div>
         <div style="display:flex;gap:10px">
           <button class="btn" id="gGrant" style="flex:1">授 予</button>
           <button class="btn red" id="gRevoke" style="flex:1">收 回</button>
         </div>
         <div class="msg" id="gMsg"></div>
-        <div class="tip">
-          <b>规则</b>：一人一个站长授予称号，新授予会替换旧的；收回后称号自动回到体系/成就称号。
-        </div>
       </div>
+      <div class="page-card" style="margin-top:16px">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">自定义称号管理</h3>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>key</th><th>名称</th><th>优先级</th><th>操作</th></tr></thead>
+            <tbody id="titlesBody"></tbody>
+          </table>
+        </div>
+        <div class="row3" style="margin-top:14px">
+          <div class="field"><label>新称号 key（英文）</label><input id="ntKey" class="mono" type="text" placeholder="如 vip" maxlength="24"></div>
+          <div class="field"><label>新称号名称</label><input id="ntName" type="text" placeholder="如 VIP" maxlength="20"></div>
+          <div class="field"><label>优先级（越小越靠前）</label><input id="ntPri" type="number" value="50"></div>
+        </div>
+        <button class="btn ghost" id="ntAdd">添加称号</button>
+        <div class="msg" id="ntMsg"></div>
+      </div>
+    </div>
 
-      <!-- 奖励码列表 -->
-      <div class="tab-page" id="pg-codes">
-        <table>
-          <thead><tr><th>码</th><th>积分</th><th>彩蛋</th><th>已兑换</th><th>创建时间</th></tr></thead>
-          <tbody id="codesBody"></tbody>
-        </table>
+    <!-- 设置 -->
+    <div class="tab-page" id="pg-cfg">
+      <div class="page-card">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">签到与活动</h3>
+        <div class="row3">
+          <div class="field"><label>每日签到积分</label><input id="cfgPts" type="number" min="0" step="1"></div>
+          <div class="field"><label>连签奖励（天数:积分,逗号分隔）</label><input id="cfgStreak" class="mono" type="text" placeholder="3:20,7:50,14:150"></div>
+          <div class="field"><label>活动倍率（翻倍数）</label><input id="cfgMul" type="number" min="1" step="1"></div>
+        </div>
+        <label class="check"><input id="cfgEvent" type="checkbox"> 开启活动模式（签到积分 × 倍率）</label>
+        <button class="btn" id="cfgSave1">保存签到设置</button>
+        <div class="msg" id="cfgMsg1"></div>
+      </div>
+      <div class="page-card" style="margin-top:16px">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">首页公告</h3>
+        <div class="field"><label>公告内容（留空则不显示）</label><textarea id="cfgAnn" rows="2" placeholder="欢迎来到我的小站…"></textarea></div>
+        <label class="check"><input id="cfgAnnOn" type="checkbox"> 显示公告</label>
+        <button class="btn" id="cfgSave2">保存公告</button>
+        <div class="msg" id="cfgMsg2"></div>
+      </div>
+    </div>
+
+    <!-- 奖励码 -->
+    <div class="tab-page" id="pg-codes">
+      <div class="page-card">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>码</th><th>积分</th><th>彩蛋</th><th>已兑换</th><th>创建时间</th></tr></thead>
+            <tbody id="codesBody"></tbody>
+          </table>
+        </div>
         <div class="empty" id="codesEmpty" style="display:none">还没有奖励码</div>
       </div>
+    </div>
 
-      <!-- 用户 -->
-      <div class="tab-page" id="pg-users">
-        <table>
-          <thead><tr><th>邮箱</th><th>站长称号</th><th>积分</th><th>今日签到</th><th>注册时间</th></tr></thead>
-          <tbody id="usersBody"></tbody>
-        </table>
+    <!-- 用户 -->
+    <div class="tab-page" id="pg-users">
+      <div class="page-card">
+        <div class="search-row"><input id="userSearch" type="text" placeholder="搜索邮箱 / 用户名…"><button class="btn ghost" id="userSearchClear">清除</button></div>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>邮箱</th><th>站长称号</th><th>积分</th><th>今日签到</th><th>注册时间</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
         <div class="empty" id="usersEmpty" style="display:none">还没有用户</div>
       </div>
+    </div>
 
-      <!-- 兑换记录 -->
-      <div class="tab-page" id="pg-reds">
-        <table>
-          <thead><tr><th>码</th><th>用户</th><th>时间</th></tr></thead>
-          <tbody id="redsBody"></tbody>
-        </table>
+    <!-- 兑换记录 -->
+    <div class="tab-page" id="pg-reds">
+      <div class="page-card">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>码</th><th>用户</th><th>时间</th></tr></thead>
+            <tbody id="redsBody"></tbody>
+          </table>
+        </div>
         <div class="empty" id="redsEmpty" style="display:none">还没有兑换记录</div>
       </div>
+    </div>
 
-      <!-- 留言 -->
-      <div class="tab-page" id="pg-msgs">
+    <!-- 留言 -->
+    <div class="tab-page" id="pg-msgs">
+      <div class="page-card">
+        <div class="search-row"><input id="msgSearch" type="text" placeholder="搜索留言内容 / 用户…"></div>
         <div id="msgsList"></div>
         <div class="empty" id="msgsEmpty" style="display:none">还没有留言</div>
       </div>
+    </div>
 
-      <!-- 设置 -->
-      <div class="tab-page" id="pg-cfg">
-        <div class="config-row">
-          <div class="field">
-            <label>每日签到积分 / CHECK-IN PTS</label>
-            <input id="cfgPts" type="number" min="0" step="1">
-          </div>
-          <button class="btn" id="cfgSave">保 存</button>
+    <!-- 排行榜 -->
+    <div class="tab-page" id="pg-lb">
+      <div class="page-card">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>#</th><th>用户</th><th>站长称号</th><th>积分</th></tr></thead>
+            <tbody id="lbBody"></tbody>
+          </table>
         </div>
-        <div class="msg" id="cfgMsg"></div>
+        <div class="empty" id="lbEmpty" style="display:none">还没有人有积分</div>
       </div>
+    </div>
+
+    <!-- 趋势 -->
+    <div class="tab-page" id="pg-trend">
+      <div class="page-card">
+        <div id="trendChart"></div>
+        <div class="chart-legend">
+          <span><i style="background:#22d3ee"></i>新注册</span>
+          <span><i style="background:#a78bfa"></i>签到</span>
+          <span><i style="background:#e8b84b"></i>兑换</span>
+        </div>
+        <div class="empty" id="trendEmpty" style="display:none">暂无数据</div>
+      </div>
+    </div>
+
+    <!-- 导出 -->
+    <div class="tab-page" id="pg-export">
+      <div class="page-card">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.8">一键导出当前数据为 CSV 表格：<b style="color:var(--cyan)">奖励码</b> / <b style="color:var(--cyan)">用户</b> / <b style="color:var(--cyan)">兑换记录</b>，可用 Excel / WPS 打开。</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn ghost" id="expCodes">导出奖励码</button>
+          <button class="btn ghost" id="expUsers">导出用户</button>
+          <button class="btn ghost" id="expReds">导出兑换记录</button>
+          <button class="btn ghost" id="expAll">导出全部</button>
+        </div>
+        <div class="msg" id="expMsg"></div>
+      </div>
+    </div>
+
+    <!-- 日志 -->
+    <div class="tab-page" id="pg-logs">
+      <div class="page-card">
+        <div id="logsList"></div>
+        <div class="empty" id="logsEmpty" style="display:none">暂无操作记录</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 用户详情弹窗 -->
+<div class="overlay" id="userModal">
+  <div class="modal">
+    <button class="close-x" id="userModalClose">✕</button>
+    <h3 id="umName">用户详情</h3>
+    <div class="m-sub" id="umEmail"></div>
+    <div class="m-grid" id="umGrid"></div>
+    <div class="m-sec"><div class="sec-t">成就</div><div id="umAch"></div></div>
+    <div class="m-sec"><div class="sec-t">最近签到（10）</div><div id="umChecks"></div></div>
+    <div class="m-sec"><div class="sec-t">最近兑换（10）</div><div id="umReds"></div></div>
+    <div class="m-sec">
+      <div class="sec-t">操作</div>
+      <div class="m-actions">
+        <input id="umDelta" type="number" placeholder="±积分">
+        <button class="btn sm" id="umAddPts">加/减积分</button>
+      </div>
+      <div class="m-actions" style="margin-top:8px">
+        <input id="umDate" type="date">
+        <button class="btn sm" id="umCheckin">补签到</button>
+      </div>
+      <div class="m-actions" style="margin-top:8px">
+        <input id="umReason" type="text" placeholder="禁言理由">
+        <button class="btn sm red" id="umBan">禁言</button>
+        <button class="btn sm" id="umUnban">解禁</button>
+      </div>
+      <div class="msg" id="umMsg"></div>
     </div>
   </div>
 </div>
@@ -241,6 +472,26 @@
 <script>
   const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
+  const KEY = 'SYM-2b2ba42bbaf3';
+
+  const PAGES = {
+    gen:   ['发码', '生成 / 批量生成奖励码（站长专属）'],
+    grant: ['称号', '授予 / 收回称号，自定义称号管理（站长专属）'],
+    cfg:   ['设置', '签到积分 / 连签奖励 / 活动模式 / 首页公告（站长专属）'],
+    codes: ['奖励码', '所有奖励码及兑换情况'],
+    users: ['用户', '搜索、查看详情、加减分、禁言'],
+    reds:  ['兑换记录', '谁兑换了哪些码'],
+    msgs:  ['留言', '回复、删除、置顶留言'],
+    lb:    ['排行榜', '积分 Top10'],
+    trend: ['趋势', '近 7 天注册 / 签到 / 兑换走势'],
+    export:['导出', '数据导出为 CSV'],
+    logs:  ['日志', '所有管理操作留痕']
+  };
+
+  const ACH_ZH = {
+    seven_days: '七日之约', full_attendance: '全勤之王', collector: '收藏家', social: '社交达人',
+    replied: '被翻牌', pioneer: '拓荒者', month_old: '站龄满月', lucky: '欧皇'
+  };
 
   const sdk = document.createElement('script');
   sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
@@ -248,67 +499,132 @@
     if (!window.supabase) return;
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const $ = id => document.getElementById(id);
-    let KEY = '';
     let dash = null;
+    let role = '';
 
-    function esc(s) {
-      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function fmt(iso) {
-      if (!iso) return '';
-      return new Date(iso).toLocaleString('zh-CN', { hour12: false });
-    }
-    function setMsg(id, text, ok) {
-      const el = $(id);
-      el.textContent = text;
-      el.className = 'msg ' + (ok ? 'ok' : 'err');
-    }
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmt(iso) { if (!iso) return ''; return new Date(iso).toLocaleString('zh-CN', { hour12: false }); }
+    function setMsg(id, text, ok) { const el = $(id); el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err'); }
+    function fmsg(d) { return { FORBIDDEN: '无权限（仅站长/管理员可操作）', USER_NOT_FOUND: '用户不存在', BAD_TITLE: '称号不存在', BAD_KEY: '密钥错误', ALREADY: '该日期已签到', EMPTY_CODE: '请输入奖励码' }[d] || '操作失败'; }
 
-    // ---- 解锁 + 加载总览 ----
     async function loadDashboard(showErr) {
       const { data, error } = await supabase.rpc('admin_dashboard', { p_key: KEY });
       if (error) throw error;
       if (!data || !data.ok) {
-        if (showErr) setMsg('keyMsg', '密钥错误', false);
+        if (showErr) setMsg('keyMsg', fmsg(data && data.msg), false);
         return false;
       }
       dash = data;
-      renderCodes(); renderUsers(); renderReds(); renderMsgs();
-      fillGrantTitles();
-      const cp = (data.config && data.config.checkin_points) || '10';
-      $('cfgPts').value = cp;
+      role = data.role || 'none';
+      renderAll();
+      $('cfgPts').value = (data.config && data.config.checkin_points) || '10';
+      $('cfgStreak').value = (data.config && data.config.streak_bonus) || '';
+      $('cfgMul').value = (data.config && data.config.event_multiplier) || '2';
+      $('cfgEvent').checked = ((data.config && data.config.event_mode) || '0') === '1';
+      $('cfgAnn').value = (data.config && data.config.announcement) || '';
+      $('cfgAnnOn').checked = ((data.config && data.config.announcement_active) || '0') === '1';
       return true;
     }
 
-    $('unlock').addEventListener('click', async () => {
-      KEY = $('k').value.trim();
-      $('keyMsg').textContent = '';
-      if (!KEY) { setMsg('keyMsg', '请输入密钥', false); return; }
-      $('unlock').disabled = true;
+    // ---- 启动：站长身份校验 ----
+    (async function init() {
       try {
+        const user = await supabase.auth.getUser();
+        const u = user.data && user.data.user;
+        const name = ((u && u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || '').trim();
+        const email = (u && u.email || '').toLowerCase();
+        const isOwner = (name === 'SYM12356') || (email === '3829343053@qq.com');
+        if (!isOwner) { showDenied(u ? '仅站长可用' : '请先登录'); return; }
+        document.querySelector('.app').style.display = 'grid';
         const ok = await loadDashboard(true);
         if (ok) {
-          $('console').style.display = 'block';
-          setMsg('keyMsg', '已解锁，数据加载成功', true);
+          $('statsRow').style.display = 'grid';
+          setupRoleUI();
+          bindTabs();
+          bindActions();
         }
       } catch (e) {
-        setMsg('keyMsg', '加载失败：' + e.message, false);
-      } finally {
-        $('unlock').disabled = false;
+        showDenied('加载失败');
       }
-    });
+    })();
 
-    // ---- 选项卡 ----
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-        $('pg-' + tab.dataset.tab).classList.add('active');
+    function showDenied(msg) {
+      const el = document.getElementById('denied') || buildDenied();
+      document.getElementById('deniedMsg').textContent = msg;
+      el.style.display = 'flex';
+    }
+    function buildDenied() {
+      const d = document.createElement('div');
+      d.id = 'denied';
+      d.style.cssText = 'display:none;position:fixed;inset:0;z-index:999;align-items:center;justify-content:center;padding:24px';
+      d.style.background = 'radial-gradient(45% 40% at 30% 25%, rgba(34,120,210,.15), transparent 70%), radial-gradient(40% 40% at 75% 75%, rgba(120,80,220,.12), transparent 70%), #05070f';
+      d.innerHTML =
+        '<div style="width:min(380px,100%);text-align:center;padding:40px 30px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(10,14,26,.92)">' +
+          '<div style="width:56px;height:56px;margin:0 auto 16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#04060e;background:linear-gradient(135deg,#f87171,#fb923c);box-shadow:0 0 24px rgba(248,113,113,.4)">!</div>' +
+          '<h2 id="deniedMsg" style="font-size:20px;letter-spacing:2px;margin-bottom:8px">仅站长可用</h2>' +
+          '<p style="font-size:12.5px;color:#8b93ab;letter-spacing:1px;margin-bottom:26px;line-height:1.8">此页面仅站长/管理员可访问<br>请使用站长账号登录后从主页进入</p>' +
+          '<a href="index.html" style="display:inline-block;padding:12px 34px;border-radius:10px;background:#22d3ee;color:#04060e;font-size:14px;font-weight:600;letter-spacing:3px;text-decoration:none">返回主页</a>' +
+        '</div>';
+      document.body.appendChild(d);
+      return d;
+    }
+
+    function setupRoleUI() {
+      const isOwner = role === 'owner';
+      const chip = $('roleChip');
+      chip.style.display = 'inline-flex';
+      chip.className = 'role-chip' + (isOwner ? ' owner' : '');
+      $('roleChipText').textContent = isOwner ? '站长' : '管理员';
+      $('sideFoot').innerHTML = '● <b>' + (isOwner ? '站长' : '管理员') + '</b><br>数据实时加载';
+      // 管理员隐藏站长专属页
+      document.querySelectorAll('.nav-item[data-owner]').forEach(n => {
+        n.style.display = isOwner ? '' : 'none';
       });
-    });
+      if (!isOwner) {
+        // 默认跳到第一个可见页
+        const first = document.querySelector('.nav-item:not([data-owner])');
+        if (first) switchTab(first.dataset.tab);
+      }
+    }
+
+    function bindTabs() {
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+          switchTab(item.dataset.tab);
+        });
+      });
+      document.querySelectorAll('.tpl').forEach(t => {
+        t.addEventListener('click', () => {
+          $('p').value = t.dataset.pts || '100';
+          $('lot').checked = !!t.dataset.lot;
+        });
+      });
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+      const nav = document.querySelector('.nav-item[data-tab="' + tab + '"]');
+      if (nav) nav.classList.add('active');
+      document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+      $('pg-' + tab).classList.add('active');
+      const meta = PAGES[tab] || ['', ''];
+      $('pageTitle').textContent = meta[0];
+      $('pageSub').textContent = meta[1];
+      if (tab === 'lb') loadLb();
+      if (tab === 'trend') loadTrend();
+    }
 
     // ---- 渲染 ----
+    function renderAll() {
+      renderCodes(); renderUsers(); renderReds(); renderMsgs(); renderTitles(); renderLogs();
+      fillStats();
+    }
+    function fillStats() {
+      $('stCodes').textContent = (dash.codes || []).length;
+      $('stUsers').textContent = (dash.profiles || []).length;
+      $('stReds').textContent = (dash.redemptions || []).length;
+      $('stMsgs').textContent = (dash.messages || []).length;
+    }
     function renderCodes() {
       const list = (dash && dash.codes) || [];
       $('codesEmpty').style.display = list.length ? 'none' : 'block';
@@ -320,16 +636,22 @@
     }
     function renderUsers() {
       const list = (dash && dash.profiles) || [];
-      const titles = {};
-      ((dash && dash.owner_titles) || []).forEach(t => { titles[t.key] = t.name; });
-      $('usersEmpty').style.display = list.length ? 'none' : 'block';
-      $('usersBody').innerHTML = list.map(u =>
-        '<tr><td>' + esc(u.email || '—') + '</td><td>' +
+      const titles = {}; ((dash && dash.owner_titles) || []).forEach(t => { titles[t.key] = t.name; });
+      const banned = {}; ((dash && dash.banned) || []).forEach(b => { banned[b.email] = true; });
+      const q = ($('userSearch').value || '').trim().toLowerCase();
+      const filtered = q ? list.filter(u => (u.email || '').toLowerCase().includes(q)) : list;
+      $('usersEmpty').style.display = filtered.length ? 'none' : 'block';
+      $('usersBody').innerHTML = filtered.map(u =>
+        '<tr><td class="tlink" data-email="' + esc(u.email) + '">' + esc(u.email || '—') + '</td><td>' +
         (u.owner_title_key ? '<span class="tgold">' + esc(titles[u.owner_title_key] || u.owner_title_key) + '</span>' : '—') +
         '</td><td>' + (u.points || 0) + '</td><td>' +
-        (u.checked_today ? '<span class="tbadge yes">已签</span>' : '<span class="tbadge no">未签</span>') +
+        (u.checked_today ? '<span class="tbadge yes">已签</span>' : '<span class="tbadge no">未签</span>') + ' ' +
+        (banned[u.email] ? '<span class="tbadge ban">禁言</span>' : '') +
         '</td><td>' + fmt(u.created_at) + '</td></tr>'
       ).join('');
+      document.querySelectorAll('#usersBody [data-email]').forEach(td => {
+        td.addEventListener('click', () => openUserDetail(td.getAttribute('data-email')));
+      });
     }
     function renderReds() {
       const list = (dash && dash.redemptions) || [];
@@ -340,55 +662,191 @@
     }
     function renderMsgs() {
       const list = (dash && dash.messages) || [];
-      $('msgsEmpty').style.display = list.length ? 'none' : 'block';
-      $('msgsList').innerHTML = list.map(m =>
-        '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:10px">' +
-          '<div style="font-size:12px;color:var(--muted);font-family:ui-monospace,monospace;margin-bottom:4px">' +
-            esc(m.user_email || '匿名') + ' · ' + fmt(m.created_at) + (m.replied ? ' · <span style="color:#34d399">已回复</span>' : '') +
-          '</div>' +
-          '<div style="font-size:13.5px;line-height:1.6">' + esc(m.content || '') + '</div>' +
+      const q = ($('msgSearch').value || '').trim().toLowerCase();
+      const filtered = q ? list.filter(m => ((m.content||'') + ' ' + (m.user_email||'')).toLowerCase().includes(q)) : list;
+      $('msgsEmpty').style.display = filtered.length ? 'none' : 'block';
+      $('msgsList').innerHTML = filtered.map(m =>
+        '<div class="msg-card">' +
+          '<div class="msg-meta">' + (m.pinned ? '<span class="tbadge pin" style="margin-right:6px">置顶</span>' : '') + esc(m.user_email || '匿名') + ' · ' + fmt(m.created_at) + (m.replied ? ' · <span style="color:#34d399">已回复</span>' : '') + '</div>' +
+          '<div class="msg-body">' + esc(m.content || '') + '</div>' +
           (m.replied && m.reply ? '<div class="m-reply">站长回复：' + esc(m.reply) + '</div>' : '') +
           (m.replied ? '' :
             '<div class="reply-form"><input id="rp_' + m.id + '" type="text" placeholder="回复这条留言…">' +
-            '<button class="btn ghost" data-reply="' + m.id + '">回复</button></div>') +
+            '<button class="btn ghost sm" data-reply="' + m.id + '">回复</button></div>') +
+          '<div class="msg-actions">' +
+            '<button class="btn ghost sm" data-del="' + m.id + '">删除</button>' +
+            '<button class="btn ghost sm" data-pin="' + m.id + '">' + (m.pinned ? '取消置顶' : '置顶') + '</button>' +
+          '</div>' +
         '</div>'
       ).join('');
-      document.querySelectorAll('[data-reply]').forEach(btn => {
-        btn.addEventListener('click', () => doReply(btn.getAttribute('data-reply')));
-      });
+      document.querySelectorAll('[data-reply]').forEach(b => b.addEventListener('click', () => doReply(b.getAttribute('data-reply'))));
+      document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => doDeleteMsg(b.getAttribute('data-del'))));
+      document.querySelectorAll('[data-pin]').forEach(b => b.addEventListener('click', () => doPinMsg(b.getAttribute('data-pin'))));
     }
-    function fillGrantTitles() {
-      const titles = (dash && dash.owner_titles) || [];
-      $('gTitle').innerHTML = titles.map(t => '<option value="' + esc(t.key) + '">' + esc(t.name) + '</option>').join('');
+    function renderTitles() {
+      const list = (dash && dash.owner_titles) || [];
+      $('titlesBody').innerHTML = list.map(t =>
+        '<tr><td class="tcode">' + esc(t.key) + '</td><td class="tgold">' + esc(t.name) + '</td><td>' + t.priority + '</td>' +
+        '<td><button class="btn ghost sm" data-rmtitle="' + esc(t.key) + '">删除</button></td></tr>'
+      ).join('');
+      document.querySelectorAll('[data-rmtitle]').forEach(b => b.addEventListener('click', () => doRemoveTitle(b.getAttribute('data-rmtitle'))));
+      $('gTitle').innerHTML = list.map(t => '<option value="' + esc(t.key) + '">' + esc(t.name) + '</option>').join('');
+    }
+    function renderLogs() {
+      const list = (dash && dash.logs) || [];
+      $('logsEmpty').style.display = list.length ? 'none' : 'block';
+      $('logsList').innerHTML = list.map(l =>
+        '<div class="log-item"><span class="lt">' + fmt(l.created_at) + '</span><span class="la">' + esc(l.action || '') + '</span><span class="ld">' + esc(l.detail || '') + '（' + esc(l.actor || '?') + '）</span></div>'
+      ).join('');
     }
 
-    // ---- 发码 ----
-    $('gen').addEventListener('click', async () => {
+    // ---- 排行榜 / 趋势 ----
+    async function loadLb() {
+      try {
+        const { data } = await supabase.rpc('leaderboard');
+        const list = (data && data.ok && data.list) || [];
+        $('lbEmpty').style.display = list.length ? 'none' : 'block';
+        $('lbBody').innerHTML = list.map((r, i) =>
+          '<tr><td class="tgold">#' + (i + 1) + '</td><td>' + esc(r.name || '?') + '</td><td>' + (r.owner_title ? '<span class="tgold">' + esc(r.owner_title) + '</span>' : '—') + '</td><td>' + r.points + '</td></tr>'
+        ).join('');
+      } catch (e) { $('lbBody').innerHTML = '<tr><td colspan="4" style="color:var(--red)">加载失败</td></tr>'; }
+    }
+    async function loadTrend() {
+      try {
+        const { data, error } = await supabase.rpc('admin_trends', { p_key: KEY });
+        if (error || !data || !data.ok) { $('trendEmpty').style.display = 'block'; return; }
+        const rows = data.trends || [];
+        $('trendEmpty').style.display = rows.length ? 'none' : 'block';
+        const max = Math.max(1, ...rows.map(r => Math.max(r.users, r.checkins, r.redemptions)));
+        $('trendChart').innerHTML = '<div class="bar-chart">' + rows.map(r => {
+          const d = String(r.day).slice(5);
+          return '<div class="bar-day"><div class="bar-group">' +
+            '<div class="bar u" style="height:' + Math.round(r.users / max * 100) + '%"></div>' +
+            '<div class="bar c" style="height:' + Math.round(r.checkins / max * 100) + '%"></div>' +
+            '<div class="bar r" style="height:' + Math.round(r.redemptions / max * 100) + '%"></div>' +
+            '</div><span class="lbl">' + d + '</span></div>';
+        }).join('') + '</div>';
+      } catch (e) { $('trendEmpty').style.display = 'block'; }
+    }
+
+    // ---- 用户详情 ----
+    let curEmail = '';
+    async function openUserDetail(email) {
+      curEmail = email;
+      $('userModal').classList.add('show');
+      $('umEmail').textContent = email;
+      $('umName').textContent = '用户详情';
+      $('umGrid').innerHTML = '加载中…';
+      $('umAch').innerHTML = '';
+      $('umChecks').innerHTML = '';
+      $('umReds').innerHTML = '';
+      $('umMsg').textContent = '';
+      try {
+        const { data, error } = await supabase.rpc('admin_user_detail', { p_key: KEY, p_email: email });
+        if (error || !data || !data.ok) { $('umGrid').innerHTML = '<span style="color:var(--red)">' + esc(fmsg(data && data.msg)) + '</span>'; return; }
+        const u = data.user || {};
+        $('umName').textContent = u.username || '用户详情';
+        $('umGrid').innerHTML =
+          '<div class="kv">邮箱：<b>' + esc(u.email) + '</b></div>' +
+          '<div class="kv">积分：<b>' + (u.points || 0) + '</b></div>' +
+          '<div class="kv">注册时间：<b>' + fmt(u.registered_at) + '</b></div>' +
+          '<div class="kv">累计签到：<b>' + (u.total_checkins || 0) + '</b></div>' +
+          '<div class="kv">兑换码数：<b>' + (u.total_redemptions || 0) + '</b></div>' +
+          '<div class="kv">留言数：<b>' + (u.total_messages || 0) + '</b></div>' +
+          '<div class="kv">状态：<b>' + (u.banned ? '<span style="color:var(--red)">禁言' + (u.ban_reason ? '（' + esc(u.ban_reason) + '）' : '') + '</span>' : '<span style="color:var(--green)">正常</span>') + '</b></div>';
+        $('umAch').innerHTML = (data.achievements || []).length
+          ? data.achievements.map(a => '<span class="m-ach">' + esc(ACH_ZH[a.key] || a.key) + '</span>').join('')
+          : '<span style="font-size:12.5px;color:var(--muted)">暂无成就</span>';
+        $('umChecks').innerHTML = (data.checkins || []).map(c => '<div class="m-list-item">' + c.day + ' · +' + c.points + '</div>').join('') || '<span style="font-size:12.5px;color:var(--muted)">无签到记录</span>';
+        $('umReds').innerHTML = (data.redemptions || []).map(r => '<div class="m-list-item">' + esc(r.code || '?') + ' · ' + fmt(r.created_at) + '</div>').join('') || '<span style="font-size:12.5px;color:var(--muted)">无兑换记录</span>';
+      } catch (e) {
+        $('umGrid').innerHTML = '<span style="color:var(--red)">加载失败</span>';
+      }
+    }
+    $('userModalClose').addEventListener('click', () => $('userModal').classList.remove('show'));
+    $('userModal').addEventListener('click', e => { if (e.target === $('userModal')) $('userModal').classList.remove('show'); });
+
+    // ---- 操作 ----
+    function bindActions() {
+      $('gen').addEventListener('click', doGen);
+      $('genBatch').addEventListener('click', doBatch);
+      $('gGrant').addEventListener('click', doGrant);
+      $('gRevoke').addEventListener('click', doRevoke);
+      $('ntAdd').addEventListener('click', doAddTitle);
+      $('cfgSave1').addEventListener('click', saveCfg1);
+      $('cfgSave2').addEventListener('click', saveCfg2);
+      $('userSearch').addEventListener('input', renderUsers);
+      $('userSearchClear').addEventListener('click', () => { $('userSearch').value = ''; renderUsers(); });
+      $('msgSearch').addEventListener('input', renderMsgs);
+      $('umAddPts').addEventListener('click', () => umAction('admin_add_points', { p_email: curEmail, p_delta: parseInt($('umDelta').value, 10) || 0 }, '已调整积分'));
+      $('umCheckin').addEventListener('click', () => umAction('admin_add_checkin', { p_email: curEmail, p_date: $('umDate').value }, '已补签到'));
+      $('umBan').addEventListener('click', () => umAction('admin_ban_user', { p_email: curEmail, p_reason: $('umReason').value.trim() }, '已禁言'));
+      $('umUnban').addEventListener('click', () => umAction('admin_unban_user', { p_email: curEmail }, '已解禁'));
+      $('expCodes').addEventListener('click', () => exportCsv('奖励码', [['码','积分','彩蛋','已兑换','创建时间']].concat((dash.codes||[]).map(c => [c.code, c.points, c.lottery ? '是' : '', c.used||0, c.created_at||'']))));
+      $('expUsers').addEventListener('click', () => exportCsv('用户', [['邮箱','积分','注册时间']].concat((dash.profiles||[]).map(u => [u.email, u.points, u.created_at||'']))));
+      $('expReds').addEventListener('click', () => exportCsv('兑换记录', [['码','用户','时间']].concat((dash.redemptions||[]).map(r => [r.code, r.email, r.created_at||'']))));
+      $('expAll').addEventListener('click', () => {
+        exportCsv('全部', [['码','积分','彩蛋','已兑换','创建时间']].concat((dash.codes||[]).map(c => [c.code, c.points, c.lottery?'是':'', c.used||0, c.created_at||'']))
+          .concat([[]]).concat([['邮箱','积分','注册时间']]).concat((dash.profiles||[]).map(u => [u.email, u.points, u.created_at||'']))
+          .concat([[]]).concat([['码','用户','时间']]).concat((dash.redemptions||[]).map(r => [r.code, r.email, r.created_at||''])));
+      });
+    }
+
+    async function umAction(rpc, params, okMsg) {
+      try {
+        const { data, error } = await supabase.rpc(rpc, Object.assign({ p_key: KEY }, params));
+        if (error) { $('umMsg').className = 'msg err'; $('umMsg').textContent = '失败：' + error.message; return; }
+        if (data && data.ok) {
+          $('umMsg').className = 'msg ok'; $('umMsg').textContent = okMsg + ' ✓';
+          await loadDashboard(false);
+          openUserDetail(curEmail);
+        } else {
+          $('umMsg').className = 'msg err'; $('umMsg').textContent = fmsg(data && data.msg);
+        }
+      } catch (e) {
+        $('umMsg').className = 'msg err'; $('umMsg').textContent = '失败：' + e.message;
+      }
+    }
+
+    async function doGen() {
       const code = $('c').value.trim();
       const points = parseInt($('p').value, 10) || 0;
       const lottery = $('lot').checked;
       if (!code) { setMsg('genMsg', '请输入奖励码', false); return; }
       $('gen').disabled = true;
-      setMsg('genMsg', '生成中…', false);
       try {
         const { data, error } = await supabase.rpc('admin_create_code', { p_code: code, p_points: points, p_key: KEY, p_lottery: lottery });
         if (error) { setMsg('genMsg', '失败：' + error.message, false); return; }
         if (data && data.ok) {
           setMsg('genMsg', '已生成：' + code.toUpperCase() + ' · ' + points + ' 积分' + (lottery ? ' · 彩蛋码' : ''), true);
-          $('c').value = '';
-          $('lot').checked = false;
+          $('c').value = ''; $('lot').checked = false;
           await loadDashboard(false);
-        } else {
-          setMsg('genMsg', (data && data.msg === 'BAD_KEY') ? '密钥错误' : '生成失败', false);
-        }
-      } catch (e) {
-        setMsg('genMsg', '失败：' + e.message, false);
-      } finally {
-        $('gen').disabled = false;
-      }
-    });
+        } else setMsg('genMsg', fmsg(data && data.msg), false);
+      } catch (e) { setMsg('genMsg', '失败：' + e.message, false); }
+      finally { $('gen').disabled = false; }
+    }
 
-    // ---- 授予 / 收回 ----
+    async function doBatch() {
+      const count = Math.min(Math.max(parseInt($('bCount').value, 10) || 1, 1), 50);
+      const points = parseInt($('bPts').value, 10) || 0;
+      const prefix = $('bPrefix').value.trim() || 'SYM';
+      const lottery = $('bLot').checked;
+      $('genBatch').disabled = true;
+      setMsg('batchMsg', '生成中…', false);
+      try {
+        const { data, error } = await supabase.rpc('admin_batch_codes', { p_key: KEY, p_points: points, p_count: count, p_prefix: prefix, p_lottery: lottery });
+        if (error) { setMsg('batchMsg', '失败：' + error.message, false); return; }
+        if (data && data.ok) {
+          const codes = data.codes || [];
+          setMsg('batchMsg', '已生成 ' + codes.length + ' 个码：', true);
+          $('batchOut').style.display = 'block';
+          $('batchOut').textContent = codes.join('\n');
+          await loadDashboard(false);
+        } else setMsg('batchMsg', fmsg(data && data.msg), false);
+      } catch (e) { setMsg('batchMsg', '失败：' + e.message, false); }
+      finally { $('genBatch').disabled = false; }
+    }
+
     async function doGrant() {
       const email = $('gEmail').value.trim();
       const tkey = $('gTitle').value;
@@ -401,15 +859,9 @@
           setMsg('gMsg', '已授予 ' + email + ' 称号「' + ($('gTitle').selectedOptions[0] ? $('gTitle').selectedOptions[0].textContent : tkey) + '」', true);
           $('gEmail').value = '';
           await loadDashboard(false);
-        } else {
-          const map = { USER_NOT_FOUND: '用户不存在', BAD_TITLE: '称号不存在', BAD_KEY: '密钥错误' };
-          setMsg('gMsg', map[data && data.msg] || '授予失败', false);
-        }
-      } catch (e) {
-        setMsg('gMsg', '失败：' + e.message, false);
-      } finally {
-        $('gGrant').disabled = false;
-      }
+        } else setMsg('gMsg', fmsg(data && data.msg), false);
+      } catch (e) { setMsg('gMsg', '失败：' + e.message, false); }
+      finally { $('gGrant').disabled = false; }
     }
     async function doRevoke() {
       const email = $('gEmail').value.trim();
@@ -418,23 +870,33 @@
       try {
         const { data, error } = await supabase.rpc('admin_revoke_title', { p_key: KEY, p_email: email });
         if (error) { setMsg('gMsg', '失败：' + error.message, false); return; }
-        if (data && data.ok) {
-          setMsg('gMsg', '已收回 ' + email + ' 的站长授予称号', true);
-          $('gEmail').value = '';
-          await loadDashboard(false);
-        } else {
-          setMsg('gMsg', (data && data.msg === 'USER_NOT_FOUND') ? '用户不存在' : '收回失败', false);
-        }
-      } catch (e) {
-        setMsg('gMsg', '失败：' + e.message, false);
-      } finally {
-        $('gRevoke').disabled = false;
-      }
+        if (data && data.ok) { setMsg('gMsg', '已收回 ' + email + ' 的称号', true); $('gEmail').value = ''; await loadDashboard(false); }
+        else setMsg('gMsg', fmsg(data && data.msg), false);
+      } catch (e) { setMsg('gMsg', '失败：' + e.message, false); }
+      finally { $('gRevoke').disabled = false; }
     }
-    $('gGrant').addEventListener('click', doGrant);
-    $('gRevoke').addEventListener('click', doRevoke);
+    async function doAddTitle() {
+      const k = $('ntKey').value.trim();
+      const n = $('ntName').value.trim();
+      const pr = parseInt($('ntPri').value, 10) || 99;
+      if (!k || !n) { setMsg('ntMsg', 'key 和名称都要填', false); return; }
+      try {
+        const { data, error } = await supabase.rpc('admin_add_title', { p_key: KEY, p_key2: k, p_name: n, p_priority: pr });
+        if (error) { setMsg('ntMsg', '失败：' + error.message, false); return; }
+        if (data && data.ok) { setMsg('ntMsg', '已添加称号「' + n + '」', true); $('ntKey').value = ''; $('ntName').value = ''; await loadDashboard(false); }
+        else setMsg('ntMsg', fmsg(data && data.msg), false);
+      } catch (e) { setMsg('ntMsg', '失败：' + e.message, false); }
+    }
+    async function doRemoveTitle(k) {
+      if (!confirm('确定删除称号「' + k + '」？已授予该称号的用户会被收回。')) return;
+      try {
+        const { data, error } = await supabase.rpc('admin_remove_title', { p_key: KEY, p_key2: k });
+        if (error) { alert('失败：' + error.message); return; }
+        if (data && data.ok) await loadDashboard(false);
+        else alert(fmsg(data && data.msg));
+      } catch (e) { alert('失败：' + e.message); }
+    }
 
-    // ---- 回复留言 ----
     async function doReply(msgId) {
       const input = $('rp_' + msgId);
       const text = input ? input.value.trim() : '';
@@ -442,32 +904,75 @@
       try {
         const { data, error } = await supabase.rpc('admin_reply_message', { p_key: KEY, p_msg_id: msgId, p_reply: text });
         if (error) { alert('失败：' + error.message); return; }
-        if (data && data.ok) {
-          await loadDashboard(false);
-        } else {
-          alert('密钥错误');
-        }
-      } catch (e) {
-        alert('失败：' + e.message);
-      }
+        if (data && data.ok) await loadDashboard(false);
+        else alert(fmsg(data && data.msg));
+      } catch (e) { alert('失败：' + e.message); }
+    }
+    async function doDeleteMsg(id) {
+      if (!confirm('确定删除这条留言？')) return;
+      try {
+        const { data, error } = await supabase.rpc('admin_delete_message', { p_key: KEY, p_msg_id: id });
+        if (error) { alert('失败：' + error.message); return; }
+        if (data && data.ok) await loadDashboard(false);
+        else alert(fmsg(data && data.msg));
+      } catch (e) { alert('失败：' + e.message); }
+    }
+    async function doPinMsg(id) {
+      try {
+        const { data, error } = await supabase.rpc('admin_pin_message', { p_key: KEY, p_msg_id: id });
+        if (error) { alert('失败：' + error.message); return; }
+        if (data && data.ok) await loadDashboard(false);
+        else alert(fmsg(data && data.msg));
+      } catch (e) { alert('失败：' + e.message); }
     }
 
-    // ---- 设置 ----
-    $('cfgSave').addEventListener('click', async () => {
-      const val = parseInt($('cfgPts').value, 10);
-      if (isNaN(val) || val < 0) { setMsg('cfgMsg', '请输入有效积分值', false); return; }
-      $('cfgSave').disabled = true;
+    async function saveCfg1() {
+      const v = parseInt($('cfgPts').value, 10);
+      if (isNaN(v) || v < 0) { setMsg('cfgMsg1', '请输入有效积分值', false); return; }
+      $('cfgSave1').disabled = true;
       try {
-        const { data, error } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: 'checkin_points', p_value: String(val) });
-        if (error) { setMsg('cfgMsg', '失败：' + error.message, false); return; }
-        if (data && data.ok) setMsg('cfgMsg', '已保存：每日签到 +' + val + ' 积分', true);
-        else setMsg('cfgMsg', '密钥错误', false);
-      } catch (e) {
-        setMsg('cfgMsg', '失败：' + e.message, false);
-      } finally {
-        $('cfgSave').disabled = false;
-      }
-    });
+        const vals = [
+          ['checkin_points', String(v)],
+          ['streak_bonus', $('cfgStreak').value.trim()],
+          ['event_multiplier', $('cfgMul').value.trim() || '2'],
+          ['event_mode', $('cfgEvent').checked ? '1' : '0']
+        ];
+        for (const kv of vals) {
+          const { data } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: kv[0], p_value: kv[1] });
+          if (!data || !data.ok) { setMsg('cfgMsg1', fmsg(data && data.msg), false); return; }
+        }
+        setMsg('cfgMsg1', '签到设置已保存 ✓', true);
+        await loadDashboard(false);
+      } catch (e) { setMsg('cfgMsg1', '失败：' + e.message, false); }
+      finally { $('cfgSave1').disabled = false; }
+    }
+    async function saveCfg2() {
+      $('cfgSave2').disabled = true;
+      try {
+        const vals = [
+          ['announcement', $('cfgAnn').value.trim()],
+          ['announcement_active', $('cfgAnnOn').checked ? '1' : '0']
+        ];
+        for (const kv of vals) {
+          const { data } = await supabase.rpc('admin_set_config', { p_key: KEY, p_key2: kv[0], p_value: kv[1] });
+          if (!data || !data.ok) { setMsg('cfgMsg2', fmsg(data && data.msg), false); return; }
+        }
+        setMsg('cfgMsg2', '公告已保存 ✓', true);
+        await loadDashboard(false);
+      } catch (e) { setMsg('cfgMsg2', '失败：' + e.message, false); }
+      finally { $('cfgSave2').disabled = false; }
+    }
+
+    function exportCsv(name, rows) {
+      const csv = '\uFEFF' + rows.map(r => r.map(x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name + '.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setMsg('expMsg', '已导出 ' + name + '（' + rows.length + ' 行）', true);
+    }
   };
   document.body.appendChild(sdk);
 </script>
