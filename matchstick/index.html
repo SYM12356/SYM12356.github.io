@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>🐉 火柴人龙之战</title>
+<style>
+  :root{
+    --gold:#ffd94d; --gold2:#ffb52e; --gold3:#e08a00; --goldH:#ffe9a8;
+    --blue:#4a9fff; --blueH:#9ad8ff;
+    --panel:rgba(14,18,44,.84); --panel2:rgba(24,30,66,.92);
+    --line:rgba(255,255,255,.13); --lineG:rgba(255,217,77,.45);
+    --txt:#e8eeff; --txt2:#aeb9da; --txt3:#7d8ab0;
+    --ok:#7dffa8; --bad:#ff8a7a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+  html,body{width:100%;height:100%;overflow:hidden;background:#04050d;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;color:#fff;}
+  #wrap{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,177.78vh);height:min(100vh,56.25vw);background:#000;border-radius:12px;overflow:hidden;
+    border:1px solid rgba(255,217,77,.16);
+    box-shadow:0 0 110px rgba(255,150,30,.22),0 0 46px rgba(90,110,255,.14);}
+  #cv{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .hidden{display:none!important;}
+
+  /* ============ 通用屏幕背景 ============ */
+  .screen{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,217,77,.4),inset 0 -1px 0 rgba(90,110,255,.15);
+    background:
+      radial-gradient(1100px 460px at 50% -12%, rgba(255,170,60,.15), transparent 62%),
+      radial-gradient(850px 420px at 50% 112%, rgba(70,95,255,.10), transparent 62%),
+      linear-gradient(180deg,#0b0e24 0%,#070a19 55%,#05060f 100%);}
+  .screen::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.55;
+    background-image:linear-gradient(rgba(255,217,77,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,217,77,.05) 1px,transparent 1px);
+    background-size:46px 46px;
+    -webkit-mask-image:radial-gradient(ellipse at 50% 38%,rgba(0,0,0,.85),transparent 78%);
+    mask-image:radial-gradient(ellipse at 50% 38%,rgba(0,0,0,.85),transparent 78%);}
+  /* 光斑粒子层:10 个金色/蓝色光点缓慢漂移呼吸(第三层景深) */
+  .screen::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(3px 3px at 20% 28%,rgba(255,222,140,.55),transparent 65%),
+      radial-gradient(2px 2px at 68% 18%,rgba(255,205,100,.45),transparent 65%),
+      radial-gradient(2.5px 2.5px at 44% 62%,rgba(255,214,125,.4),transparent 65%),
+      radial-gradient(2px 2px at 84% 52%,rgba(165,185,255,.35),transparent 65%),
+      radial-gradient(3px 3px at 9% 72%,rgba(255,222,140,.4),transparent 65%),
+      radial-gradient(2px 2px at 56% 14%,rgba(255,195,95,.4),transparent 65%),
+      radial-gradient(2px 2px at 91% 78%,rgba(255,220,135,.35),transparent 65%),
+      radial-gradient(2.5px 2.5px at 31% 84%,rgba(165,185,255,.32),transparent 65%),
+      radial-gradient(2px 2px at 63% 44%,rgba(255,228,155,.45),transparent 65%),
+      radial-gradient(2px 2px at 14% 10%,rgba(255,205,105,.35),transparent 65%);
+    background-repeat:no-repeat;
+    animation:fxDrift 12s ease-in-out infinite alternate;}
+  @keyframes fxDrift{0%{transform:translateY(0) scale(1);opacity:.45;}100%{transform:translateY(-16px) scale(1.05);opacity:.85;}}
+  @media (prefers-reduced-motion: reduce){.screen::after{animation:none;opacity:.5;}}
+  .screen.show{display:flex;animation:screenIn .32s ease-out;}
+  @keyframes screenIn{from{opacity:0;transform:translateY(16px) scale(.985);}to{opacity:1;transform:none;}}
+
+  /* ============ HUD ============ */
+  #hud{position:absolute;inset:0;pointer-events:none;z-index:5;}
+  #topLeft{position:absolute;top:12px;left:14px;width:252px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.55));}
+  #nameplate{display:inline-block;font-size:14px;font-weight:800;color:#ffe9a8;letter-spacing:2px;margin-bottom:4px;
+    background:linear-gradient(180deg,rgba(255,205,90,.2),rgba(255,150,30,.1));
+    border:1px solid rgba(255,217,77,.5);border-radius:9px;padding:2px 12px;
+    box-shadow:0 0 16px rgba(255,180,60,.22),inset 0 1px 0 rgba(255,255,255,.2);}
+  .bar{position:relative;height:17px;background:rgba(4,6,14,.78);border:1px solid rgba(255,255,255,.28);border-radius:9px;margin-top:5px;overflow:hidden;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.07);}
+  .bar::after{content:'';position:absolute;inset:0;border-radius:8px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.2),transparent 46%);}
+  .bar .fill{position:absolute;inset:0;border-radius:8px;transition:width .14s ease;
+    background-image:linear-gradient(180deg,rgba(255,255,255,.28),transparent 42%);}
+  #hpFill{background:linear-gradient(90deg,#e83232,#ff7a45);box-shadow:0 0 14px rgba(255,80,40,.5);}
+  #qiFill{background:linear-gradient(90deg,#2aa8ff,#7ad7ff);box-shadow:0 0 14px rgba(90,180,255,.45);}
+  .bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.6);}
+  #trTimer{position:absolute;top:84px;left:14px;font-size:13px;color:#ffe9a8;background:linear-gradient(180deg,rgba(200,90,10,.75),rgba(140,50,0,.75));padding:3px 12px;border-radius:11px;border:1px solid #ffd94d;font-weight:800;letter-spacing:1px;box-shadow:0 0 16px rgba(255,170,40,.35);}
+  #topCenter{position:absolute;top:12px;left:50%;transform:translateX(-50%);text-align:center;}
+  #waveInfo{font-size:14px;font-weight:800;background:linear-gradient(180deg,rgba(10,14,34,.75),rgba(8,10,26,.85));border:1px solid rgba(255,255,255,.18);padding:4px 16px;border-radius:13px;letter-spacing:1.5px;box-shadow:0 2px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);}
+  #teamRow{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:7px;}
+  .teamBox{display:flex;gap:5px;align-items:center;background:rgba(6,9,20,.55);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:3px 9px;}
+  .teamBox .lbl{font-size:10px;color:#ffb3b3;margin-right:2px;font-weight:700;}
+  .teamBox .lbl.me{color:#b3ffd9;}
+  .dot{width:13px;height:13px;border-radius:50%;border:1.5px solid rgba(255,255,255,.8);box-shadow:0 0 7px rgba(255,255,255,.4);}
+  .dot.dead{background:#333!important;box-shadow:none;opacity:.5;}
+  #topRight{position:absolute;top:12px;right:14px;display:flex;gap:8px;align-items:center;}
+  #pauseBtn{pointer-events:auto;width:40px;height:40px;font-size:17px;border-radius:12px;border:1px solid rgba(255,255,255,.4);background:linear-gradient(180deg,rgba(30,38,80,.9),rgba(10,14,34,.9));color:#fff;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.15);transition:transform .08s;}
+  #pauseBtn:hover{border-color:#ffd94d;box-shadow:0 0 14px rgba(255,217,77,.4);}
+  #pauseBtn:active{transform:scale(.92);}
+  /* ===== 双人 HUD (P2) ===== */
+  #hudP2{position:absolute;top:66px;right:14px;width:252px;display:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.55));}
+  #hudP2 .bar{position:relative;height:17px;background:rgba(4,6,14,.78);border:1px solid rgba(255,255,255,.28);border-radius:9px;margin-top:5px;overflow:hidden;box-shadow:inset 0 2px 5px rgba(0,0,0,.7);}
+  #hudP2 .bar::after{content:'';position:absolute;inset:0;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.2),transparent 46%);}
+  #hudP2 .bar .fill{position:absolute;inset:0;border-radius:8px;transition:width .14s ease;background-image:linear-gradient(180deg,rgba(255,255,255,.28),transparent 42%);}
+  #hpFill2{background:linear-gradient(90deg,#3f8cff,#7ab8ff);box-shadow:0 0 14px rgba(80,150,255,.45);}
+  #qiFill2{background:linear-gradient(90deg,#2aa8ff,#7ad7ff);box-shadow:0 0 14px rgba(90,180,255,.45);}
+  #hudP2 .bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;text-shadow:0 1px 3px #000;}
+  #nameplate2{display:inline-block;font-size:14px;font-weight:800;color:#cfe4ff;letter-spacing:2px;
+    background:linear-gradient(180deg,rgba(80,150,255,.22),rgba(50,90,220,.1));
+    border:1px solid rgba(122,184,255,.5);border-radius:9px;padding:2px 12px;margin-bottom:4px;
+    box-shadow:0 0 16px rgba(90,150,255,.22),inset 0 1px 0 rgba(255,255,255,.2);}
+  #trTimer2{font-size:13px;color:#ffe9a8;background:linear-gradient(180deg,rgba(200,90,10,.75),rgba(140,50,0,.75));padding:3px 12px;border-radius:11px;border:1px solid #ffd94d;font-weight:800;margin-top:5px;letter-spacing:1px;box-shadow:0 0 16px rgba(255,170,40,.35);}
+  #skillBar2{position:absolute;bottom:14px;right:16px;display:none;gap:8px;pointer-events:auto;}
+  #skillBar2 .sk{width:60px;height:60px;}
+  #skillBar2 .sk .skKey{font-size:17px;}
+  #skillBar2 .sk .skName{font-size:8px;}
+  #skillBar2 .sk .skCost{font-size:9px;}
+  #skillBar2 .sk .skCd{font-size:15px;}
+  #skillBar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:9px;pointer-events:auto;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));}
+  .sk{position:relative;width:66px;height:66px;border-radius:17px;
+    background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(9,13,32,.88) 46%);
+    border:1.5px solid rgba(255,255,255,.38);
+    box-shadow:0 5px 16px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.22);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:transform .08s;}
+  .sk:hover{transform:translateY(-2px);}
+  .sk.gold{border-color:rgba(255,217,77,.9);
+    background:linear-gradient(180deg,rgba(255,215,95,.24),rgba(96,52,0,.72) 55%);
+    box-shadow:0 5px 20px rgba(255,180,40,.28),inset 0 1px 0 rgba(255,255,255,.3);}
+  .sk .skKey{font-size:21px;font-weight:900;color:#fff;text-shadow:0 0 8px rgba(122,215,255,.6);}
+  .sk.gold .skKey{color:#ffd94d;text-shadow:0 0 10px rgba(255,200,60,.8);}
+  .sk .skName{font-size:9px;color:#cfe6ff;margin-top:2px;letter-spacing:.5px;}
+  .sk .skCost{position:absolute;top:-8px;right:-8px;font-size:10px;font-weight:800;color:#7ad7ff;background:linear-gradient(180deg,#12264e,#0a1634);border:1px solid #2aa8ff;border-radius:9px;padding:1px 6px;box-shadow:0 2px 6px rgba(0,0,0,.5);}
+  .sk .skCd{position:absolute;inset:0;background:rgba(3,5,12,.78);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#ffd94d;text-shadow:0 0 8px rgba(255,200,60,.6);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+  .sk.off{filter:grayscale(.9) brightness(.55);}
+  .sk.flash{animation:skflash .5s infinite;}
+  @keyframes skflash{0%,100%{box-shadow:0 0 8px 2px rgba(122,215,255,.75),inset 0 1px 0 rgba(255,255,255,.22);}50%{box-shadow:0 0 22px 8px rgba(122,215,255,1),inset 0 1px 0 rgba(255,255,255,.22);}}
+  #announce{position:absolute;top:30%;width:100%;text-align:center;font-size:44px;font-weight:900;letter-spacing:5px;color:#ffd94d;
+    -webkit-text-stroke:1px rgba(200,90,0,.4);
+    text-shadow:0 3px 20px rgba(255,120,0,.95),0 0 50px rgba(255,154,0,.7),0 2px 0 rgba(120,50,0,.6);opacity:0;}
+  #announce.pop{animation:ann 2s ease-out forwards;}
+  @keyframes ann{0%{opacity:0;transform:scale(.55);}8%{opacity:1;transform:scale(1.08);}16%{transform:scale(1);}82%{opacity:1;}100%{opacity:0;transform:scale(.98);}}
+  #combo{position:absolute;top:38%;width:100%;text-align:center;font-size:27px;font-weight:900;color:#ff7a45;
+    -webkit-text-stroke:.5px rgba(255,90,0,.4);
+    text-shadow:0 0 18px rgba(255,100,0,1),0 2px 0 rgba(120,30,0,.6);opacity:0;}
+  #combo.pop{animation:ann 1.3s ease-out forwards;}
+  @media (pointer:coarse){#skillBar{display:none;} #announce{font-size:32px;} #combo{font-size:20px;}}
+
+  /* ============ 触屏 ============ */
+  #touch{position:absolute;inset:0;z-index:6;pointer-events:none;}
+  #joyZone{position:absolute;left:0;bottom:0;width:46%;height:70%;pointer-events:auto;}
+  #joyBase{position:absolute;width:112px;height:112px;border-radius:50%;border:2px solid rgba(255,255,255,.45);background:radial-gradient(circle,rgba(255,255,255,.12),rgba(255,255,255,.04));display:none;box-shadow:0 0 24px rgba(122,215,255,.15),inset 0 0 18px rgba(122,215,255,.12);}
+  #joyKnob{position:absolute;left:50%;top:50%;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a8,#ffc94d 60%,#e8951a);transform:translate(-50%,-50%);box-shadow:0 0 18px rgba(255,217,77,.9),inset 0 -2px 4px rgba(140,70,0,.5);}
+  #tButtons{position:absolute;right:10px;bottom:12px;display:grid;grid-template-columns:repeat(4,58px);grid-template-rows:repeat(3,58px);gap:8px;pointer-events:none;}
+  .tbtn{pointer-events:auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;border:2px solid rgba(255,255,255,.55);cursor:pointer;
+    background:radial-gradient(circle at 35% 28%,rgba(70,90,160,.75),rgba(16,22,52,.85));
+    box-shadow:0 4px 12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.3);}
+  .tbtn:active,.tbtn.hold{transform:scale(.88);background:radial-gradient(circle at 35% 28%,rgba(255,220,120,.85),rgba(255,170,40,.7));box-shadow:0 0 22px rgba(255,217,77,.7);}
+  .tbtn.small{font-size:15px;background:radial-gradient(circle at 35% 28%,rgba(90,170,255,.75),rgba(20,60,140,.85));border-color:#7ad7ff;}
+  .tbtn.gold{background:radial-gradient(circle at 35% 28%,rgba(255,190,80,.8),rgba(160,80,0,.85));border-color:#ffd94d;}
+  .tbtn.big{width:66px;height:66px;font-size:19px;background:radial-gradient(circle at 35% 28%,rgba(255,120,100,.85),rgba(170,40,30,.9));border-color:#ff8a5c;grid-column:3/5;grid-row:3;}
+  #tB{grid-column:1;grid-row:2;}
+  #tF{grid-column:2;grid-row:2;}
+  #tZ{grid-column:3;grid-row:2;}
+  #tS{grid-column:4;grid-row:2;}
+  #tQ{grid-column:1;grid-row:1;}
+  #tW{grid-column:2;grid-row:1;}
+  #tR{grid-column:3;grid-row:1;}
+  #tA{grid-column:4;grid-row:3;width:66px;height:66px;}
+
+  /* ============ 通用按钮 ============ */
+  .btn{position:relative;min-width:252px;padding:15px 42px;border:none;border-radius:16px;font-size:20px;font-weight:900;letter-spacing:3px;color:#2a1a00;cursor:pointer;overflow:hidden;
+    background:linear-gradient(180deg,#ffe9a8 0%,#ffd94d 34%,#ffb52e 68%,#e8951a 100%);
+    box-shadow:0 4px 0 #9a5c00,0 10px 26px rgba(255,170,40,.26),inset 0 1px 0 rgba(255,255,255,.65);
+    text-shadow:0 1px 0 rgba(255,255,255,.35);
+    transition:transform .09s,box-shadow .15s,filter .15s;}
+  .btn::before{content:'';position:absolute;top:0;left:-85%;width:55%;height:100%;pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+    transform:skewX(-22deg);transition:left .55s ease;}
+  .btn:hover::before{left:135%;}
+  .btn:hover{filter:brightness(1.07);transform:translateY(-1px);
+    box-shadow:0 4px 0 #9a5c00,0 14px 36px rgba(255,190,60,.38),inset 0 1px 0 rgba(255,255,255,.65);}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #9a5c00,0 6px 14px rgba(255,170,40,.2);}
+  .btn.blue{background:linear-gradient(180deg,#c8ecff 0%,#9ad8ff 30%,#3f8cff 70%,#2f6fe0 100%);color:#001a33;
+    box-shadow:0 4px 0 #1c4fa0,0 10px 26px rgba(63,140,255,.28),inset 0 1px 0 rgba(255,255,255,.6);text-shadow:0 1px 0 rgba(255,255,255,.3);}
+  .btn.blue:hover{box-shadow:0 4px 0 #1c4fa0,0 14px 36px rgba(63,140,255,.42),inset 0 1px 0 rgba(255,255,255,.6);}
+  .btn.blue:active{box-shadow:0 1px 0 #1c4fa0,0 6px 14px rgba(63,140,255,.2);}
+  .btn.green{background:linear-gradient(180deg,#d4ffd8 0%,#a8f0b0 30%,#3fbf6f 70%,#2f9a55 100%);color:#00220f;
+    box-shadow:0 4px 0 #1c7a40,0 10px 26px rgba(63,191,111,.28),inset 0 1px 0 rgba(255,255,255,.6);text-shadow:0 1px 0 rgba(255,255,255,.3);}
+  .btn.green:hover{box-shadow:0 4px 0 #1c7a40,0 14px 36px rgba(63,191,111,.42),inset 0 1px 0 rgba(255,255,255,.6);}
+  .btn.green:active{box-shadow:0 1px 0 #1c7a40,0 6px 14px rgba(63,191,111,.2);}
+  .btn.red{background:linear-gradient(180deg,#ffd8d0 0%,#ffb0a0 30%,#ff5c4d 70%,#e04030 100%);color:#2a0500;
+    box-shadow:0 4px 0 #a02010,0 10px 26px rgba(255,92,77,.28),inset 0 1px 0 rgba(255,255,255,.55);text-shadow:0 1px 0 rgba(255,255,255,.3);}
+  .btn.red:hover{box-shadow:0 4px 0 #a02010,0 14px 36px rgba(255,92,77,.42),inset 0 1px 0 rgba(255,255,255,.55);}
+  .btn.red:active{box-shadow:0 1px 0 #a02010,0 6px 14px rgba(255,92,77,.2);}
+  .btn.dark{background:linear-gradient(180deg,#4a5370 0%,#2c3350 55%,#1a2038 100%);color:#dbe4ff;
+    box-shadow:0 4px 0 #0e1226,0 10px 26px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.16);text-shadow:0 1px 2px rgba(0,0,0,.6);}
+  .btn.dark:hover{box-shadow:0 4px 0 #0e1226,0 14px 36px rgba(90,110,255,.28),inset 0 1px 0 rgba(255,255,255,.16);}
+  .btn.dark:active{box-shadow:0 1px 0 #0e1226,0 6px 14px rgba(0,0,0,.3);}
+  .btn.small{min-width:150px;padding:11px 26px;font-size:16px;border-radius:13px;letter-spacing:2px;}
+
+  /* ============ 标题 ============ */
+  .bigTitle{font-size:min(66px,9vw);font-weight:900;letter-spacing:8px;text-align:center;line-height:1.12;
+    background:linear-gradient(180deg,#fff6d8 12%,#ffd94d 42%,#ff9a00 72%,#b85a00 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 5px 16px rgba(255,140,20,.5)) drop-shadow(0 1px 0 rgba(255,255,255,.3));
+    animation:titleGlow 3.6s ease-in-out infinite;}
+  @keyframes titleGlow{0%,100%{filter:drop-shadow(0 5px 16px rgba(255,140,20,.45)) drop-shadow(0 1px 0 rgba(255,255,255,.3));}50%{filter:drop-shadow(0 5px 30px rgba(255,190,60,.8)) drop-shadow(0 1px 0 rgba(255,255,255,.3));}}
+  .subTitle{position:relative;font-size:14px;letter-spacing:9px;color:#9fb4d8;margin-top:6px;text-align:center;}
+  .subTitle::before,.subTitle::after{content:'✦';color:#ffd94d;opacity:.65;font-size:11px;vertical-align:middle;margin:0 14px;}
+
+  /* ============ 主菜单 ============ */
+  .menuDeco{position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(620px 320px at 50% 12%,rgba(255,190,80,.1),transparent 70%),
+      radial-gradient(420px 220px at 10% 88%,rgba(80,120,255,.09),transparent 70%),
+      radial-gradient(420px 220px at 90% 88%,rgba(255,120,60,.08),transparent 70%);}
+  /* 主菜单:按「战斗 / 养成 / 系统」分区 */
+  #scrMain{overflow-y:auto;}
+  .menuBtns{display:flex;flex-direction:column;gap:10px;margin-top:14px;position:relative;align-items:center;}
+  .menuSec{display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;}
+  .menuSecLbl{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:800;letter-spacing:5px;color:#9fb4d8;}
+  .menuSecLbl::before,.menuSecLbl::after{content:'';width:36px;height:1px;}
+  .menuSecLbl::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));}
+  .menuSecLbl::after{background:linear-gradient(90deg,rgba(255,255,255,.35),transparent);}
+  .menuSec.battle .menuSecLbl{color:#ffd94d;text-shadow:0 0 12px rgba(255,200,60,.5);}
+  .menuSec.battle .menuSecLbl::before{background:linear-gradient(90deg,transparent,rgba(255,217,77,.75));}
+  .menuSec.battle .menuSecLbl::after{background:linear-gradient(90deg,rgba(255,217,77,.75),transparent);}
+  .menuGrid{display:grid;grid-template-columns:repeat(3,minmax(148px,1fr));gap:8px;}
+  .menuGrid.two{grid-template-columns:repeat(2,minmax(168px,1fr));}
+  .menuGrid .btn{min-width:0;width:100%;padding:9px 8px;font-size:15px;letter-spacing:1.5px;border-radius:12px;}
+  /* 主打按钮:故事模式(第一层主角) */
+  .btn.hero{min-width:322px;padding:13px 36px;font-size:21px;letter-spacing:4px;border-radius:18px;
+    background:linear-gradient(180deg,#fff2c8 0%,#ffd94d 30%,#ff9a00 70%,#e07000 100%);
+    box-shadow:0 5px 0 #8a4c00,0 14px 40px rgba(255,170,40,.4),inset 0 1px 0 rgba(255,255,255,.7);
+    animation:heroPulse 2.6s ease-in-out infinite;}
+  .btn.hero:hover{box-shadow:0 5px 0 #8a4c00,0 16px 52px rgba(255,190,60,.6),inset 0 1px 0 rgba(255,255,255,.7);}
+  .btn.hero em{position:absolute;top:-9px;right:14px;font-style:normal;font-size:10px;font-weight:900;color:#5a2a00;letter-spacing:1px;
+    background:linear-gradient(180deg,#fff0c0,#ffc94d);border:1px solid #b06400;border-radius:8px;padding:1px 9px;
+    box-shadow:0 2px 6px rgba(0,0,0,.35);}
+  @keyframes heroPulse{
+    0%,100%{box-shadow:0 5px 0 #8a4c00,0 14px 40px rgba(255,170,40,.35),inset 0 1px 0 rgba(255,255,255,.7);}
+    50%{box-shadow:0 5px 0 #8a4c00,0 14px 54px rgba(255,190,60,.65),inset 0 1px 0 rgba(255,255,255,.7);}}
+  @media (prefers-reduced-motion: reduce){.btn.hero{animation:none;}}
+
+  /* ============ 卡片 / 面板 ============ */
+  .hcard,.mcard,.upRow,.achRow,.gearRow,.dailyRow,.chapCard,.helpBox,#resStats,#storyBox{
+    background:linear-gradient(180deg,rgba(255,255,255,.055),transparent 42%),var(--panel);
+    border:1px solid var(--line);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:0 8px 26px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.09);}
+  #resStats{background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 40%),rgba(12,16,40,.85);}
+
+  /* ============ 经济 ============ */
+  .goldPill{display:inline-flex;align-items:center;gap:9px;margin-top:12px;padding:7px 26px;border-radius:24px;font-size:19px;font-weight:900;color:#fff6d8;letter-spacing:1px;
+    background:linear-gradient(180deg,#e6b337,#8a6200);
+    border:1.5px solid #ffdf7e;
+    box-shadow:0 0 26px rgba(255,200,60,.4),inset 0 1px 0 rgba(255,255,255,.5),0 4px 0 #5a3d00;
+    text-shadow:0 1px 2px rgba(90,50,0,.5);}
+  .goldPill.big{font-size:23px;margin-top:14px;}
+
+  /* ============ 用户登录 ============ */
+  .bigTitle.small{font-size:min(44px,7vw);letter-spacing:6px;margin-top:8px;}
+  #loginBox{width:min(390px,92%);padding:26px 30px 22px;border-radius:20px;margin-top:22px;display:flex;flex-direction:column;align-items:center;
+    border:1px solid rgba(255,217,77,.35);
+    background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 45%),rgba(10,14,34,.75);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1);}
+  #loginBox::before{content:'';position:absolute;top:-1px;left:18%;right:18%;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,217,77,.8),transparent);}
+  .authRow{display:flex;align-items:center;gap:10px;width:100%;margin-top:11px;}
+  .authLbl{width:62px;font-size:14px;font-weight:700;color:#cfe0ff;text-align:right;flex:none;}
+  #authUser,#authPw,#authPw2{flex:1;min-width:0;padding:10px 14px;border-radius:11px;border:1.5px solid rgba(255,255,255,.3);
+    background:linear-gradient(180deg,rgba(12,16,36,.95),rgba(8,11,26,.95));color:#fff;font-size:15px;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
+    transition:border-color .15s,box-shadow .15s;}
+  #authUser:focus,#authPw:focus,#authPw2:focus{outline:none;border-color:#ffd94d;box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 0 14px rgba(255,217,77,.35);}
+  #authErr{min-height:20px;font-size:13px;color:#ff8a7a;margin-top:10px;text-align:center;font-weight:700;letter-spacing:.5px;}
+  #authErr.ok{color:#7dffa8;}
+  .authTip{font-size:11px;color:#7d8ab0;margin-top:13px;text-align:center;letter-spacing:.5px;line-height:1.6;}
+  /* 主菜单用户徽章行 */
+  .goldRow{display:flex;align-items:center;gap:14px;margin-top:12px;position:relative;}
+  .goldRow .goldPill{margin-top:0;}
+  .userBadge{font-size:14px;font-weight:800;color:#cfe4ff;letter-spacing:1px;
+    background:linear-gradient(180deg,rgba(80,150,255,.18),rgba(50,90,220,.08));
+    border:1px solid rgba(122,184,255,.45);border-radius:11px;padding:6px 14px;white-space:nowrap;
+    box-shadow:0 0 14px rgba(90,150,255,.2),inset 0 1px 0 rgba(255,255,255,.15);}
+  #upTabs{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center;padding:0 12px;position:relative;}
+  .upTab{padding:10px 22px;border-radius:13px;border:1.5px solid rgba(255,255,255,.25);background:linear-gradient(180deg,rgba(30,38,80,.95),rgba(12,17,40,.95));color:#dfe8ff;font-size:15px;font-weight:800;cursor:pointer;transition:all .12s;box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);}
+  .upTab:hover{border-color:#ffd94d;transform:translateY(-1px);}
+  .upTab.sel{border-color:#ffd94d;color:#ffd94d;box-shadow:0 0 18px rgba(255,217,77,.5),inset 0 1px 0 rgba(255,255,255,.15);background:linear-gradient(180deg,rgba(80,60,10,.9),rgba(40,30,6,.95));}
+  #upList{display:flex;flex-direction:column;gap:10px;margin-top:18px;width:min(580px,92%);position:relative;}
+  .upRow{display:flex;align-items:center;gap:12px;border-radius:15px;padding:12px 16px;transition:transform .1s,border-color .1s;}
+  .upRow:hover{border-color:rgba(255,217,77,.4);transform:translateX(2px);}
+  .upRow .uIcon{font-size:23px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+  .upRow .uName{width:56px;font-weight:800;color:#ffd94d;font-size:15px;}
+  .upRow .uVal{width:160px;font-size:13px;color:#cfe0ff;line-height:1.4;}
+  .upRow .uVal b{color:#fff;}
+  .upRow .uPips{flex:1;display:flex;gap:3px;}
+  .upRow .uPips i{flex:1;height:10px;border-radius:3px;background:rgba(255,255,255,.13);box-shadow:inset 0 1px 2px rgba(0,0,0,.5);}
+  .upRow .uPips i.on{background:linear-gradient(180deg,#ffe08a,#ff9a00);box-shadow:0 0 6px rgba(255,200,60,.5);}
+  .upBtn{min-width:94px;padding:10px 14px;border:none;border-radius:11px;font-size:14px;font-weight:900;cursor:pointer;
+    background:linear-gradient(180deg,#ffe9a8,#ffb52e);color:#241200;
+    box-shadow:0 3px 0 #b06400,inset 0 1px 0 rgba(255,255,255,.6);transition:transform .08s,filter .12s;}
+  .upBtn:hover{filter:brightness(1.08);}
+  .upBtn:active{transform:translateY(2px);box-shadow:0 1px 0 #b06400;}
+  .upBtn.max{background:#3a3f55;color:#8a93b0;box-shadow:none;cursor:default;}
+  .upBtn.poor{background:#55403a;color:#c09080;box-shadow:none;cursor:default;}
+
+  /* ============ 界面 ============ */
+  .secTitle{position:relative;font-size:min(38px,6vw);font-weight:900;letter-spacing:5px;color:#ffd94d;
+    text-shadow:0 0 24px rgba(255,154,0,.55),0 2px 0 rgba(120,60,0,.4);}
+  .secDesc{font-size:14px;color:#aab8d8;margin-top:8px;text-align:center;padding:0 24px;line-height:1.7;}
+
+  #heroCards{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;justify-content:center;padding:0 14px;position:relative;}
+  .hcard{width:152px;border-radius:18px;padding:14px 12px;cursor:pointer;border:1.5px solid rgba(255,255,255,.2);text-align:center;transition:transform .12s,box-shadow .12s,border-color .12s;}
+  .hcard:hover{transform:translateY(-5px);border-color:rgba(255,217,77,.5);box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 22px rgba(255,217,77,.25);}
+  .hcard.sel{border-color:#ffd94d;box-shadow:0 0 26px rgba(255,217,77,.65),0 10px 30px rgba(0,0,0,.5),inset 0 0 22px rgba(255,217,77,.12);transform:translateY(-3px);}
+  .hcard .hEmoji{font-size:42px;line-height:1.25;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45));}
+  .hcard .hName{font-size:17px;font-weight:900;margin-top:5px;letter-spacing:1px;}
+  .hcard .hTitle{font-size:11px;color:#9fb4d8;margin-top:1px;}
+  .hcard .hStats{margin-top:9px;display:flex;flex-direction:column;gap:4px;font-size:10px;color:#cfe0ff;text-align:left;}
+  .hcard .hStats .stRow{display:flex;align-items:center;gap:5px;}
+  .hcard .hStats .stBar{flex:1;height:6px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);}
+  .hcard .hStats .stBar i{display:block;height:100%;background:linear-gradient(90deg,#ffd94d,#ff8a00);border-radius:3px;box-shadow:0 0 5px rgba(255,180,60,.5);}
+  #heroDetail{margin-top:18px;max-width:540px;text-align:center;font-size:14px;color:#dfe8ff;line-height:1.8;min-height:46px;padding:10px 22px;position:relative;
+    background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 60%),rgba(10,14,34,.7);
+    border:1px solid rgba(255,217,77,.28);border-radius:14px;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 4px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);}
+  #heroDetail b{color:#ffd94d;}
+
+  .helpBox{max-width:570px;width:90%;margin-top:22px;border-radius:18px;padding:20px 28px;font-size:15px;line-height:2.15;color:#dfe8ff;position:relative;max-height:58vh;overflow-y:auto;}
+  .helpBox b{color:#ffd94d;}
+  .helpBox .row{display:flex;justify-content:space-between;border-bottom:1px dashed rgba(255,255,255,.13);}
+  .helpBox .row span:first-child{color:#7ad7ff;font-weight:700;}
+
+  #resTitle{font-size:min(54px,8vw);font-weight:900;letter-spacing:8px;position:relative;
+    -webkit-text-stroke:.5px rgba(255,255,255,.2);
+    text-shadow:0 4px 20px rgba(0,0,0,.6);}
+  #resStats{margin-top:20px;font-size:16px;color:#cfe0ff;line-height:2.1;text-align:center;border-radius:16px;padding:16px 36px;border:1px solid rgba(255,255,255,.16);}
+  #resBtns{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;justify-content:center;position:relative;}
+
+  #storyBox{max-width:600px;width:92%;border-radius:20px;padding:34px 40px;text-align:center;position:relative;
+    border:1px solid rgba(255,217,77,.4);
+    box-shadow:0 0 70px rgba(255,154,0,.16),0 18px 50px rgba(0,0,0,.5);}
+  #storyBox::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,217,77,.8),transparent);}
+  #storyTitle{font-size:min(30px,5vw);font-weight:900;color:#ffd94d;letter-spacing:4px;margin-bottom:20px;text-shadow:0 0 18px rgba(255,180,60,.4);}
+  #storyText{font-size:17px;line-height:2.15;color:#e8eeff;min-height:92px;}
+
+  #bracketTitle{font-size:min(30px,5vw);font-weight:900;color:#ffd94d;letter-spacing:4px;position:relative;text-shadow:0 0 18px rgba(255,180,60,.4);}
+  #bracketBox{margin-top:20px;display:flex;gap:22px;align-items:stretch;position:relative;padding:10px;}
+  .bcol{display:flex;flex-direction:column;justify-content:space-around;gap:8px;}
+  .bcell{background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 50%),rgba(14,18,44,.9);border:1px solid rgba(255,255,255,.17);border-radius:10px;padding:8px 15px;font-size:13px;white-space:nowrap;color:#b8c6e8;text-align:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);}
+  .bcell.me{border-color:#ffd94d;color:#ffd94d;font-weight:800;box-shadow:0 0 16px rgba(255,217,77,.45),inset 0 1px 0 rgba(255,255,255,.15);}
+  .bcell.win{color:#7dffa8;border-color:#3fbf6f;}
+  .bcell.lose{color:#ff8a7a;border-color:#ff5c4d;opacity:.75;}
+  .bcell.empty{opacity:.32;}
+
+  /* ===== 章节全览 ===== */
+  #chapterList{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:20px;width:min(940px,94%);max-height:62vh;overflow-y:auto;padding:6px 8px 12px;position:relative;}
+  #chapterList::-webkit-scrollbar,#achList::-webkit-scrollbar,#gearList::-webkit-scrollbar,.helpBox::-webkit-scrollbar{width:8px;}
+  #chapterList::-webkit-scrollbar-thumb,#achList::-webkit-scrollbar-thumb,#gearList::-webkit-scrollbar-thumb,.helpBox::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ffd94d,#c97700);border-radius:4px;}
+  #chapterList::-webkit-scrollbar-track,#achList::-webkit-scrollbar-track,#gearList::-webkit-scrollbar-track,.helpBox::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:4px;}
+  .chapProgress{grid-column:1/-1;display:flex;align-items:center;gap:14px;border-radius:15px;padding:12px 20px;border:1px solid rgba(255,217,77,.45);
+    background:linear-gradient(90deg,rgba(60,45,8,.75),rgba(20,16,40,.85));
+    box-shadow:0 6px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);}
+  .cpText{font-size:15px;font-weight:800;color:#ffd94d;white-space:nowrap;letter-spacing:1px;}
+  .cpBar{flex:1;height:11px;background:rgba(0,0,0,.5);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15);box-shadow:inset 0 2px 4px rgba(0,0,0,.6);}
+  .cpBar i{display:block;height:100%;background:linear-gradient(90deg,#ffd94d,#ff9a00);border-radius:5px;transition:width .4s ease;box-shadow:0 0 8px rgba(255,190,60,.6);}
+  .cpGold{font-size:15px;font-weight:800;color:#fff3c4;white-space:nowrap;}
+  .chapCard{border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:9px;transition:transform .12s,box-shadow .12s,border-color .12s;border:1.5px solid rgba(255,255,255,.18);}
+  .chapCard:hover{transform:translateY(-3px);border-color:rgba(255,217,77,.45);}
+  .chapCard.cur{box-shadow:0 0 24px rgba(255,217,77,.3),inset 0 0 30px rgba(255,217,77,.05);border-color:rgba(255,217,77,.6);}
+  .chapCard.locked{opacity:.42;filter:grayscale(.6) brightness(.8);}
+  .chapCard.locked:hover{transform:none;border-color:rgba(255,255,255,.18);}
+  .ccHead{display:flex;align-items:center;gap:9px;}
+  .ccEmoji{font-size:27px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+  .ccName{font-size:17px;font-weight:900;flex:1;letter-spacing:1px;}
+  .ccBadge{font-size:12px;font-weight:700;padding:3px 11px;border-radius:11px;white-space:nowrap;}
+  .ccBadge.ok{background:rgba(80,220,120,.16);color:#7dffa8;border:1px solid #3fbf6f;box-shadow:0 0 8px rgba(80,220,120,.25);}
+  .ccBadge.now{background:rgba(255,200,60,.16);color:#ffd94d;border:1px solid #ffd94d;box-shadow:0 0 10px rgba(255,217,77,.3);}
+  .ccBadge.no{background:rgba(255,255,255,.08);color:#8a93b0;border:1px solid rgba(255,255,255,.2);}
+  .ccFoes{font-size:15px;letter-spacing:5px;display:flex;align-items:center;gap:8px;}
+  .cfLbl{font-size:11px;color:#9fb4d8;letter-spacing:1px;background:rgba(255,255,255,.08);padding:2px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.1);}
+  .ccRoute{display:flex;align-items:center;margin:2px 0;}
+  .rp{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,.13);flex:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.5);}
+  .rp.on{background:radial-gradient(circle at 35% 30%,#ffe9a8,#ffb52e 70%);box-shadow:0 0 9px rgba(255,217,77,.8);}
+  .rl{flex:1;height:2px;background:rgba(255,255,255,.16);}
+  .ccBoss{font-size:17px;flex:none;filter:drop-shadow(0 0 6px rgba(255,80,40,.6));}
+  .ccReward{font-size:12px;color:#ffd94d;letter-spacing:.5px;}
+  .ccDiff{display:flex;align-items:center;gap:6px;font-size:12px;color:#9fb4d8;}
+  .diffBtn{padding:4px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.07);color:#cfe0ff;font-size:11px;font-weight:800;cursor:pointer;transition:all .1s;}
+  .diffBtn:hover{border-color:#ffd94d;transform:translateY(-1px);}
+  .diffBtn.sel{background:rgba(255,217,77,.18);color:#ffd94d;box-shadow:0 0 10px rgba(255,217,77,.4);border-color:#ffd94d;}
+  #tutorial{position:absolute;top:56%;width:100%;text-align:center;font-size:15px;color:#fff;text-shadow:0 0 12px #000,0 2px 0 rgba(0,0,0,.5);opacity:0;transition:opacity 1s;letter-spacing:2.5px;z-index:4;pointer-events:none;font-weight:700;}
+  #tutorial.on{opacity:1;}
+
+  /* ===== 成就 ===== */
+  #achToast{position:absolute;top:15%;left:50%;transform:translateX(-50%);z-index:30;
+    background:linear-gradient(180deg,rgba(80,58,8,.97),rgba(38,26,4,.97));
+    border:1.5px solid #ffd94d;border-radius:16px;padding:12px 26px;font-size:16px;font-weight:800;color:#ffd94d;text-align:center;
+    box-shadow:0 0 36px rgba(255,200,60,.55),0 10px 30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.2);
+    opacity:0;pointer-events:none;transition:opacity .3s;letter-spacing:1px;}
+  #achToast.show{opacity:1;}
+  #achList{display:flex;flex-direction:column;gap:8px;margin-top:18px;width:min(560px,92%);max-height:54vh;overflow-y:auto;padding:6px;position:relative;}
+  .achRow{display:flex;align-items:center;gap:12px;border-radius:13px;padding:9px 15px;transition:transform .1s,border-color .1s;}
+  .achRow:hover{transform:translateX(2px);border-color:rgba(255,217,77,.35);}
+  .achRow.done{border-color:rgba(125,255,168,.45);background:linear-gradient(180deg,rgba(80,220,120,.08),transparent 55%),var(--panel);}
+  .achIcon{font-size:25px;width:34px;text-align:center;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));}
+  .achInfo{flex:1;font-size:14px;}
+  .achInfo b{color:#fff;}
+  .achDesc{font-size:11px;color:#9fb4d8;}
+  .achGold{font-size:13px;font-weight:800;color:#ffd94d;white-space:nowrap;}
+  .achSt{font-size:12px;font-weight:800;color:#8a93b0;min-width:44px;text-align:right;}
+  .achRow.done .achSt{color:#7dffa8;}
+  #achCount{font-size:16px;font-weight:800;color:#ffd94d;margin-top:14px;letter-spacing:2px;position:relative;text-shadow:0 0 12px rgba(255,180,60,.35);}
+
+  /* ===== 装备商店 ===== */
+  #gearTabs{display:flex;gap:10px;margin-top:20px;position:relative;}
+  #gearList{display:flex;flex-direction:column;gap:8px;margin-top:16px;width:min(560px,92%);max-height:54vh;overflow-y:auto;padding:6px;position:relative;}
+  .gearRow{display:flex;align-items:center;gap:12px;border-radius:13px;padding:10px 15px;transition:transform .1s,border-color .1s;}
+  .gearRow:hover{transform:translateX(2px);border-color:rgba(255,217,77,.35);}
+  .gearRow.eq{border-color:rgba(255,217,77,.6);box-shadow:0 0 14px rgba(255,217,77,.22),inset 0 0 20px rgba(255,217,77,.05);}
+  .gearIcon{font-size:25px;width:36px;text-align:center;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));}
+  .gearInfo{flex:1;font-size:14px;}
+  .gearInfo b{color:#fff;}
+  .gearDesc{font-size:11px;color:#9fb4d8;}
+
+  /* ===== 每日任务 ===== */
+  #dailyDate{font-size:15px;font-weight:800;color:#ffd94d;margin-top:14px;letter-spacing:1.5px;position:relative;}
+  #dailyList{display:flex;flex-direction:column;gap:10px;margin-top:16px;width:min(560px,92%);position:relative;}
+  .dailyRow{display:flex;align-items:center;gap:12px;border-radius:14px;padding:11px 15px;transition:transform .1s,border-color .1s;}
+  .dailyRow:hover{transform:translateX(2px);border-color:rgba(255,217,77,.35);}
+  .dailyRow.ready{border-color:rgba(255,217,77,.6);box-shadow:0 0 14px rgba(255,217,77,.22);}
+  .dailyRow.done{opacity:.55;}
+  .dIcon{font-size:25px;width:34px;text-align:center;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));}
+  .dInfo{flex:1;font-size:14px;}
+  .dInfo b{color:#fff;}
+  .dBar{display:block;height:8px;background:rgba(0,0,0,.45);border-radius:4px;margin-top:6px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 1px 3px rgba(0,0,0,.6);}
+  .dBar i{display:block;height:100%;background:linear-gradient(90deg,#ffd94d,#ff9a00);border-radius:3px;box-shadow:0 0 6px rgba(255,190,60,.5);}
+  .dProg{font-size:14px;font-weight:800;color:#cfe0ff;min-width:40px;text-align:center;}
+  .dGold{font-size:13px;font-weight:800;color:#ffd94d;white-space:nowrap;}
+
+
+  /* ============================================================
+     多层次 UI 增强:双龙装饰 / 层叠浮现 / 卡片角标 / 扫描光带 / 徽章
+     ============================================================ */
+  /* 主菜单:双龙浮动装饰(远景层) */
+  .menuDeco::before,.menuDeco::after{
+    content:'🐉';position:absolute;font-size:76px;opacity:.13;pointer-events:none;
+    filter:drop-shadow(0 0 26px rgba(255,180,60,.55));
+    animation:dragonFloat 6.5s ease-in-out infinite;}
+  .menuDeco::before{left:5%;top:24%;transform:rotate(-16deg);}
+  .menuDeco::after{right:5%;bottom:22%;transform:rotate(16deg) scaleX(-1);animation-delay:3.2s;}
+  @keyframes dragonFloat{0%,100%{translate:0 0;}50%{translate:0 -18px;}}
+
+  /* 主菜单分区:依次层叠浮现 */
+  .menuSec{animation:secRise .5s cubic-bezier(.22,.9,.3,1.15) both;}
+  .menuSec:nth-child(2){animation-delay:.12s;}
+  .menuSec:nth-child(3){animation-delay:.24s;}
+  @keyframes secRise{from{opacity:0;transform:translateY(18px) scale(.97);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion: reduce){.menuSec{animation:none;}}
+
+  /* 卡片:悬停左侧金色指示条滑出 */
+  .hcard,.mcard,.upRow,.achRow,.gearRow,.dailyRow,.chapCard{position:relative;}
+  .hcard::before,.upRow::before,.achRow::before,.gearRow::before,.dailyRow::before,.chapCard::before{
+    content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:0 3px 3px 0;z-index:2;
+    background:linear-gradient(180deg,#ffe9a8,#ffb52e);
+    box-shadow:0 0 10px rgba(255,200,60,.7);
+    transform:scaleY(0);transition:transform .2s ease,opacity .2s ease;opacity:0;}
+  .hcard:hover::before,.upRow:hover::before,.achRow:hover::before,.gearRow:hover::before,.dailyRow:hover::before,.chapCard:hover::before,
+  .hcard.sel::before,.gearRow.eq::before,.dailyRow.ready::before,.achRow.done::before{transform:scaleY(1);opacity:1;}
+
+  /* 选中英雄卡:金色扫描光带 */
+  .hcard{overflow:hidden;}
+  .hcard.sel::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.28) 50%,transparent 68%);
+    background-size:230% 100%;
+    animation:cardScan 2.6s linear infinite;}
+  @keyframes cardScan{from{background-position:190% 0;}to{background-position:-90% 0;}}
+
+  /* 界面标题:星标装饰 */
+  .secTitle::before{content:'✦ ';color:#ffd94d;font-size:.62em;vertical-align:middle;opacity:.75;text-shadow:0 0 12px rgba(255,210,80,.9);}
+  .secTitle::after{content:' ✦';color:#ffd94d;font-size:.62em;vertical-align:middle;opacity:.75;text-shadow:0 0 12px rgba(255,210,80,.9);}
+
+  /* 金币胶囊:流动光泽(第四层) */
+  .goldPill{position:relative;overflow:hidden;}
+  .goldPill::after{content:'';position:absolute;top:-30%;left:-40%;width:36%;height:160%;transform:rotate(20deg);pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+    animation:pillShine 3.4s ease-in-out infinite;}
+  @keyframes pillShine{0%,55%{left:-45%;}100%{left:135%;}}
+
+  /* 剧情框:内层细金框(双重边框层次) */
+  #storyBox::after{content:'';position:absolute;inset:9px;border:1px solid rgba(255,217,77,.16);border-radius:13px;pointer-events:none;}
+
+  /* 英雄详情:顶部角标 */
+  #heroDetail::before{content:'✦ 属性总览 ✦';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+    font-size:11px;font-weight:800;color:#ffd94d;background:#0a0e24;padding:1px 12px;letter-spacing:2px;white-space:nowrap;
+    border:1px solid rgba(255,217,77,.45);border-radius:9px;
+    box-shadow:0 0 12px rgba(255,200,60,.3);}
+  #heroDetail{padding-top:18px;}
+
+  /* 列表:上下渐隐遮罩(内容滚入滚出的层次感) */
+  #chapterList,#achList,#gearList,.helpBox{
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0,#000 22px,#000 calc(100% - 22px),transparent 100%);}
+
+  /* 暂停菜单:玻璃衬底面板 */
+  #scrPause .menuBtns{padding:30px 44px;border-radius:22px;border:1px solid rgba(255,217,77,.3);
+    background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 50%),rgba(10,14,34,.6);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);}
+
+  /* 结算标题:顶部金冠线 */
+  #resTitle::before{content:'';position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:150px;height:3px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,217,77,.9),transparent);}
+
+  /* 每日日期 & 成就计数:徽章化 */
+  #dailyDate,#achCount{display:inline-block;padding:5px 18px;border-radius:13px;
+    background:linear-gradient(180deg,rgba(255,217,77,.14),rgba(255,217,77,.05));
+    border:1px solid rgba(255,217,77,.4);
+    box-shadow:0 0 16px rgba(255,200,60,.15),inset 0 1px 0 rgba(255,255,255,.1);}
+
+  /* 战斗 HUD:顶部暗角层次(信息更清晰) */
+  #hud::before{content:'';position:absolute;top:0;left:0;right:0;height:140px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);}
+
+  /* 章节锁定:角落挂锁角标 */
+  .chapCard.locked::after{content:'🔒';position:absolute;top:10px;right:12px;font-size:15px;opacity:.9;}
+
+  /* 技能栏:底部金色衬线 */
+  #skillBar::before,#skillBar2::before{content:'';position:absolute;left:8%;right:8%;bottom:-10px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,217,77,.55),transparent);}
+
+  /* 锦标赛对阵:列间连接线 */
+  .bcol{position:relative;}
+  .bcol:not(:last-child)::after{content:'';position:absolute;right:-13px;top:50%;width:11px;height:2px;
+    background:linear-gradient(90deg,rgba(255,217,77,.5),rgba(255,217,77,.1));}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="cv" width="960" height="540"></canvas>
+
+  <!-- 战斗 HUD -->
+  <div id="hud" class="hidden">
+    <div id="topLeft">
+      <div id="nameplate">龙剑士</div>
+      <div class="bar hp"><div class="fill" id="hpFill"></div><span id="hpText"></span></div>
+      <div class="bar qi"><div class="fill" id="qiFill"></div><span id="qiText">气 0/100</span></div>
+      <div id="trTimer" class="hidden">🐉 变身中 10.0s</div>
+    </div>
+    <div id="topCenter">
+      <div id="waveInfo">第一章 · 第1波</div>
+      <div id="teamRow">
+        <div class="teamBox" id="allyBox"><span class="lbl me">我方</span><span id="allyIcons"></span></div>
+        <div class="teamBox" id="enemyBox"><span class="lbl">敌方</span><span id="enemyIcons"></span></div>
+      </div>
+    </div>
+    <div id="topRight"><button id="pauseBtn">⏸</button></div>
+    <!-- 双人模式 P2 HUD -->
+    <div id="hudP2">
+      <div id="nameplate2">P2</div>
+      <div class="bar"><div class="fill" id="hpFill2"></div><span id="hpText2"></span></div>
+      <div class="bar"><div class="fill" id="qiFill2"></div><span id="qiText2">气 0/100</span></div>
+      <div id="trTimer2" style="display:none;">🐉 变身中 10.0s</div>
+    </div>
+    <div id="skillBar2">
+      <div class="sk" id="sk2Q"><span class="skKey">;</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk" id="sk2W"><span class="skKey">'</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk" id="sk2R"><span class="skKey">/</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk gold" id="sk2S"><span class="skKey">Enter</span><span class="skName">变身</span><span class="skCost">100</span><span class="skCd hidden"></span></div>
+    </div>
+    <div id="skillBar">
+      <div class="sk" id="skQ"><span class="skKey">Q</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk" id="skW"><span class="skKey">W</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk" id="skR"><span class="skKey">R</span><span class="skName"></span><span class="skCost"></span><span class="skCd hidden"></span></div>
+      <div class="sk gold" id="skS"><span class="skKey">S</span><span class="skName">龙之变身</span><span class="skCost">100</span><span class="skCd hidden"></span></div>
+    </div>
+    <div id="announce"></div>
+    <div id="combo"></div>
+  </div>
+  <div id="achToast"></div>
+  <div id="tutorial"></div>
+
+  <!-- 触屏控制 -->
+  <div id="touch" class="hidden">
+    <div id="joyZone"><div id="joyBase"><div id="joyKnob"></div></div></div>
+    <div id="tButtons">
+      <div class="tbtn small" id="tQ">Q</div>
+      <div class="tbtn small" id="tW">W</div>
+      <div class="tbtn small" id="tR">R</div>
+      <div class="tbtn" id="tB">🛡挡</div>
+      <div class="tbtn" id="tF">⚡冲</div>
+      <div class="tbtn" id="tZ">🔥蓄</div>
+      <div class="tbtn gold" id="tS">🐉变</div>
+      <div class="tbtn big" id="tA">⚔攻</div>
+    </div>
+  </div>
+
+  <!-- 用户登录 -->
+  <div class="screen" id="scrLogin">
+    <div class="menuDeco"></div>
+    <div class="bigTitle small">🐉 火柴人 龙之战</div>
+    <div class="subTitle">USER LOGIN</div>
+    <div id="loginBox">
+      <div class="authRow"><span class="authLbl">👤 用户名</span><input id="authUser" maxlength="12" spellcheck="false" autocomplete="off" placeholder="2-12 位"/></div>
+      <div class="authRow"><span class="authLbl">🔑 密码</span><input id="authPw" type="password" maxlength="20" spellcheck="false" autocomplete="off" placeholder="至少 4 位"/></div>
+      <div class="authRow"><span class="authLbl">🔁 确认</span><input id="authPw2" type="password" maxlength="20" spellcheck="false" autocomplete="off" placeholder="注册时填写"/></div>
+      <div id="authErr"></div>
+      <div style="display:flex;gap:12px;margin-top:14px;position:relative;">
+        <button class="btn" id="authLoginBtn">🚪 登 录</button>
+        <button class="btn blue" id="authRegBtn">✨ 注册新账号</button>
+      </div>
+      <div class="authTip">每个账号拥有独立存档 · 首次使用请注册 · 密码至少 4 位</div>
+    </div>
+  </div>
+
+  <!-- 主菜单 -->
+  <div class="screen show" id="scrMain">
+    <div class="menuDeco"></div>
+    <div class="bigTitle">🐉 火柴人 龙之战</div>
+    <div class="subTitle">STICKMAN DRAGON BATTLE</div>
+    <div class="goldRow"><span class="userBadge" id="userBadge">👤 未登录</span><div class="goldPill">💰 <span class="goldAmt">0</span></div></div>
+    <div class="menuBtns">
+      <!-- 第一层:战斗 -->
+      <div class="menuSec battle">
+        <div class="menuSecLbl">⚔️ 战 斗</div>
+        <button class="btn hero" id="btnStory">🗡️ 故事模式<em>⭐ 主线</em></button>
+        <div class="menuGrid">
+          <button class="btn blue" id="btnVs">⚔️ 对战 3V3</button>
+          <button class="btn green" id="btnPvp">🤜🤛 双人 1V1</button>
+          <button class="btn green" id="btnTour">🏆 锦标赛</button>
+          <button class="btn green" id="btnSurv">🌊 无尽模式</button>
+          <button class="btn dark" id="btnTrain">🎯 训练场</button>
+        </div>
+      </div>
+      <!-- 第二层:养成 -->
+      <div class="menuSec">
+        <div class="menuSecLbl">🛡️ 养 成</div>
+        <div class="menuGrid two">
+          <button class="btn red" id="btnUpgrade">🛒 英雄强化</button>
+          <button class="btn blue" id="btnGear">⚔️ 装备商店</button>
+          <button class="btn blue" id="btnDaily">📅 每日任务</button>
+          <button class="btn blue" id="btnAch">🏅 成就</button>
+        </div>
+      </div>
+      <!-- 第三层:系统 -->
+      <div class="menuSec">
+        <div class="menuSecLbl">⚙️ 系 统</div>
+        <div class="menuGrid">
+          <button class="btn dark" id="btnHelp">❓ 操作说明</button>
+          <button class="btn dark" id="btnSound">🔊 声音：开</button>
+          <button class="btn dark" id="btnLogout">👤 退出登录</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 装备商店 -->
+  <div class="screen" id="scrGear">
+    <div class="secTitle">⚔️ 装备商店</div>
+    <div class="secDesc">武器/护甲/饰品 — 装备对所有英雄生效</div>
+    <div class="goldPill big">💰 <span class="goldAmt">0</span></div>
+    <div id="gearTabs"></div>
+    <div id="gearList"></div>
+    <button class="btn dark small" id="btnGearBack" style="margin-top:16px;">← 返回</button>
+  </div>
+
+  <!-- 每日任务 -->
+  <div class="screen" id="scrDaily">
+    <div class="secTitle">📅 每日任务</div>
+    <div class="secDesc">每天 3 个任务,完成领取金币奖励(每天零点刷新)</div>
+    <div id="dailyDate"></div>
+    <div id="dailyList"></div>
+    <button class="btn dark small" id="btnDailyBack" style="margin-top:16px;">← 返回</button>
+  </div>
+
+  <!-- 成就 -->
+  <div class="screen" id="scrAch">
+    <div class="secTitle">🏅 成就</div>
+    <div id="achCount"></div>
+    <div id="achList"></div>
+    <button class="btn dark small" id="btnAchBack" style="margin-top:16px;">← 返回</button>
+  </div>
+
+  <!-- 英雄强化 -->
+  <div class="screen" id="scrUpgrade">
+    <div class="secTitle">🛒 英雄强化</div>
+    <div class="goldPill big">💰 <span class="goldAmt">0</span></div>
+    <div id="upTabs"></div>
+    <div id="upList"></div>
+    <button class="btn dark small" id="btnUpBack" style="margin-top:16px;">← 返回</button>
+  </div>
+
+  <!-- 章节全览 -->
+  <div class="screen" id="scrChapter">
+    <div class="secTitle">🗺️ 章节全览</div>
+    <div class="secDesc">选择章节开始冒险,战斗越多,你越接近世界的真相……</div>
+    <div id="chapterList"></div>
+    <button class="btn dark small" id="btnChapBack" style="margin-top:22px;">← 返回</button>
+  </div>
+
+  <!-- 英雄选择 -->
+  <div class="screen" id="scrHero">
+    <div class="secTitle" id="heroTitle">选择你的英雄</div>
+    <div id="heroCards"></div>
+    <div id="heroDetail"></div>
+    <div style="display:flex;gap:16px;margin-top:14px;position:relative;">
+      <button class="btn dark small" id="btnHeroBack">← 返回</button>
+      <button class="btn" id="btnHeroStart">⚔️ 出发战斗！</button>
+    </div>
+  </div>
+
+  <!-- 操作说明 -->
+  <div class="screen" id="scrHelp">
+    <div class="secTitle">❓ 操作说明</div>
+    <div class="helpBox">
+      <div class="row"><span>移动</span><span><b>A</b> / <b>D</b>（触屏：左侧摇杆）</span></div>
+      <div class="row"><span>攻击</span><span><b>空格</b>（三段连击）</span></div>
+      <div class="row"><span>格挡</span><span><b>B</b>（减免 75% 伤害）</span></div>
+      <div class="row"><span>冲刺</span><span><b>F</b>（带无敌帧，闪避神技）</span></div>
+      <div class="row"><span>蓄力</span><span><b>Z</b>（按住蓄力，松手释放重击）</span></div>
+      <div class="row"><span>特殊气技能</span><span><b>Q</b> / <b>W</b> / <b>R</b>（消耗气力）</span></div>
+      <div class="row"><span>龙之变身</span><span><b>S</b>（气力满 100 时发动）</span></div>
+      <div class="row"><span>暂停</span><span><b>Esc</b> / P</span></div>
+      <div style="margin-top:10px;color:#7ab8ff;font-weight:700;">🤜🤛 双人对战(P2 紧凑键盘键位)</div>
+      <div class="row"><span>P2 移动</span><span><b>←</b> / <b>→</b></span></div>
+      <div class="row"><span>P2 攻击 / 格挡</span><span><b>.</b> / <b>,</b></span></div>
+      <div class="row"><span>P2 冲刺 / 蓄力</span><span><b>↓</b> / <b>↑</b></span></div>
+      <div class="row"><span>P2 特殊气技能</span><span><b>;</b> / <b>'</b> / <b>/</b></span></div>
+      <div class="row"><span>P2 变身</span><span><b>Enter</b></span></div>
+      <div style="margin-top:10px;">💡 造成和承受伤害、格挡、冲刺都会积攒<b>气力</b>；气力用于施放 3 种专属技能，攒满 100 可 <b>龙之变身</b>！</div>
+      <div>💰 战斗胜利可获得<b>金币</b>,在主菜单「🛒 英雄强化」中永久提升英雄的生命/攻击/速度!</div>
+      <div>📱 移动设备：左侧摇杆移动，右侧按钮攻击/格挡/冲刺/蓄力/技能/变身。</div>
+    </div>
+    <button class="btn dark small" id="btnHelpBack" style="margin-top:20px;">← 返回</button>
+  </div>
+
+  <!-- 暂停 -->
+  <div class="screen" id="scrPause">
+    <div class="secTitle">⏸ 暂停</div>
+    <div class="menuBtns">
+      <button class="btn" id="btnResume">▶️ 继续战斗</button>
+      <button class="btn blue" id="btnRetry">🔄 重新开始本场</button>
+      <button class="btn dark" id="btnQuit">🏠 返回主菜单</button>
+    </div>
+  </div>
+
+  <!-- 剧情 -->
+  <div class="screen" id="scrStory">
+    <div id="storyBox">
+      <div id="storyTitle"></div>
+      <div id="storyText"></div>
+      <button class="btn" id="storyBtn" style="margin-top:22px;">继续 ▶</button>
+    </div>
+  </div>
+
+  <!-- 锦标赛对阵 -->
+  <div class="screen" id="scrBracket">
+    <div id="bracketTitle"></div>
+    <div id="bracketBox"></div>
+    <button class="btn" id="bracketBtn" style="margin-top:24px;">下一场战斗 ▶</button>
+  </div>
+
+  <!-- 结算 -->
+  <div class="screen" id="scrResult">
+    <div id="resTitle"></div>
+    <div id="resStats"></div>
+    <div id="resBtns">
+      <button class="btn" id="resBtn1"></button>
+      <button class="btn blue" id="resBtn2"></button>
+      <button class="btn dark" id="resBtn3"></button>
+    </div>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

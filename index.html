@@ -956,6 +956,14 @@
   .game-panel.is-active { display: block; animation: fadeUp .5s both; }
   .race-frame { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #0b1120; }
   .race-frame iframe { display: block; width: 100%; height: 560px; border: none; }
+  .dragon-frame {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #04050d;
+    aspect-ratio: 16 / 9;
+  }
+  .dragon-frame iframe { display: block; width: 100%; height: 100%; border: none; }
 
   /* ============ 终极井字棋（暗黑霓虹风） ============ */
   .ttt-rules {
@@ -1896,13 +1904,14 @@
     <div class="wrap">
       <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">02 / GAME</span></div>
       <h2 class="sec-title reveal" data-i18n="g_title_full">游戏</h2>
-      <p class="sec-sub reveal" data-i18n="g_sub">三个小游戏，一个感知时间，一个谋略对弈，一个极限竞速</p>
+      <p class="sec-sub reveal" data-i18n="g_sub">四个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决</p>
 
       <!-- 游戏选项卡 -->
       <div class="game-tabs reveal">
         <button class="game-tab is-active" data-gtab="xu" data-i18n="g_tab_xu">须臾 · 时间感知</button>
         <button class="game-tab" data-gtab="ttt" data-i18n="g_tab_ttt">终极井字棋</button>
         <button class="game-tab" data-gtab="race" data-i18n="g_tab_race">六边形赛车</button>
+        <button class="game-tab" data-gtab="dragon" data-i18n="g_tab_dragon">火柴人龙之战</button>
       </div>
 
       <!-- 选项卡 1：须臾 -->
@@ -1966,6 +1975,14 @@
         <p class="sec-sub" style="margin-bottom:18px" data-i18n="race_sub">六边形平台上生死竞速，缩圈之前逃到中心！</p>
         <div class="race-frame">
           <iframe src="https://sym12356.github.io/racing/" title="六边形缩圈赛车" loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <!-- 选项卡 4：火柴人龙之战（iframe 嵌入） -->
+      <div class="game-panel reveal" data-gpanel="dragon">
+        <p class="sec-sub" style="margin-bottom:18px" data-i18n="dragon_sub">御龙对决 · 故事模式 / 对战 / 养成，本地存档</p>
+        <div class="dragon-frame">
+          <iframe src="https://sym12356.github.io/matchstick/" title="火柴人龙之战" loading="lazy"></iframe>
         </div>
       </div>
     </div>
@@ -2314,7 +2331,7 @@ const I18N = {
     clock_fold: '精确时钟',
     t_tags_full: '我的标签',
     tag_code: '编程', tag_game: '游戏', tag_sleep: '睡觉', tag_board: '桌游',
-    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！',
+    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', g_tab_dragon: '火柴人龙之战', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！', dragon_sub: '御龙对决 · 故事模式 / 对战 / 养成，本地存档',
     xu_sub: '你感知的时间，和真实的时间，差多少？', xu_target: '点击「开始实验」', xu_start: '开始实验',
     ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '玩法规则',
     ttt_diff: '难度', ttt_easy: '简单模式', ttt_medium: '中等模式', ttt_hard: '困难模式',
@@ -2333,7 +2350,7 @@ const I18N = {
     r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
-    g_sub: '三个小游戏，一个感知时间，一个谋略对弈，一个极限竞速', b_sub: '自研武侠对战游戏，热座双人对决',
+    g_sub: '四个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决', b_sub: '自研武侠对战游戏，热座双人对决',
     gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
     gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
     rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
@@ -2361,7 +2378,7 @@ const I18N = {
     clock_fold: 'Precise Clock',
     t_tags_full: 'My Tags',
     tag_code: 'Coding', tag_game: 'Gaming', tag_sleep: 'Sleeping', tag_board: 'Board Games',
-    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!',
+    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', g_tab_dragon: 'Matchstick Dragon War', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!', dragon_sub: 'Dragon duels - story mode / versus / training, local save',
     xu_sub: 'How far is your sense of time from real time?', xu_target: 'Click to start', xu_start: 'Start',
     ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: 'Rules',
     ttt_diff: 'Difficulty', ttt_easy: 'Easy', ttt_medium: 'Medium', ttt_hard: 'Hard',
@@ -2380,7 +2397,7 @@ const I18N = {
     r5: 'Highlight: the glowing border marks the mini-board you must play in.',
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
-    g_sub: 'Three mini games - sense time, master the board, race to the center', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
+    g_sub: 'Four mini games - sense time, master the board, race to the center, ride the dragon', b_sub: 'Our wuxia duel game - hot-seat 2-player battle',
     gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
     gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
     rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
@@ -4369,6 +4386,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-08-31', ver: 'v2.4', zh: ['新游戏：火柴人龙之战（故事/对战/养成，已移除局域网联机）'], en: ['New game: Matchstick Dragon War (story/versus/upgrades, LAN removed)'] },
     { date: '2026-08-31', ver: 'v2.3', zh: ['新增积分赠送（好友互转，每日限额）', '新增周榜冠军：本周积分第一自动获称号', '商店新增留言置顶券（置顶自己的留言 24 小时）', '抽奖消耗 / 邀请奖励可在控制台设置', '移动端细节优化'], en: ['Added points gifting (daily limit)', 'Weekly champion: top of the week auto-wins title', 'Shop: message pin ticket (pin your message 24h)', 'Lottery cost / invite rewards configurable in console', 'Mobile polish'] },
     { date: '2026-08-31', ver: 'v2.2', zh: ['积分板块重构为「积分中心」标签页（兑换/签到/抽奖/排行榜）', '个人中心弹窗支持滚动'], en: ['Points section reorganized into "Points Center" tabs (Redeem/Check-in/Lottery/Leaderboard)', 'Personal center modal now scrollable'] },
     { date: '2026-08-31', ver: 'v2.1', zh: ['新增积分商店（头像框 / 彩色昵称）', '新增积分抽奖（50 积分/次）', '留言点赞与热评', '邀请注册奖励', '奖励码支持有效期与限用次数'], en: ['Added points shop (avatar frames / colored nicknames)', 'Added points lottery (50 pts per spin)', 'Message likes & hot comments', 'Invite registration rewards', 'Reward codes now support expiry & usage limits'] },
