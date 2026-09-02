@@ -1374,6 +1374,7 @@ const Game = (() => {
       `你 第 ${p1Place} 名 · 收集 💰${matchCoins}（全场第 ${coinRank}）· 名次奖金 💰${bonus} = 本局 +💰${total}`;
     $('wallet').textContent = Save.data.coins;
     $('result').style.display = 'flex';
+    try { parent.postMessage({ type: 'dshGameScore', game: 'racing', score: 101 - p1Place, detail: '第' + p1Place + '名', mode: 'best' }, '*'); } catch (e) {}
   }
 
   /* ---------------- 商店 ---------------- */
