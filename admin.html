@@ -212,6 +212,26 @@
     .bar-chart { gap: 6px; }
     .bar { width: 7px; }
   }
+
+  /* ============ 全局通知 / 确认弹窗 ============ */
+  #toast-holder { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+  .toast {
+    max-width: min(420px, 88vw); padding: 11px 20px; border-radius: 12px;
+    background: rgba(8,12,24,.92); border: 1px solid var(--border2);
+    color: var(--text); font-size: 13.5px; letter-spacing: .5px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.45), 0 0 20px rgba(34,211,238,.08);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    animation: toastIn .28s ease; pointer-events: auto; text-align: center; line-height: 1.5;
+  }
+  .toast.ok { border-color: rgba(52,211,153,.5); box-shadow: 0 8px 30px rgba(0,0,0,.45), 0 0 20px rgba(52,211,153,.15); }
+  .toast.err { border-color: rgba(248,113,113,.5); box-shadow: 0 8px 30px rgba(0,0,0,.45), 0 0 20px rgba(248,113,113,.15); }
+  .toast.out { opacity: 0; transform: translateY(-8px); transition: all .3s; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  .confirm-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(2,4,10,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .confirm-box { width: min(340px, 100%); background: rgba(8,12,24,.96); border: 1px solid var(--border2); border-radius: 16px; padding: 24px 22px 18px; box-shadow: 0 24px 80px rgba(0,0,0,.6); text-align: center; animation: toastIn .25s ease; }
+  .confirm-text { font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 18px; }
+  .confirm-actions { display: flex; gap: 10px; }
+  .confirm-actions .btn { flex: 1; }
 </style>
 </head>
 <body>
@@ -232,6 +252,7 @@
       <button class="nav-item" data-tab="lb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V10M12 20V4M18 20v-7"/></svg>排行榜</button>
       <button class="nav-item" data-tab="trend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16"/><path d="M5 16l4-5 3 3 6-8"/></svg>趋势</button>
       <button class="nav-item" data-tab="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M5 21h14"/></svg>导出</button>
+      <button class="nav-item" data-tab="feed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H10l-5 4.5z"/><path d="M8 9h8M8 13h5"/></svg>动态</button>
       <button class="nav-item" data-tab="logs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>日志</button>
     </nav>
     <div class="side-foot" id="sideFoot">● 加载中…</div>
@@ -443,6 +464,19 @@
     </div>
 
     <!-- 日志 -->
+    <div class="tab-page" id="pg-feed">
+      <div class="page-card">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">动态</h3>
+        <div id="feedPosts"></div>
+        <div class="empty" id="feedPostsEmpty" style="display:none">还没有动态</div>
+      </div>
+      <div class="page-card" style="margin-top:16px">
+        <h3 style="font-size:15px;letter-spacing:2px;margin-bottom:14px">评论</h3>
+        <div id="feedComments"></div>
+        <div class="empty" id="feedCommentsEmpty" style="display:none">还没有评论</div>
+      </div>
+    </div>
+
     <div class="tab-page" id="pg-logs">
       <div class="page-card">
         <div id="logsList"></div>
@@ -483,6 +517,38 @@
 </div>
 
 <script>
+/* ============ 全局通知/确认 ============ */
+(function() {
+  let holder = document.getElementById('toast-holder');
+  if (!holder) { holder = document.createElement('div'); holder.id = 'toast-holder'; document.body.appendChild(holder); }
+  window.__toast = function(msg, type) {
+    if (msg === undefined || msg === null || msg === '') return;
+    const text = String(msg);
+    if (!type) {
+      if (/失败|错误|无效|不足|不能|无法|请先/.test(text)) type = 'err';
+      else if (/成功|已|完成|✓/.test(text)) type = 'ok';
+      else type = 'info';
+    }
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = text;
+    holder.appendChild(el);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 2600);
+  };
+  window.__confirm = function(msg, onYes) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = '<div class="confirm-box"><div class="confirm-text"></div><div class="confirm-actions"><button class="btn ghost c-no">取消</button><button class="btn c-yes">确定</button></div></div>';
+    overlay.querySelector('.confirm-text').textContent = msg;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector('.c-no').addEventListener('click', close);
+    overlay.querySelector('.c-yes').addEventListener('click', () => { close(); onYes && onYes(); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  };
+})();
+
+
   const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
   const KEY = 'SYM-2b2ba42bbaf3';
@@ -498,6 +564,7 @@
     lb:    ['排行榜', '积分 Top10'],
     trend: ['趋势', '近 7 天注册 / 签到 / 兑换走势'],
     export:['导出', '数据导出为 CSV'],
+    feed:  ['动态', '管理动态与评论（删除违规内容）'],
     logs:  ['日志', '所有管理操作留痕']
   };
 
@@ -633,6 +700,9 @@
     // ---- 渲染 ----
     function renderAll() {
       renderCodes(); renderUsers(); renderReds(); renderMsgs(); renderTitles(); renderLogs();
+      supabase.rpc('admin_feed', { p_key: KEY }).then(({ data }) => {
+        if (data && data.ok) { dash.feed_posts = data.posts || []; dash.feed_comments = data.comments || []; renderFeedAdmin(); }
+      }).catch(() => {});
       fillStats();
     }
     function fillStats() {
@@ -709,6 +779,38 @@
       ).join('');
       document.querySelectorAll('[data-rmtitle]').forEach(b => b.addEventListener('click', () => doRemoveTitle(b.getAttribute('data-rmtitle'))));
       $('gTitle').innerHTML = list.map(t => '<option value="' + esc(t.key) + '">' + esc(t.name) + '</option>').join('');
+    }
+    function renderFeedAdmin() {
+      const posts = (dash && dash.feed_posts) || [];
+      const comments = (dash && dash.feed_comments) || [];
+      const pe = document.getElementById('feedPostsEmpty');
+      const ce = document.getElementById('feedCommentsEmpty');
+      if (pe) pe.style.display = posts.length ? 'none' : 'block';
+      if (ce) ce.style.display = comments.length ? 'none' : 'block';
+      const pl = document.getElementById('feedPosts');
+      if (pl) pl.innerHTML = posts.map(p =>
+        '<div class="msg-card"><div class="msg-meta">' + esc(p.user_email || '匿名') + ' · ' + fmt(p.created_at) + ' · 赞 ' + (p.likes || 0) + ' · 评论 ' + (p.comment_count || 0) + '</div>' +
+        '<div class="msg-body">' + esc(p.content || '') + '</div>' +
+        '<div class="msg-actions"><button class="btn red sm" data-fdelp="' + p.id + '">删除动态</button></div></div>'
+      ).join('');
+      const cl = document.getElementById('feedComments');
+      if (cl) cl.innerHTML = comments.map(c =>
+        '<div class="msg-card" style="margin-bottom:8px"><div class="msg-meta">' + esc(c.user_email || '匿名') + ' · ' + fmt(c.created_at) + '</div>' +
+        '<div class="msg-body">' + esc(c.content || '') + '</div>' +
+        '<div class="msg-actions"><button class="btn red sm" data-fdelc="' + c.id + '">删除评论</button></div></div>'
+      ).join('');
+      if (pl) pl.querySelectorAll('[data-fdelp]').forEach(b => b.addEventListener('click', () => doFeedDel('admin_delete_post', b.getAttribute('data-fdelp'), '动态')));
+      if (cl) cl.querySelectorAll('[data-fdelc]').forEach(b => b.addEventListener('click', () => doFeedDel('admin_delete_comment', b.getAttribute('data-fdelc'), '评论')));
+    }
+    async function doFeedDel(rpc, id, what) {
+      window.__confirm('确定删除这条' + what + '？', async () => {
+        try {
+          const { data, error } = await supabase.rpc(rpc, { p_key: KEY, p_post_id: id, p_comment_id: id });
+          if (error) { __toast('失败：' + error.message, 'err'); return; }
+          if (data && data.ok) { __toast('已删除' + what, 'ok'); await loadDashboard(false); }
+          else __toast(fmsg(data && data.msg), 'err');
+        } catch (e) { __toast('失败：' + e.message, 'err'); }
+      });
     }
     function renderLogs() {
       const list = (dash && dash.logs) || [];
@@ -913,42 +1015,44 @@
       } catch (e) { setMsg('ntMsg', '失败：' + e.message, false); }
     }
     async function doRemoveTitle(k) {
-      if (!confirm('确定删除称号「' + k + '」？已授予该称号的用户会被收回。')) return;
+      window.__confirm('确定删除称号「' + k + '」？已授予该称号的用户会被收回。', async () => {
       try {
         const { data, error } = await supabase.rpc('admin_remove_title', { p_key: KEY, p_key2: k });
-        if (error) { alert('失败：' + error.message); return; }
+        if (error) { __toast('失败：' + error.message); return; }
         if (data && data.ok) await loadDashboard(false);
-        else alert(fmsg(data && data.msg));
-      } catch (e) { alert('失败：' + e.message); }
+        else __toast(fmsg(data && data.msg));
+      } catch (e) { __toast('失败：' + e.message); }
+    });
     }
 
     async function doReply(msgId) {
       const input = $('rp_' + msgId);
       const text = input ? input.value.trim() : '';
-      if (!text) { alert('请输入回复内容'); return; }
+      if (!text) { __toast('请输入回复内容'); return; }
       try {
         const { data, error } = await supabase.rpc('admin_reply_message', { p_key: KEY, p_msg_id: msgId, p_reply: text });
-        if (error) { alert('失败：' + error.message); return; }
+        if (error) { __toast('失败：' + error.message); return; }
         if (data && data.ok) await loadDashboard(false);
-        else alert(fmsg(data && data.msg));
-      } catch (e) { alert('失败：' + e.message); }
+        else __toast(fmsg(data && data.msg));
+      } catch (e) { __toast('失败：' + e.message); }
     }
     async function doDeleteMsg(id) {
-      if (!confirm('确定删除这条留言？')) return;
+      window.__confirm('确定删除这条留言？', async () => {
       try {
         const { data, error } = await supabase.rpc('admin_delete_message', { p_key: KEY, p_msg_id: id });
-        if (error) { alert('失败：' + error.message); return; }
+        if (error) { __toast('失败：' + error.message); return; }
         if (data && data.ok) await loadDashboard(false);
-        else alert(fmsg(data && data.msg));
-      } catch (e) { alert('失败：' + e.message); }
+        else __toast(fmsg(data && data.msg));
+      } catch (e) { __toast('失败：' + e.message); }
+    });
     }
     async function doPinMsg(id) {
       try {
         const { data, error } = await supabase.rpc('admin_pin_message', { p_key: KEY, p_msg_id: id });
-        if (error) { alert('失败：' + error.message); return; }
+        if (error) { __toast('失败：' + error.message); return; }
         if (data && data.ok) await loadDashboard(false);
-        else alert(fmsg(data && data.msg));
-      } catch (e) { alert('失败：' + e.message); }
+        else __toast(fmsg(data && data.msg));
+      } catch (e) { __toast('失败：' + e.message); }
     }
 
     async function saveCfg1() {

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>站点数据 · SYM12356</title>
+<style>
+  :root {
+    --bg:#05070f; --panel:rgba(255,255,255,.03); --border:rgba(255,255,255,.12); --border2:rgba(255,255,255,.22);
+    --text:#e9edf9; --muted:#8b93ab; --cyan:#22d3ee; --violet:#a78bfa; --gold:#e8b84b; --pink:#f472b6;
+    --green:#34d399; --red:#f87171;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--text); min-height:100vh;
+    font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+    background-image:
+      radial-gradient(45% 35% at 15% 0%, rgba(34,120,210,.14), transparent 70%),
+      radial-gradient(40% 35% at 90% 10%, rgba(120,80,220,.10), transparent 70%),
+      radial-gradient(50% 40% at 60% 100%, rgba(10,60,130,.10), transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 60px; }
+  h1 {
+    font-size: 28px; letter-spacing: 3px; text-align:center; margin-bottom: 6px;
+    background: linear-gradient(120deg, #22d3ee, #a78bfa 60%, #e8b84b);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { text-align:center; color:var(--muted); font-size:13px; letter-spacing:2px; margin-bottom: 30px; font-family:var(--mono); }
+  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom: 24px; }
+  .card {
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:18px; text-align:center; transition:.25s;
+  }
+  .card:hover { border-color:var(--border2); transform:translateY(-2px); }
+  .card .num { font-family:var(--mono); font-size:28px; font-weight:700; }
+  .card .lbl { font-size:12px; color:var(--muted); letter-spacing:1px; margin-top:5px; }
+  .card.c1 .num { color:var(--cyan); }
+  .card.c2 .num { color:var(--violet); }
+  .card.c3 .num { color:var(--gold); }
+  .card.c4 .num { color:var(--green); }
+  .card.c5 .num { color:var(--pink); }
+  .card.c6 .num { color:var(--red); }
+  .panel {
+    background:var(--panel); border:1px solid var(--border); border-radius:16px;
+    padding:22px; margin-bottom: 20px;
+  }
+  .panel h2 { font-size:15px; letter-spacing:2px; margin-bottom:16px; color:var(--gold); }
+  .bar-chart { display:flex; align-items:flex-end; gap:12px; height:170px; padding:8px 4px 0; }
+  .bar-day { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+  .bar-group { display:flex; align-items:flex-end; gap:3px; height:130px; }
+  .bar { width:10px; border-radius:3px 3px 0 0; min-height:2px; transition:height .4s ease; }
+  .bar.u { background:linear-gradient(180deg,#22d3ee,#0e7490); }
+  .bar.c { background:linear-gradient(180deg,#a78bfa,#6d5bd0); }
+  .bar.p { background:linear-gradient(180deg,#e8b84b,#c8932e); }
+  .bar-day .lbl { font-size:10.5px; color:var(--muted); font-family:var(--mono); }
+  .legend { display:flex; gap:18px; margin-top:12px; font-size:12px; color:var(--muted); }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; }
+  .back { display:block; text-align:center; margin-top:26px; color:var(--cyan); text-decoration:none; font-size:13px; letter-spacing:2px; }
+  .back:hover { text-decoration:underline; }
+  .loading { text-align:center; color:var(--muted); padding:40px; font-size:14px; letter-spacing:2px; }
+  @media (max-width:720px) {
+    .cards { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .bar { width:7px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>站点数据</h1>
+  <div class="sub">SYM12356 · LIVE STATS</div>
+  <div class="cards" id="cards"></div>
+  <div class="panel">
+    <h2>近 7 天趋势</h2>
+    <div id="trend"></div>
+    <div class="legend">
+      <span><i style="background:#22d3ee"></i>新注册</span>
+      <span><i style="background:#a78bfa"></i>签到</span>
+      <span><i style="background:#e8b84b"></i>动态</span>
+    </div>
+  </div>
+  <a class="back" href="index.html">← 返回主页</a>
+</div>
+<script>
+  const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
+  const sdk = document.createElement('script');
+  sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sdk.onload = function() {
+    if (!window.supabase) return;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const cards = document.getElementById('cards');
+    const trend = document.getElementById('trend');
+    cards.innerHTML = '<div class="loading" style="grid-column:1/-1">加载中…</div>';
+    supabase.rpc('site_stats').then(({ data, error }) => {
+      if (error || !data || !data.ok) {
+        cards.innerHTML = '<div class="loading" style="grid-column:1/-1;color:var(--red)">加载失败：' + (error ? error.message : '未知错误') + '</div>';
+        return;
+      }
+      const items = [
+        ['用户', data.users || 0, 'c1'],
+        ['留言', data.messages || 0, 'c2'],
+        ['动态', data.posts || 0, 'c3'],
+        ['评论', data.comments || 0, 'c4'],
+        ['签到次数', data.checkins || 0, 'c5'],
+        ['兑换次数', data.redemptions || 0, 'c1'],
+        ['总积分', data.total_points || 0, 'c3'],
+        ['点赞数', data.total_likes || 0, 'c6']
+      ];
+      cards.innerHTML = items.map(it => '<div class="card ' + it[2] + '"><div class="num">' + it[1] + '</div><div class="lbl">' + it[0] + '</div></div>').join('');
+      const rows = (data.trend || []);
+      const max = Math.max(1, ...rows.map(r => Math.max(r.users, r.checkins, r.posts)));
+      trend.innerHTML = rows.length ? '<div class="bar-chart">' + rows.map(r => {
+        const d = String(r.day).slice(5);
+        return '<div class="bar-day"><div class="bar-group">' +
+          '<div class="bar u" style="height:' + Math.round(r.users / max * 100) + '%"></div>' +
+          '<div class="bar c" style="height:' + Math.round(r.checkins / max * 100) + '%"></div>' +
+          '<div class="bar p" style="height:' + Math.round(r.posts / max * 100) + '%"></div>' +
+          '</div><span class="lbl">' + d + '</span></div>';
+      }).join('') + '</div>' : '<div style="color:var(--muted);text-align:center;padding:20px">暂无数据</div>';
+    }).catch(e => {
+      cards.innerHTML = '<div class="loading" style="grid-column:1/-1;color:var(--red)">加载失败：' + e.message + '</div>';
+    });
+  };
+  document.body.appendChild(sdk);
+</script>
+</body>
+</html>
