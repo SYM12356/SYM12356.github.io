@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动态广场 · SYM12356</title>
+<style>
+  :root {
+    --bg:#05070f; --panel:rgba(255,255,255,.03); --border:rgba(255,255,255,.12); --border2:rgba(255,255,255,.22);
+    --text:#e9edf9; --muted:#8b93ab; --cyan:#22d3ee; --violet:#a78bfa; --gold:#e8b84b; --pink:#f472b6;
+    --green:#34d399; --red:#f87171;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--text); min-height:100vh;
+    font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+    background-image:
+      radial-gradient(45% 35% at 15% 0%, rgba(34,120,210,.14), transparent 70%),
+      radial-gradient(40% 35% at 90% 10%, rgba(120,80,220,.10), transparent 70%),
+      radial-gradient(50% 40% at 60% 100%, rgba(10,60,130,.10), transparent 70%);
+    background-attachment:fixed;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; gap:12px; flex-wrap:wrap; }
+  h1 {
+    font-size: 26px; letter-spacing: 3px;
+    background: linear-gradient(120deg, #22d3ee, #a78bfa 60%, #e8b84b);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .topbar-links { display:flex; gap:10px; align-items:center; }
+  .toplink {
+    padding: 7px 16px; border-radius: 999px; text-decoration:none;
+    border:1px solid var(--border); color:var(--muted);
+    font-size:12.5px; letter-spacing:1px; transition:.2s; font-family:var(--mono);
+  }
+  .toplink:hover { color:var(--cyan); border-color:var(--cyan); }
+  #userChip { color:var(--cyan); font-size:12.5px; font-family:var(--mono); }
+
+  .feed-card { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:16px; padding:22px; }
+  .feed-compose { display:flex; gap:10px; align-items:flex-end; }
+  .feed-compose textarea {
+    flex:1; min-width:0; resize:vertical; background:rgba(5,7,15,.6); color:var(--text);
+    border:1px solid var(--border); border-radius:10px; padding:12px; font-size:14px; font-family:inherit; outline:none;
+  }
+  .feed-compose textarea:focus { border-color:var(--cyan); }
+  .btn {
+    padding:11px 26px; border-radius:10px; border:none; cursor:pointer; font-size:14px;
+    background:linear-gradient(120deg,#22d3ee,#38bdf8); color:#04060e; font-weight:600;
+    letter-spacing:2px; transition:.2s; font-family:inherit; white-space:nowrap;
+  }
+  .btn:hover { filter:brightness(1.12); box-shadow:0 0 20px rgba(34,211,238,.35); }
+  .btn.ghost { background:transparent; color:var(--text); border:1px solid var(--border2); letter-spacing:1px; }
+  .btn.ghost:hover { border-color:var(--cyan); color:var(--cyan); background:rgba(34,211,238,.06); box-shadow:none; }
+  .btn.sm { padding:6px 14px; font-size:12px; border-radius:8px; letter-spacing:1px; }
+  .feed-img-row { margin-top:8px; }
+  .feed-img-row input {
+    width:100%; padding:8px 12px; background:rgba(5,7,15,.5); color:var(--muted);
+    border:1px solid var(--border); border-radius:8px; font-size:12px; font-family:var(--mono); outline:none;
+  }
+  .feed-img-row input:focus { border-color:var(--cyan); }
+  .feed-msg { min-height:18px; margin-top:10px; font-size:13px; }
+  .feed-msg.ok { color:var(--green); }
+  .feed-msg.err { color:var(--red); }
+  .feed-list { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+  .fd-item { border:1px solid var(--border); border-radius:12px; padding:14px 16px; background:rgba(255,255,255,.02); }
+  .fd-meta { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--muted); font-family:var(--mono); margin-bottom:8px; }
+  .fd-name { color:var(--violet); }
+  .fd-content { font-size:14px; color:var(--text); line-height:1.65; word-break:break-word; white-space:pre-wrap; }
+  .fd-hl-tag { color:var(--cyan); }
+  .fd-hl-at { color:var(--violet); }
+  .fd-img { margin-top:10px; }
+  .fd-img img { max-width:100%; max-height:320px; border-radius:10px; border:1px solid var(--border); display:block; }
+  .fd-actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .fd-like, .fd-cm-btn, .fd-del {
+    display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:999px;
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    font-size:12px; cursor:pointer; transition:.2s; font-family:var(--mono);
+  }
+  .fd-like:hover, .fd-cm-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+  .fd-like.on { border-color:rgba(232,184,75,.5); color:var(--gold); background:rgba(232,184,75,.07); }
+  .fd-del { border-color:transparent; }
+  .fd-del:hover { color:var(--red); border-color:rgba(248,113,113,.4); }
+  .fd-comments { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:none; flex-direction:column; gap:8px; }
+  .fd-comments.open { display:flex; }
+  .fd-cm { font-size:13px; color:var(--muted); line-height:1.6; word-break:break-word; }
+  .fd-cm b { color:var(--violet); font-weight:600; margin-right:6px; }
+  .fd-cm .fd-cm-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:11px; margin-left:6px; }
+  .fd-cm .fd-cm-del:hover { color:var(--red); }
+  .fd-cm-input { display:flex; gap:8px; }
+  .fd-cm-input input {
+    flex:1; min-width:0; padding:8px 12px; background:rgba(5,7,15,.6); color:var(--text);
+    border:1px solid var(--border); border-radius:8px; font-size:13px; outline:none; font-family:inherit;
+  }
+  .fd-cm-input input:focus { border-color:var(--cyan); }
+  .show-more { text-align:center; margin-top:14px; }
+  .show-more-btn {
+    background:transparent; border:1px dashed var(--border2); border-radius:999px; color:var(--muted);
+    font-size:13px; letter-spacing:1px; padding:8px 22px; cursor:pointer; transition:.25s; font-family:var(--mono);
+  }
+  .show-more-btn:hover { color:var(--cyan); border-color:rgba(34,211,238,.5); background:rgba(34,211,238,.05); }
+  .fd-empty { color:var(--muted); text-align:center; padding:24px; font-size:13px; }
+
+  #toast-holder { position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+  .toast {
+    max-width:min(420px,88vw); padding:11px 20px; border-radius:12px;
+    background:rgba(8,12,24,.92); border:1px solid var(--border2); color:var(--text);
+    font-size:13.5px; box-shadow:0 8px 30px rgba(0,0,0,.45),0 0 20px rgba(34,211,238,.08);
+    backdrop-filter:blur(10px); animation:ti .28s ease; pointer-events:auto; text-align:center; line-height:1.5;
+  }
+  .toast.ok { border-color:rgba(52,211,153,.5); }
+  .toast.err { border-color:rgba(248,113,113,.5); }
+  .toast.out { opacity:0; transform:translateY(-8px); transition:all .3s; }
+  @keyframes ti { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+  .confirm-overlay { position:fixed; inset:0; z-index:9998; background:rgba(2,4,10,.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px; }
+  .confirm-box { width:min(340px,100%); background:rgba(8,12,24,.96); border:1px solid var(--border2); border-radius:16px; padding:24px 22px 18px; text-align:center; animation:ti .25s ease; }
+  .confirm-text { font-size:14px; line-height:1.7; margin-bottom:18px; }
+  .confirm-actions { display:flex; gap:10px; }
+  .confirm-actions .btn { flex:1; }
+
+  @media (max-width:520px) {
+    .feed-compose { flex-direction:column; align-items:stretch; }
+    .feed-compose .btn { width:100%; }
+    h1 { font-size:22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1 id="pgTitle">动态广场</h1>
+    <div class="topbar-links">
+      <span id="userChip"></span>
+      <a class="toplink" id="loginLink" href="index.html">登录</a>
+      <a class="toplink" href="index.html">← 主页</a>
+    </div>
+  </div>
+
+  <div class="feed-card">
+    <div class="feed-compose">
+      <textarea id="fdText" rows="2" maxlength="200" placeholder="说点什么…"></textarea>
+      <button class="btn" id="fdSend">发布</button>
+    </div>
+    <div class="feed-img-row"><input id="fdImg" type="text" maxlength="300" placeholder="图片链接（可选，https://…）"></div>
+    <div class="feed-msg" id="fdMsg"></div>
+    <div class="feed-list" id="fdList"></div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://ztmltvpkvcmqegvwxqph.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_0JJyVpKJhE4I276QtunB-A_sOEtj2OR';
+
+  const I18N = {
+    zh: {
+      pg_title: '动态广场', login: '登录', home: '← 主页', send: '发布',
+      img_ph: '图片链接（可选，https://…）', txt_ph: '说点什么…',
+      empty: '还没有动态，来发第一条！', fail: '动态加载失败', empty_txt: '写点内容再发布',
+      need_login: '请先登录', banned: '你已被禁言，无法发布', posted: '已发布',
+      like: '赞', comment: '评论', del: '删除', del_confirm: '确定删除？',
+      cm_ph: '写下评论…', send_cm: '发送', more: '展开全部 {n} 条', less: '收起',
+      logged_in: '已登录'
+    },
+    en: {
+      pg_title: 'Feed', login: 'Log in', home: '← Home', send: 'Post',
+      img_ph: 'Image link (optional, https://…)', txt_ph: 'Share something…',
+      empty: 'No posts yet - be the first!', fail: 'Failed to load feed', empty_txt: 'Write something first',
+      need_login: 'Please log in first', banned: 'You are muted', posted: 'Posted',
+      like: 'Like', comment: 'Comment', del: 'Delete', del_confirm: 'Delete this?',
+      cm_ph: 'Write a comment…', send_cm: 'Send', more: 'Show all {n}', less: 'Collapse',
+      logged_in: 'Signed in'
+    }
+  };
+  let LANG = (localStorage.getItem('lang') || 'zh') === 'en' ? 'en' : 'zh';
+  const t = k => (I18N[LANG] && I18N[LANG][k]) || k;
+
+  /* 语言与标题 */
+  document.getElementById('pgTitle').textContent = t('pg_title');
+  document.getElementById('loginLink').textContent = t('login');
+
+  /* toast */
+  (function() {
+    let holder = document.getElementById('toast-holder');
+    if (!holder) { holder = document.createElement('div'); holder.id = 'toast-holder'; document.body.appendChild(holder); }
+    window.__toast = function(msg, type) {
+      if (!msg) return;
+      if (!type) { if (/失败|错误|不足|不能|请先|muted/.test(String(msg))) type = 'err'; else if (/成功|已|✓|Posted/.test(String(msg))) type = 'ok'; }
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.textContent = msg;
+      holder.appendChild(el);
+      setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 2600);
+    };
+    window.__confirm = function(msg, onYes) {
+      const ov = document.createElement('div');
+      ov.className = 'confirm-overlay';
+      ov.innerHTML = '<div class="confirm-box"><div class="confirm-text"></div><div class="confirm-actions"><button class="btn ghost" id="cNo">取消</button><button class="btn" id="cYes">确定</button></div></div>';
+      ov.querySelector('.confirm-text').textContent = msg;
+      document.body.appendChild(ov);
+      const close = () => ov.remove();
+      ov.querySelector('#cNo').addEventListener('click', close);
+      ov.querySelector('#cYes').addEventListener('click', () => { close(); onYes && onYes(); });
+    };
+  })();
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function fmtTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso), diff = Date.now() - d.getTime();
+    if (diff < 60000) return LANG === 'en' ? 'just now' : '刚刚';
+    if (diff < 3600000) return Math.floor(diff / 60000) + (LANG === 'en' ? ' min ago' : ' 分钟前');
+    if (diff < 86400000) return Math.floor(diff / 3600000) + (LANG === 'en' ? ' h ago' : ' 小时前');
+    return d.toLocaleString(LANG === 'en' ? 'en-US' : 'zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+  function hl(text) {
+    return esc(text).replace(/(#[一-龥A-Za-z0-9_]+)/g, '<span class="fd-hl-tag">$1</span>')
+      .replace(/(@[一-龥A-Za-z0-9_]+)/g, '<span class="fd-hl-at">$1</span>');
+  }
+
+  $('fdText').placeholder = t('txt_ph');
+  $('fdImg').placeholder = t('img_ph');
+  $('fdSend').textContent = t('send');
+
+  function setMsg(text, ok) { const el = $('fdMsg'); el.textContent = text; el.className = 'feed-msg ' + (ok ? 'ok' : 'err'); }
+  function needLogin() {
+    __toast(t('need_login'));
+    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+  }
+
+  const sdk = document.createElement('script');
+  sdk.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sdk.onload = function() {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 顶栏登录态
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data && data.user;
+      const chip = $('userChip');
+      const loginLink = $('loginLink');
+      if (u) {
+        const name = (u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || u.email || '';
+        chip.textContent = t('logged_in') + ' · ' + name;
+        loginLink.textContent = '(' + t('login') + ')';
+        loginLink.href = 'index.html';
+      } else {
+        loginLink.textContent = t('login') + ' →';
+      }
+    }).catch(() => {});
+
+    let feedCache = [], feedAll = false;
+    const FEED_SHOW = 8;
+
+    function renderFeed() {
+      const full = feedCache;
+      const listEl = $('fdList');
+      if (!full.length) { listEl.innerHTML = '<div class="fd-empty">' + t('empty') + '</div>'; return; }
+      const list2 = feedAll ? full : full.slice(0, FEED_SHOW);
+      listEl.innerHTML = list2.map(p => {
+        const likeCls = p.liked ? ' on' : '';
+        const delBtn = p.mine ? '<button class="fd-del" data-delp="' + p.id + '">' + t('del') + '</button>' : '';
+        return '<div class="fd-item"><div class="fd-meta"><span class="fd-name">' + esc(p.user_email || '?') + '</span><span>' + fmtTime(p.created_at) + '</span></div>' +
+          '<div class="fd-content">' + hl(p.content) + '</div>' +
+          (p.image_url ? '<div class="fd-img"><img src="' + esc(p.image_url) + '" loading="lazy" onerror="this.style.display=\'none\'"></div>' : '') +
+          '<div class="fd-actions">' +
+          '<button class="fd-like' + likeCls + '" data-likep="' + p.id + '">' + t('like') + ' ' + (p.likes || 0) + '</button>' +
+          '<button class="fd-cm-btn" data-cmp="' + p.id + '">' + t('comment') + ' (' + (p.comment_count || 0) + ')</button>' +
+          delBtn + '</div>' +
+          '<div class="fd-comments" id="cms_' + p.id + '"></div></div>';
+      }).join('');
+      if (full.length > FEED_SHOW) {
+        listEl.innerHTML += '<div class="show-more"><button class="show-more-btn" id="fdMoreBtn">' + (feedAll ? t('less') : t('more').replace('{n}', full.length)) + '</button></div>';
+        const mb = $('fdMoreBtn');
+        if (mb) mb.addEventListener('click', () => { feedAll = !feedAll; renderFeed(); });
+      }
+      listEl.querySelectorAll('[data-likep]').forEach(b => b.addEventListener('click', () => toggleLike(b)));
+      listEl.querySelectorAll('[data-delp]').forEach(b => b.addEventListener('click', () => delPost(b.getAttribute('data-delp'))));
+      listEl.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => toggleComments(b)));
+    }
+
+    function loadFeed() {
+      supabase.rpc('get_feed').then(({ data }) => {
+        if (!data || !data.ok) { $('fdList').innerHTML = '<div class="fd-empty">' + t('fail') + '</div>'; return; }
+        feedCache = data.list || [];
+        renderFeed();
+      }).catch(() => { $('fdList').innerHTML = '<div class="fd-empty">' + t('fail') + '</div>'; });
+    }
+
+    $('fdSend').addEventListener('click', async () => {
+      const text = $('fdText').value.trim();
+      if (!text) { setMsg(t('empty_txt'), false); return; }
+      const user = await supabase.auth.getUser();
+      const u = user.data && user.data.user;
+      if (!u) { needLogin(); return; }
+      const name = (u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || u.email || 'user';
+      const img = $('fdImg').value.trim();
+      const { data, error } = await supabase.rpc('create_post', { p_content: text, p_name: name, p_title: '', p_image: img });
+      if (error) { setMsg(error.message, false); return; }
+      if (data && data.ok) {
+        $('fdText').value = ''; $('fdImg').value = '';
+        setMsg(t('posted'), true);
+        loadFeed();
+      } else if (data && data.msg === 'BANNED') { __toast(t('banned'), 'err'); }
+      else if (data && data.msg === 'NOT_LOGGED_IN') { needLogin(); }
+      else setMsg(t('fail'), false);
+    });
+
+    function toggleLike(btn) {
+      const id = btn.getAttribute('data-likep');
+      const on = btn.classList.contains('on');
+      (async () => {
+        const user = await supabase.auth.getUser();
+        if (!(user.data && user.data.user)) { needLogin(); return; }
+        const { data, error } = await supabase.rpc(on ? 'unlike_post' : 'like_post', { p_post_id: id });
+        if (error) { setMsg(error.message, false); return; }
+        if (data && data.ok) {
+          btn.classList.toggle('on', !on);
+          btn.textContent = t('like') + ' ' + (data.likes || 0);
+        }
+      })();
+    }
+
+    function delPost(id) {
+      __confirm(t('del_confirm'), () => {
+        supabase.rpc('delete_post', { p_post_id: id }).then(() => loadFeed()).catch(() => {});
+      });
+    }
+
+    function toggleComments(btn) {
+      const postId = btn.getAttribute('data-cmp');
+      const box = $('cms_' + postId);
+      if (!box) return;
+      if (box.classList.contains('open')) { box.classList.remove('open'); return; }
+      box.classList.add('open');
+      loadComments(postId, box);
+    }
+
+    function loadComments(postId, box) {
+      supabase.rpc('get_comments', { p_post_id: postId }).then(({ data }) => {
+        const list = (data && data.ok && data.list) || [];
+        box.innerHTML = list.map(c =>
+          '<div class="fd-cm"><b>' + esc(c.user_email || '?') + '</b>' + esc(c.content) +
+          (c.mine ? '<button class="fd-cm-del" data-delc="' + c.id + '">' + t('del') + '</button>' : '') + '</div>'
+        ).join('') +
+        '<div class="fd-cm-input"><input placeholder="' + t('cm_ph') + '" maxlength="150"><button class="btn ghost sm fd-cm-send" data-cmsend="' + postId + '">' + t('send_cm') + '</button></div>';
+        box.querySelectorAll('[data-delc]').forEach(b => b.addEventListener('click', () => delComment(b.getAttribute('data-delc'), postId, box)));
+        const sb = box.querySelector('[data-cmsend]');
+        if (sb) sb.addEventListener('click', () => addComment(sb.getAttribute('data-cmsend'), box));
+      }).catch(() => {});
+    }
+
+    function addComment(postId, box) {
+      const input = box.querySelector('.fd-cm-input input');
+      const text = input.value.trim();
+      if (!text) return;
+      (async () => {
+        const user = await supabase.auth.getUser();
+        if (!(user.data && user.data.user)) { needLogin(); return; }
+        const { data, error } = await supabase.rpc('add_comment', { p_post_id: postId, p_content: text });
+        if (error) { setMsg(error.message, false); return; }
+        if (data && data.ok) { input.value = ''; loadComments(postId, box); loadFeed(); }
+        else if (data && data.msg === 'BANNED') { __toast(t('banned'), 'err'); }
+        else setMsg(t('fail'), false);
+      })();
+    }
+
+    function delComment(cid, postId, box) {
+      __confirm(t('del_confirm'), () => {
+        supabase.rpc('delete_comment', { p_comment_id: cid }).then(() => { loadComments(postId, box); loadFeed(); }).catch(() => {});
+      });
+    }
+
+    loadFeed();
+  };
+  document.body.appendChild(sdk);
+</script>
+</body>
+</html>

@@ -1439,6 +1439,13 @@
   }
   .gb-reply b { color: var(--cyan); font-weight: 600; }
   .gb-empty { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
+  .show-more { text-align: center; margin-top: 12px; }
+  .show-more-btn {
+    background: transparent; border: 1px dashed var(--border2); border-radius: 999px;
+    color: var(--muted); font-size: 13px; letter-spacing: 1px;
+    padding: 8px 22px; cursor: pointer; transition: .25s; font-family: var(--mono);
+  }
+  .show-more-btn:hover { color: var(--cyan); border-color: rgba(34,211,238,.5); background: rgba(34,211,238,.05); }
 
   /* ============ 兑换 ============ */
   .redeem-card {
@@ -1976,6 +1983,7 @@
       <a href="#backup" class="index-nav-item" data-i18n="nav_backup">备用</a>
       <a href="#links" class="index-nav-item" data-i18n="nav_links">友链</a>
       <a href="#guestbook" class="index-nav-item" data-i18n="nav_gb">留言板</a>
+      <a href="feed.html" class="index-nav-item" data-i18n="nav_feed">动态</a>
       <a href="#contact" class="index-nav-item" data-i18n="nav_contact">联系</a>
     </div>
   </nav>
@@ -2381,31 +2389,10 @@
     </div>
   </section>
 
-  <!-- ============ 动态广场 ============ -->
-  <section id="feed">
-    <div class="wrap">
-      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">08 / FEED</span></div>
-      <h2 class="sec-title reveal"><span data-i18n="fd_title">动态广场</span></h2>
-      <p class="sec-sub reveal" data-i18n="fd_sub">分享此刻 · 点赞评论</p>
-
-      <div class="feed-card reveal">
-        <div class="feed-compose">
-          <textarea id="fdText" rows="2" maxlength="200" placeholder="说点什么…"></textarea>
-          <button class="btn btn-primary game-btn" id="fdSend" data-i18n="fd_send">发布</button>
-        </div>
-        <div class="feed-img-row">
-          <input id="fdImg" type="text" maxlength="300" placeholder="图片链接（可选，https://…）">
-        </div>
-        <div class="feed-msg" id="fdMsg"></div>
-        <div class="feed-list" id="fdList"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- ============ 更新日志 ============ -->
   <section id="changelog">
     <div class="wrap">
-      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">09 / CHANGELOG</span></div>
+      <div class="sec-no reveal ds-badge-wrap"><span class="ds-badge">08 / CHANGELOG</span></div>
       <h2 class="sec-title reveal"><span data-i18n="cl_p1">更新</span><span data-i18n="cl_title">日志</span></h2>
       <p class="sec-sub reveal" data-i18n="cl_sub">记录每一次成长</p>
       <div class="cl-list" id="clList"></div>
@@ -2429,6 +2416,7 @@
       <span data-i18n="f_stats">访问量</span> <span id="busuanzi_value_site_pv">--</span> · <span data-i18n="f_uv">访客</span> <span id="busuanzi_value_site_uv">--</span>
     </p>
     <p class="footer-admin"><button id="adminBtn" class="admin-btn" data-i18n="adm_btn">站长控制台</button>
+      <a class="admin-btn" href="feed.html" style="text-decoration:none;display:inline-block" data-i18n="fd_entry">动态广场</a>
       <a class="admin-btn" href="stats.html" style="text-decoration:none;display:inline-block" data-i18n="stats_link">站点数据</a></p>
   </footer>
 </main>
@@ -2559,7 +2547,7 @@
 /* ============ 中英切换 ============ */
 const I18N = {
   'zh': {
-    nav_home: '首页', nav_tags: '标签', nav_game: '游戏', nav_board: '桌游', nav_backup: '备用', nav_links: '友链', nav_gb: '留言板', nav_contact: '联系',
+    nav_home: '首页', nav_tags: '标签', nav_game: '游戏', nav_board: '桌游', nav_backup: '备用', nav_links: '友链', nav_gb: '留言板', nav_feed: '动态', nav_contact: '联系',
     t_status: '行至水穷处，坐看云起时', t_mission: '探索 · 创造 · 分享',
     clock_fold: '精确时钟',
     t_tags_full: '我的标签',
@@ -2595,8 +2583,8 @@ const I18N = {
     ach_weekly: '周冠军', ach_weekly_d: '本周积分榜第一名',
     tr_title: '积分赠送', tr_sub: '每日可转出 {n} 积分', tr_to: '接收人邮箱', tr_amt: '数量', tr_btn: '赠送', tr_ok: '已转出', tr_sent: '今日已转出', tr_left: '今日剩余', tr_err_self: '不能转给自己', tr_err_limit: '超出今日转出上限', tr_err_nopts: '积分不足', tr_err_user: '用户不存在', tr_err_amt: '请输入正确的数量',
     gb_pin_btn: '置顶',
-    pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复',
-    adm_btn: '站长控制台', adm_login: '请先登录', adm_deny: '仅站长可用', stats_link: '站点数据',
+    pc_sys_pts: '积分体系', pc_sys_msg: '留言体系', pc_sys_sign: '签到体系', pc_ach_title: '成就墙', pc_ach_on: '已解锁', pc_ach_off: '未解锁', pc_ach_new: '解锁新称号', pc_reds: '兑换', pc_left: '还差', pc_max_lv_short: '满级', gb_reply_label: '站长回复', gb_more: '展开全部 {n} 条', gb_less: '收起', fd_more: '展开全部 {n} 条', fd_less: '收起',
+    adm_btn: '站长控制台', adm_login: '请先登录', adm_deny: '仅站长可用', stats_link: '站点数据', fd_entry: '动态广场',
     ann_tag: '公告', lb_title: '积分榜 · Top 10', lb_empty: '还没有人有积分，快来抢占榜首', gb_pin: '置顶', gb_banned: '你已被禁言，无法留言', rd_sign_bonus: '连签奖励',
     ad_tag: '广告', ad_title: '广告位招租', ad_sub: '长期有效 · 投放请联系站长（3829343053@qq.com）', ad_price: '价格面议',
     lt_title: '积分抽奖', lt_btn: '抽一发', lt_sub: '50 积分/次 · 最高赢 +500', lt_win: '恭喜抽中', lt_none: '谢谢参与，下次好运', lt_cost: '消耗', lt_nopts: '积分不足，先去签到攒分吧',
@@ -2608,7 +2596,7 @@ const I18N = {
     cl_p1: '更新', cl_title: '日志', cl_sub: '记录每一次成长', cl_more: '展开更多历史', cl_less: '收起'
   },
   'en': {
-    nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_gb: 'Guestbook', nav_contact: 'Contact',
+    nav_home: 'Home', nav_tags: 'Tags', nav_game: 'Games', nav_board: 'Board', nav_backup: 'Mirror', nav_links: 'Links', nav_gb: 'Guestbook', nav_feed: 'Feed', nav_contact: 'Contact',
     t_status: 'When water ends, clouds rise', t_mission: 'Explore · Create · Share',
     clock_fold: 'Precise Clock',
     t_tags_full: 'My Tags',
@@ -2644,8 +2632,8 @@ const I18N = {
     ach_weekly: 'Weekly Champ', ach_weekly_d: "Top of this week's leaderboard",
     tr_title: 'Gift Points', tr_sub: 'Daily transfer limit {n} pts', tr_to: 'Recipient email', tr_amt: 'Amount', tr_btn: 'Send', tr_ok: 'Sent', tr_sent: 'Sent today', tr_left: 'Left today', tr_err_self: 'Cannot send to yourself', tr_err_limit: 'Daily limit reached', tr_err_nopts: 'Not enough points', tr_err_user: 'User not found', tr_err_amt: 'Enter a valid amount',
     gb_pin_btn: 'Pin',
-    pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply',
-    adm_btn: 'Admin', adm_login: 'Please log in first', adm_deny: 'Owner only', stats_link: 'Site Stats',
+    pc_sys_pts: 'Points', pc_sys_msg: 'Messages', pc_sys_sign: 'Check-ins', pc_ach_title: 'Achievements', pc_ach_on: 'Unlocked', pc_ach_off: 'Locked', pc_ach_new: 'New title unlocked', pc_reds: 'Codes', pc_left: 'need', pc_max_lv_short: 'MAX', gb_reply_label: 'Owner reply', gb_more: 'Show all {n}', gb_less: 'Collapse', fd_more: 'Show all {n}', fd_less: 'Collapse',
+    adm_btn: 'Admin', adm_login: 'Please log in first', adm_deny: 'Owner only', stats_link: 'Site Stats', fd_entry: 'Feed',
     ann_tag: 'Notice', lb_title: 'Leaderboard · Top 10', lb_empty: 'No points yet - be the first!', gb_pin: 'Pinned', gb_banned: 'You are muted and cannot post', rd_sign_bonus: 'streak bonus',
     ad_tag: 'AD', ad_title: 'Ad Space For Rent', ad_sub: 'Open to offers · Contact the owner (3829343053@qq.com)', ad_price: 'Negotiable',
     lt_title: 'Lottery', lt_btn: 'Spin', lt_sub: '50 pts per spin · win up to +500', lt_win: 'You won', lt_none: 'Try again, good luck', lt_cost: 'cost', lt_nopts: 'Not enough points - check in first',
@@ -3888,11 +3876,17 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     }
   }
 
+  let msgCache = [], msgsAll = false;
+  const MSG_SHOW = 5;
+
   function renderMessages(list) {
+    if (list) msgCache = list;
     const el = $('gbList');
-    if (!list.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
+    const full = msgCache;
+    if (!full.length) { el.innerHTML = '<div class="gb-empty" data-i18n="gb_empty">还没有留言，来抢沙发！</div>'; return; }
+    const list2 = msgsAll ? full : full.slice(0, MSG_SHOW);
     const likeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11M3 10v9a1 1 0 001 1h3V10H3zM7 10l4-7a2 2 0 012 2v4h5.5a1.5 1.5 0 011.4 2l-1.6 6a1.5 1.5 0 01-1.4 1H7"/></svg>';
-    el.innerHTML = list.map(m => {
+    el.innerHTML = list2.map(m => {
       const name = escapeHtml(m.user_email || '匿名');
       const nc = m.user_nick_color === 'rainbow' ? ' nick-rainbow' : (m.user_nick_color === 'gold' ? ' nick-gold' : '');
       const pin = m.pinned ? '<span class="gb-pin">' + ((window.__t && __t('gb_pin')) || '置顶') + '</span>' : '';
@@ -3910,6 +3904,14 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         : '';
       return '<div class="gb-item' + (m.pinned ? ' gb-pinned' : '') + '"><div class="gb-meta"><span class="gb-name' + nc + '">' + pin + name + hot + badge + pts + '</span><span>' + time + '</span></div><div class="gb-content">' + escapeHtml(m.content || '') + '</div>' + reply + likeBtn + pinOwn + '</div>';
     }).join('');
+    if (full.length > MSG_SHOW) {
+      const label = msgsAll
+        ? ((window.__t && __t('gb_less')) || '收起')
+        : ((window.__t && __t('gb_more')) || '展开全部').replace('{n}', full.length);
+      el.innerHTML += '<div class="show-more"><button class="show-more-btn" id="gbMoreBtn">' + label + '</button></div>';
+      const mb = $('gbMoreBtn');
+      if (mb) mb.addEventListener('click', () => { msgsAll = !msgsAll; renderMessages(); });
+    }
     el.querySelectorAll('.gb-like').forEach(b => {
       b.addEventListener('click', () => {
         if (b.hasAttribute('data-pinown')) pinOwnMsg(b.getAttribute('data-pinown'));
@@ -4621,194 +4623,6 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   })();
 })();
 
-/* ============ 动态广场 ============ */
-(function() {
-  const $ = id => document.getElementById(id);
-  const t = k => (window.__t ? __t(k) : k);
-  const fdList = $('fdList');
-  if (!fdList) return;
-
-  function waitSupabase(cb) {
-    if (window.__supabase) { cb(window.__supabase); return; }
-    let n = 0;
-    const timer = setInterval(() => {
-      if (window.__supabase) { clearInterval(timer); cb(window.__supabase); }
-      else if (++n > 80) clearInterval(timer);
-    }, 250);
-  }
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function fmtTime(iso) {
-    if (!iso) return '';
-    const d = new Date(iso), diff = Date.now() - d.getTime();
-    if (diff < 60000) return '刚刚';
-    if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
-    if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
-    return d.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-  function setMsg(text, ok) {
-    const el = $('fdMsg');
-    el.textContent = text;
-    el.className = 'feed-msg ' + (ok ? 'ok' : 'err');
-  }
-  function nickCls(v) {
-    if (v === 'rainbow') return ' nick-rainbow';
-    if (v === 'gold') return ' nick-gold';
-    return '';
-  }
-  // #话题 与 @提及 高亮
-  function hl(text) {
-    return esc(text).replace(/(#[\u4e00-\u9fa5A-Za-z0-9_]+)/g, '<span class="fd-hl-tag">$1</span>')
-      .replace(/(@[\u4e00-\u9fa5A-Za-z0-9_]+)/g, '<span class="fd-hl-at">$1</span>');
-  }
-
-  function renderFeed(list) {
-    if (!list.length) { fdList.innerHTML = '<div class="fd-empty">' + t('fd_empty') + '</div>'; return; }
-    fdList.innerHTML = list.map(p => {
-      const likeCls = p.liked ? ' on' : '';
-      const delBtn = p.mine ? '<button class="fd-del" data-delp="' + p.id + '">' + t('fd_del') + '</button>' : '';
-      return '<div class="fd-item" data-post="' + p.id + '">' +
-        '<div class="fd-meta"><span class="fd-name' + nickCls(p.nick) + '">' + esc(p.user_email || '匿名') + (p.user_title ? ' <span class="gb-badge">' + esc(p.user_title) + '</span>' : '') + '</span><span>' + fmtTime(p.created_at) + '</span></div>' +
-        '<div class="fd-content">' + hl(p.content) + '</div>' + (p.image_url ? '<div class="fd-img"><img src="' + esc(p.image_url) + '" loading="lazy" onerror="this.style.display=\'none\'"></div>' : '') +
-        '<div class="fd-actions">' +
-          '<button class="fd-like' + likeCls + '" data-likep="' + p.id + '">' + t('fd_like') + ' ' + (p.likes || 0) + '</button>' +
-          '<button class="fd-cm-btn" data-cmp="' + p.id + '">' + t('fd_comment') + ' (' + (p.comment_count || 0) + ')</button>' +
-          delBtn +
-        '</div>' +
-        '<div class="fd-comments" id="cms_' + p.id + '"></div>' +
-      '</div>';
-    }).join('');
-    fdList.querySelectorAll('[data-likep]').forEach(b => b.addEventListener('click', () => toggleLike(b)));
-    fdList.querySelectorAll('[data-delp]').forEach(b => b.addEventListener('click', () => delPost(b.getAttribute('data-delp'))));
-    fdList.querySelectorAll('[data-cmp]').forEach(b => b.addEventListener('click', () => toggleComments(b)));
-  }
-
-  function loadFeed() {
-    waitSupabase(supabase => {
-      supabase.rpc('get_feed').then(({ data, error }) => {
-        if (error || !data || !data.ok) { fdList.innerHTML = '<div class="fd-empty">' + t('fd_fail') + '</div>'; return; }
-        renderFeed(data.list || []);
-      }).catch(() => { fdList.innerHTML = '<div class="fd-empty">' + t('fd_fail') + '</div>'; });
-    });
-  }
-
-  $('fdSend').addEventListener('click', () => {
-    const text = $('fdText').value.trim();
-    if (!text) { setMsg(t('fd_empty_txt'), false); return; }
-    waitSupabase(async supabase => {
-      const user = await supabase.auth.getUser();
-      const u = user.data && user.data.user;
-      if (!u) { setMsg(t('fd_need_login'), false); try { window.__openAuth && window.__openAuth(); } catch (e) {} return; }
-      let name = (u.user_metadata && (u.user_metadata.username || u.user_metadata.name)) || u.email || 'user';
-      let title = '';
-      try {
-        const tt = await supabase.rpc('my_titles');
-        if (tt.data && tt.data.ok && window.__finalTitleOf) {
-          const ft = window.__finalTitleOf(tt.data);
-          if (ft && ft.name) title = ft.name;
-        }
-      } catch (e) {}
-      const img = $('fdImg') ? $('fdImg').value.trim() : '';
-      const { data, error } = await supabase.rpc('create_post', { p_content: text, p_name: name, p_title: title, p_image: img });
-      if (error) { setMsg(error.message, false); return; }
-      if (data && data.ok) {
-        $('fdText').value = ''; if ($('fdImg')) $('fdImg').value = '';
-        setMsg(t('fd_posted'), true);
-        loadFeed();
-      } else {
-        const map = { BANNED: t('fd_banned'), EMPTY: t('fd_empty_txt'), NOT_LOGGED_IN: t('fd_need_login') };
-        setMsg(map[data && data.msg] || t('fd_fail'), false);
-      }
-    });
-  });
-
-  function toggleLike(btn) {
-    const id = btn.getAttribute('data-likep');
-    const on = btn.classList.contains('on');
-    waitSupabase(async supabase => {
-      const user = await supabase.auth.getUser();
-      const u = user.data && user.data.user;
-      if (!u) { setMsg(t('fd_need_login'), false); try { window.__openAuth && window.__openAuth(); } catch (e) {} return; }
-      const { data, error } = await supabase.rpc(on ? 'unlike_post' : 'like_post', { p_post_id: id });
-      if (error) { setMsg(error.message, false); return; }
-      if (data && data.ok) {
-        btn.classList.toggle('on', !on);
-        btn.textContent = t('fd_like') + ' ' + (data.likes || 0);
-      }
-    });
-  }
-
-  function delPost(id) {
-    window.__confirm(t('fd_del_confirm'), () => {
-      waitSupabase(supabase => {
-        supabase.rpc('delete_post', { p_post_id: id }).then(() => loadFeed()).catch(() => {});
-      });
-    });
-  }
-
-  function toggleComments(btn) {
-    const postId = btn.getAttribute('data-cmp');
-    const box = $('cms_' + postId);
-    if (!box) return;
-    if (box.classList.contains('open')) { box.classList.remove('open'); return; }
-    box.classList.add('open');
-    loadComments(postId, box);
-  }
-
-  function loadComments(postId, box) {
-    waitSupabase(supabase => {
-      supabase.rpc('get_comments', { p_post_id: postId }).then(({ data }) => {
-        const list = (data && data.ok && data.list) || [];
-        box.innerHTML = list.map(c =>
-          '<div class="fd-cm"><b>' + esc(c.user_email || '匿名') + '</b>' + esc(c.content) +
-          (c.mine ? '<button class="fd-cm-del" data-delc="' + c.id + '">' + t('fd_del') + '</button>' : '') + '</div>'
-        ).join('') +
-        '<div class="fd-cm-input"><input placeholder="' + t('fd_cm_ph') + '" maxlength="150"><button class="btn btn-ghost game-btn fd-cm-send" data-cmsend="' + postId + '">' + t('fd_send_cm') + '</button></div>';
-        box.querySelectorAll('[data-delc]').forEach(b => b.addEventListener('click', () => delComment(b.getAttribute('data-delc'), postId, box)));
-        const sendBtn = box.querySelector('[data-cmsend]');
-        if (sendBtn) sendBtn.addEventListener('click', () => addComment(sendBtn.getAttribute('data-cmsend'), box));
-      }).catch(() => {});
-    });
-  }
-
-  function addComment(postId, box) {
-    const input = box.querySelector('.fd-cm-input input');
-    const text = input.value.trim();
-    if (!text) return;
-    waitSupabase(async supabase => {
-      const user = await supabase.auth.getUser();
-      const u = user.data && user.data.user;
-      if (!u) { setMsg(t('fd_need_login'), false); try { window.__openAuth && window.__openAuth(); } catch (e) {} return; }
-      const { data, error } = await supabase.rpc('add_comment', { p_post_id: postId, p_content: text });
-      if (error) { setMsg(error.message, false); return; }
-      if (data && data.ok) {
-        input.value = '';
-        loadComments(postId, box);
-        loadFeed();
-      } else {
-        const map = { BANNED: t('fd_banned'), EMPTY: t('fd_empty_txt'), NOT_LOGGED_IN: t('fd_need_login') };
-        setMsg(map[data && data.msg] || t('fd_fail'), false);
-      }
-    });
-  }
-
-  function delComment(cid, postId, box) {
-    window.__confirm(t('fd_del_confirm'), () => {
-      waitSupabase(supabase => {
-        supabase.rpc('delete_comment', { p_comment_id: cid }).then(() => {
-          loadComments(postId, box);
-          loadFeed();
-        }).catch(() => {});
-      });
-    });
-  }
-
-  loadFeed();
-  const fdText = $('fdText');
-  if (fdText) fdText.placeholder = t('fd_ph');
-})();
-
 /* ============ 小游戏排行榜 ============ */
 (function() {
   const t = k => (window.__t ? __t(k) : k);
@@ -4880,6 +4694,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-09-02', ver: 'v2.9', zh: ['动态广场独立成页（feed.html），导航与页脚可进入', '留言板与动态支持折叠展开'], en: ['Feed moved to its own page (feed.html)', 'Guestbook & feed fold (show 5, expand all)'] },
     { date: '2026-08-31', ver: 'v2.8', zh: ['新增小游戏排行榜：须臾精准度 / 井字棋胜场 / 赛车名次 上榜比拼'], en: ['Added mini-game leaderboards: Moment precision / Tic-Tac-Toe wins / Racing placements'] },
     { date: '2026-08-31', ver: 'v2.7', zh: ['全站弹窗美化：系统弹窗换成霓虹通知条/确认框', '动态广场支持图片链接与 #话题/@提及 高亮', '控制台新增动态管理（删除违规动态/评论）', '新增公开数据页（站点统计与趋势）'], en: ['Global UI: native alerts replaced with neon toasts & confirm dialogs', 'Feed supports image links and #tag/@mention highlighting', 'Admin console: feed moderation (delete posts/comments)', 'Added public stats page (site stats & trends)'] },
     { date: '2026-08-31', ver: 'v2.6', zh: ['新增动态广场：发布动态 / 点赞 / 评论（禁言生效）'], en: ['Added Feed plaza: post updates / likes / comments (ban enforced)'] },
