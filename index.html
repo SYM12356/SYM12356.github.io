@@ -970,14 +970,22 @@
     margin-bottom: 10px;
   }
   .lb-board-title b { color: var(--cyan); }
-  .dragon-frame {
+  .dragon-frame,
+  .ling-frame {
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
     background: #04050d;
     aspect-ratio: 16 / 9;
   }
-  .dragon-frame iframe { display: block; width: 100%; height: 100%; border: none; }
+  .dragon-frame iframe,
+  .ling-frame iframe { display: block; width: 100%; height: 100%; border: none; }
+
+  /* 铃响之前：桌面内嵌，小屏直接引导去全屏版 */
+  .ling-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ling-head .sec-sub { margin: 0; }
+  .ling-frame { min-height: 420px; }
+  .ling-small { display: none; }
 
   /* ============ 终极井字棋（暗黑霓虹风） ============ */
   .ttt-rules {
@@ -1932,6 +1940,17 @@
     .game-tab { flex: 1 1 auto; min-width: 0; padding: 10px 8px; font-size: 13px; white-space: nowrap; }
     /* 赛车 iframe：手机屏高较小，降低高度 */
     .race-frame iframe { height: 440px; }
+    /* 铃响之前：小屏内嵌不好操作，改为全屏入口 */
+    .ling-frame { display: none; }
+    .ling-small {
+      display: block; text-align: center; padding: 24px 18px;
+      border: 1px dashed var(--border2); border-radius: 14px;
+      background: rgba(255,255,255,.02);
+    }
+    .ling-small p { color: var(--muted); font-size: 13px; line-height: 1.8; margin-bottom: 16px; }
+    .ling-small .btn { width: 100%; }
+    /* 小屏只保留卡片里的按钮，避免两个一样的入口 */
+    .ling-launch { display: none; }
     /* 登录弹窗：手机窄屏收紧内边距 */
     .auth-box { padding: 30px 22px 24px; }
   }
@@ -2075,6 +2094,7 @@
         <button class="game-tab" data-gtab="ttt" data-i18n="g_tab_ttt">终极井字棋</button>
         <button class="game-tab" data-gtab="race" data-i18n="g_tab_race">六边形赛车</button>
         <button class="game-tab" data-gtab="dragon" data-i18n="g_tab_dragon">火柴人龙之战</button>
+        <button class="game-tab" data-gtab="ling" data-i18n="g_tab_ling" data-nolb>铃响之前</button>
       </div>
 
       <!-- 选项卡 1：须臾 -->
@@ -2146,6 +2166,21 @@
         <p class="sec-sub" style="margin-bottom:18px" data-i18n="dragon_sub">御龙对决 · 故事模式 / 对战 / 养成，本地存档</p>
         <div class="dragon-frame">
           <iframe src="https://sym12356.github.io/matchstick/" title="火柴人龙之战" loading="lazy"></iframe>
+        </div>
+      </div>
+
+      <!-- 选项卡 5：铃响之前（iframe 嵌入） -->
+      <div class="game-panel reveal" data-gpanel="ling">
+        <div class="ling-head">
+          <p class="sec-sub" data-i18n="ling_sub">校园 3v3 · 学生 vs 老师，草稿纸手绘风</p>
+          <a class="btn btn-primary game-btn ling-launch" href="https://sym12356.github.io/lingxiang/" target="_blank" rel="noopener" data-i18n="ling_launch">全屏开玩</a>
+        </div>
+        <div class="ling-frame">
+          <iframe src="https://sym12356.github.io/lingxiang/" title="铃响之前 · 校园 3v3" loading="lazy" allow="autoplay; fullscreen"></iframe>
+        </div>
+        <div class="ling-small">
+          <p data-i18n="ling_small">手机小屏不好操作，建议全屏在独立页面里玩（支持横屏）</p>
+          <a class="btn btn-primary game-btn" href="https://sym12356.github.io/lingxiang/" target="_blank" rel="noopener" data-i18n="ling_enter">进入全屏版</a>
         </div>
       </div>
 
@@ -2552,7 +2587,7 @@ const I18N = {
     clock_fold: '精确时钟',
     t_tags_full: '我的标签',
     tag_code: '编程', tag_game: '游戏', tag_sleep: '睡觉', tag_board: '桌游',
-    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', g_tab_dragon: '火柴人龙之战', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！', dragon_sub: '御龙对决 · 故事模式 / 对战 / 养成，本地存档',
+    g_title_full: '游戏', g_tab_xu: '须臾 · 时间感知', g_tab_ttt: '终极井字棋', g_tab_race: '六边形赛车', g_tab_dragon: '火柴人龙之战', race_sub: '六边形平台上生死竞速，缩圈之前逃到中心！', dragon_sub: '御龙对决 · 故事模式 / 对战 / 养成，本地存档', g_tab_ling: '铃响之前', ling_sub: '校园 3v3 · 学生 vs 老师，草稿纸手绘风', ling_launch: '全屏开玩', ling_enter: '进入全屏版', ling_small: '手机小屏不好操作，建议全屏在独立页面里玩（支持横屏）',
     xu_sub: '你感知的时间，和真实的时间，差多少？', xu_target: '点击「开始实验」', xu_start: '开始实验',
     ttt_sub: '九宫格中的九宫格 · 与 AI 对弈，制霸全盘', ttt_rules: '玩法规则',
     ttt_diff: '难度', ttt_easy: '简单模式', ttt_medium: '中等模式', ttt_hard: '困难模式',
@@ -2571,7 +2606,7 @@ const I18N = {
     r5: '高亮提示：青色发光边框 = 当前必须落子的子棋盘。',
     r6: '难度说明：简单=随机落子；中等=中心优先+抢胜+堵截；困难=Minimax 深度搜索（AI 会谋划三步）。',
     hero_l1: '行至水穷处', hero_l2: '坐看云起时', scroll_hint: '向下滑动', bk_title_full: '备用',
-    g_sub: '四个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决', b_sub: '自研桌游 · 武侠对战 + 战术卡牌', b_desc2: '双人热座卡牌战术 · 六种角色，掩体气力，走位射击', b_enter2: '进入爆震空间',
+    g_sub: '五个小游戏，一个感知时间，一个谋略对弈，一个极限竞速，一个御龙对决，一个校园 3v3', b_sub: '自研桌游 · 武侠对战 + 战术卡牌', b_desc2: '双人热座卡牌战术 · 六种角色，掩体气力，走位射击', b_enter2: '进入爆震空间',
     gb_title: '留言板', gb_sub: '说点什么吧，我会看到的', gb_login: '登录 / 注册', gb_logout: '退出', gb_send: '发送', gb_placeholder: '写下你的留言…', gb_empty: '还没有留言，来抢沙发！',
     gb_auth_title: '登录 / 注册', gb_username: '用户名', gb_email: '邮箱', gb_pass: '密码', gb_login_btn: '登 录', gb_signup_btn: '注 册', gb_note: '注册需验证邮箱 · 登录后可留言', gb_welcome: '已登录',
     rd_title: '兑换', rd_sub: '奖励码解锁称号积分 · 每日签到也能攒积分', rd_btn: '兑换', rd_empty: '请输入奖励码', rd_ok: '兑换成功', rd_gain_title: '获得称号', rd_pts_unit: '积分', rd_lv: '等级', rd_cur: '当前', rd_need_login: '登录后即可查看并兑换奖励', rd_go_login: '去登录', rd_need_login_short: '请先登录再兑换', rd_invalid: '奖励码无效', rd_used: '这个码你已经用过了', rd_fail: '兑换失败，请稍后再试', rd_lv1: '初来乍到', rd_lv2: '小有名气', rd_lv3: '江湖高手', rd_lv4: '传说之人', rd_sign_title: '每日签到', rd_sign_sub: '登录后每天可签到领积分', rd_sign_btn: '签到', rd_sign_done: '今日已签到', rd_sign_again: '明天再来吧', rd_sign_ok: '签到成功', rd_per_day: '/天', rd_sign_need_login: '请先登录再签到',
@@ -2601,7 +2636,7 @@ const I18N = {
     clock_fold: 'Precise Clock',
     t_tags_full: 'My Tags',
     tag_code: 'Coding', tag_game: 'Gaming', tag_sleep: 'Sleeping', tag_board: 'Board Games',
-    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', g_tab_dragon: 'Matchstick Dragon War', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!', dragon_sub: 'Dragon duels - story mode / versus / training, local save',
+    g_title_full: 'Games', g_tab_xu: 'Moment · Time Sense', g_tab_ttt: 'Ultimate Tic-Tac-Toe', g_tab_race: 'Hex Racing', g_tab_dragon: 'Matchstick Dragon War', race_sub: 'Race for survival on a hex platform - reach the center before the shrink!', dragon_sub: 'Dragon duels - story mode / versus / training, local save', g_tab_ling: 'Before the Bell', ling_sub: 'Campus 3v3 - students vs teachers, sketchbook style', ling_launch: 'Play full screen', ling_enter: 'Open full-screen version', ling_small: 'Small screens are hard to play on - open the full-screen page instead (landscape supported)',
     xu_sub: 'How far is your sense of time from real time?', xu_target: 'Click to start', xu_start: 'Start',
     ttt_sub: 'A 9-in-1 tic-tac-toe · Battle the AI, rule the board', ttt_rules: 'Rules',
     ttt_diff: 'Difficulty', ttt_easy: 'Easy', ttt_medium: 'Medium', ttt_hard: 'Hard',
@@ -2620,7 +2655,7 @@ const I18N = {
     r5: 'Highlight: the glowing border marks the mini-board you must play in.',
     r6: 'Difficulty: Easy=random; Medium=center/win/block; Hard=Minimax search (AI plans 3 moves).',
     hero_l1: 'Where water ends', hero_l2: 'Clouds arise', scroll_hint: 'Scroll down', bk_title_full: 'Mirror',
-    g_sub: 'Four mini games - sense time, master the board, race to the center, ride the dragon', b_sub: 'Our tabletop games - wuxia duel + tactical cards', b_desc2: 'Hot-seat card tactics - 6 classes, cover & focus, move & shoot', b_enter2: 'Enter Blast Space',
+    g_sub: 'Five mini games - sense time, master the board, race to the center, ride the dragon, and a campus 3v3', b_sub: 'Our tabletop games - wuxia duel + tactical cards', b_desc2: 'Hot-seat card tactics - 6 classes, cover & focus, move & shoot', b_enter2: 'Enter Blast Space',
     gb_title: 'Guestbook', gb_sub: 'Leave a message - I will see it', gb_login: 'Login / Sign up', gb_logout: 'Logout', gb_send: 'Send', gb_placeholder: 'Write your message…', gb_empty: 'No messages yet - be the first!',
     gb_auth_title: 'Log in / Sign up', gb_username: 'Username', gb_email: 'Email', gb_pass: 'Password', gb_login_btn: 'Log in', gb_signup_btn: 'Sign up', gb_note: 'Verify your email after sign-up - log in to leave messages', gb_welcome: 'Signed in',
     rd_title: 'Redeem', rd_sub: 'Redeem codes for titles & points - check in daily to earn more', rd_btn: 'Redeem', rd_empty: 'Enter a reward code', rd_ok: 'Redeemed', rd_gain_title: 'Title unlocked', rd_pts_unit: 'pts', rd_lv: 'Level', rd_cur: 'Current', rd_need_login: 'Log in to view and redeem rewards', rd_go_login: 'Log in', rd_need_login_short: 'Please log in first', rd_invalid: 'Invalid reward code', rd_used: 'Code already redeemed by you', rd_fail: 'Redeem failed, try again later', rd_lv1: 'Newcomer', rd_lv2: 'Rising', rd_lv3: 'Expert', rd_lv4: 'Legend', rd_sign_title: 'Daily Check-in', rd_sign_sub: 'Log in and check in daily for points', rd_sign_btn: 'Check in', rd_sign_done: 'Checked in', rd_sign_again: 'Come back tomorrow', rd_sign_ok: 'Checked in!', rd_per_day: '/day', rd_sign_need_login: 'Log in to check in',
@@ -3446,7 +3481,10 @@ type();
       panels.forEach(p => p.classList.remove('is-active'));
       tab.classList.add('is-active');
       document.querySelector('.game-panel[data-gpanel="' + tab.dataset.gtab + '"]').classList.add('is-active');
-      if (window.__loadGameLb) window.__loadGameLb(tab.dataset.gtab);
+      const lbBoard = document.querySelector('.lb-board');
+      const noLb = tab.hasAttribute('data-nolb');
+      if (lbBoard) lbBoard.style.display = noLb ? 'none' : '';
+      if (window.__loadGameLb && !noLb) window.__loadGameLb(tab.dataset.gtab);
     });
   });
 })();
@@ -4694,6 +4732,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const cl = document.getElementById('clList');
   if (!cl) return;
   const LOGS = [
+    { date: '2026-10-30', ver: 'v3.0', zh: ['新增小游戏《铃响之前》：校园 3v3 单机 MOBA，草稿纸手绘风，支持键盘与触屏', '游戏区新增第五个标签，可直接在站内玩（小屏提供全屏按钮）'], en: ['New game "Before the Bell": campus 3v3 single-player MOBA in sketchbook style, keyboard and touch', 'Game section: fifth tab, playable on the site (full-screen button on small screens)'] },
     { date: '2026-09-02', ver: 'v2.9', zh: ['动态广场独立成页（feed.html），导航与页脚可进入', '留言板与动态支持折叠展开'], en: ['Feed moved to its own page (feed.html)', 'Guestbook & feed fold (show 5, expand all)'] },
     { date: '2026-08-31', ver: 'v2.8', zh: ['新增小游戏排行榜：须臾精准度 / 井字棋胜场 / 赛车名次 上榜比拼'], en: ['Added mini-game leaderboards: Moment precision / Tic-Tac-Toe wins / Racing placements'] },
     { date: '2026-08-31', ver: 'v2.7', zh: ['全站弹窗美化：系统弹窗换成霓虹通知条/确认框', '动态广场支持图片链接与 #话题/@提及 高亮', '控制台新增动态管理（删除违规动态/评论）', '新增公开数据页（站点统计与趋势）'], en: ['Global UI: native alerts replaced with neon toasts & confirm dialogs', 'Feed supports image links and #tag/@mention highlighting', 'Admin console: feed moderation (delete posts/comments)', 'Added public stats page (site stats & trends)'] },
